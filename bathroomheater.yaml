@@ -2,8 +2,16 @@ esphome:
   name: bathroomheater
   platform: ESP8266
   board: nodemcuv2
+  includes:
+  - zehnder.h
 
 logger:
+
+web_server:
+  port: 80
+
+mqtt:
+  broker: mqtt.lan
 
 switch:
 - platform: gpio
@@ -11,109 +19,29 @@ switch:
     number: D4
     inverted: true
   restore_mode: ALWAYS_OFF
-  name: "Built-in LED"
-
-web_server:
-  port: 80
+  name: "Bathroom Heater LED"
 
 remote_transmitter:
   pin: D2
   carrier_duty_percent: 50%
+  id: heater_ir_transmitter
 
-globals:
-- id: heater_code
-  type: int[38]
-  initial_value: |
-    {
-      // header
-      30, -1000,
-      // 0xB8 (0b10111000)
-      30, -830,
-      30, -650,
-      30, -830,
-      30, -830,
-      30, -830,
-      30, -650,
-      30, -650,
-      30, -650,
-      // 0x0D (0b00001101)
-      30, -650,
-      30, -650,
-      30, -650,
-      30, -650,
-      30, -830,
-      30, -830,
-      30, -650,
-      30, -830,
-      // post
-      30, -460,
-      // zero
-      30, -650
-    }
-- id: heater_level
-  type: int
-  initial_value: "0"
-- id: heater_level_code_map
-  type: int[9]
-  initial_value: |
-    {
-      0x0D,  // OFF
-      0x86,
-      0x95,
-      0xA0,
-      0xB3,
-      0xCA,
-      0xD9,
-      0xEC,
-      0xFF
-    }
-
-script:
-- id: transmit_heater_code
-  then:
-  # https://esphome.io/components/climate/custom.html
-  - remote_transmitter.transmit_raw:
-      carrier_frequency: 455000
-      repeat:
-        times: 10
-        wait_time: 10ms
-      code: !lambda |-
-        if (id(heater_level) > 8 || id(heater_level) < 0) {
-          id(heater_level) = 8;
-        }
-        int level_code = id(heater_level_code_map)[id(heater_level)];
-        for (int i = 0; i < 8; ++i) {
-          id(heater_code)[i*2 + 18] = 30;
-          id(heater_code)[i*2 + 19] =
-            level_code & 0b10000000 ? -830 : -650;
-          level_code <<= 1;
-        }
-        std::vector<int> codes = std::vector<int>(
-            id(heater_code),
-            id(heater_code) + 38);
-        for (int i = 0; i < codes.size(); ++i) {
-          ESP_LOGD("code", "%d: %d", i, codes[i]);
-        }
-        return codes;
-  - mqtt.publish:
-      topic: bathroomheater/heater/state
-      payload: !lambda "return to_string(id(heater_level));"
-
-mqtt:
-  broker: mqtt.lan
-  on_json_message:
-    topic: bathroomheater/heater/command
-    then:
-    - lambda: |-
-        if (x.containsKey("level")) {
-          id(heater_level) = x["level"];
-        }
-    - script.execute: transmit_heater_code
+climate:
+- platform: custom
+  lambda: |-
+    auto heater = new Zehnder();
+    App.register_component(heater);
+    heater->set_transmitter(id(heater_ir_transmitter));
+    return {heater};
+  climates:
+  - name: "Bathroom Heater"
+    id: bathroom_heater
 
 interval:
 - interval: 1min
   then:
-  - script.execute: transmit_heater_code
+    # Periodically remind heater about the current setting.
+    lambda: static_cast<Zehnder*>(id(bathroom_heater))->retransmit();
 
 ota:
   password: ""
@@ -124,7 +52,7 @@ wifi:
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "Bathroomheater Fallback Hotspot"
+    ssid: "bathroomheater"
     password: !secret wifi_fallback_hotspot_password
 
 captive_portal:
