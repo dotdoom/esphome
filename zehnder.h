@@ -1,7 +1,7 @@
 #include "esphome.h"
 
 namespace {
-  static const char* const TAG = "zehnder";
+  static const char* const TAG = __FILE__;
   static const uint8_t MIN_TEMPERATURE = 35;
   static const uint8_t MAX_TEMPERATURE = 70;
   static const uint8_t TEMPERATURE_LEVELS = 8;
@@ -14,27 +14,43 @@ class Zehnder : public Component, public Climate {
   }
 
   void control(const ClimateCall &call) override {
+    ClimateMode target_mode = this->mode;
+    float target_temp = this->target_temperature;
+
+    ESP_LOGD(TAG, "Received control message:");
     if (call.get_mode().has_value()) {
-      ClimateMode mode = *call.get_mode();
-      if (mode == climate::CLIMATE_MODE_OFF) {
-        if (this->transmit_level_(0)) {
-          this->target_temperature = 0;
-          this->mode = mode;
-        }
-      } else {
-        if (this->transmit_temperature_(MAX_TEMPERATURE)) {
-          this->target_temperature = MAX_TEMPERATURE;
-          this->mode = mode;
-        }
+      target_mode = *call.get_mode();
+      if (*call.get_mode() == climate::CLIMATE_MODE_OFF) {
+        ESP_LOGD(TAG, "  target mode off (set temperature to zero)");
+        target_temp = 0;
+      } else if (target_temp == 0) {
+        // If mode is switch to heat but target temperature is zero,
+        // adjust target temperature to the maximum -- otherwise, it
+        // doesn't make sense.
+        ESP_LOGD(TAG, "  target mode heat (reset temperature to max)");
+        target_temp = MAX_TEMPERATURE;
       }
     }
+
     if (call.get_target_temperature().has_value()) {
-      float temp = *call.get_target_temperature();
-      if (this->transmit_temperature_(temp)) {
-        this->target_temperature = temp;
+      target_temp = *call.get_target_temperature();
+      // Temperature setting, if present, takes precedence over the
+      // mode setting.
+      if (target_temp == 0) {
+        ESP_LOGD(TAG, "  target temperature zero (reset mode to off)");
+        target_mode = climate::CLIMATE_MODE_OFF;
+      } else {
+        ESP_LOGD(TAG, "  target temperature %f (reset mode to heat)", target_temp);
+        target_mode = climate::CLIMATE_MODE_HEAT;
       }
     }
-    this->publish_state();
+
+    if (this->transmit_temperature_(target_temp)) {
+      this->mode = target_mode;
+      this->target_temperature = target_temp;
+      this->publish_state();
+      ESP_LOGD(TAG, "Temperature transmitted successfully, state published");
+    }
   }
 
   ClimateTraits traits() override {
