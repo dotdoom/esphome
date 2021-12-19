@@ -21,6 +21,14 @@ switch:
   restore_mode: ALWAYS_OFF
   name: "Bathroom Heater LED"
 
+dallas:
+- pin: D1
+
+sensor:
+- platform: dallas
+  address: 0x0401212E565C7428
+  name: "Bathroom Heater Temperature"
+
 remote_transmitter:
   pin: D2
   carrier_duty_percent: 50%
