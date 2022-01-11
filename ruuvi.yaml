@@ -7,7 +7,7 @@ esphome:
 logger:
 
 mqtt:
-  broker: mqtt.lan
+  broker: mqtt
 
 web_server:
   port: 80
