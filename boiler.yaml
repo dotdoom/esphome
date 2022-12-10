@@ -1,0 +1,42 @@
+esphome:
+  name: boiler
+  platform: ESP8266
+  board: nodemcuv2
+
+logger:
+
+web_server:
+  port: 80
+
+mqtt:
+  broker: mqtt
+
+switch:
+- platform: gpio
+  pin:
+    number: D4
+    inverted: true
+  restore_mode: ALWAYS_OFF
+  name: "Boiler LED"
+
+dallas:
+- pin: D1
+
+sensor:
+- platform: dallas
+  address: 0x133c2cf648f40728
+  name: "Boiler Temperature"
+
+ota:
+  password: ""
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "boiler"
+    password: !secret wifi_fallback_hotspot_password
+
+captive_portal:
