@@ -27,6 +27,20 @@ sensor:
   address: 0x133c2cf648f40728
   name: "Boiler Temperature"
 
+- platform: adc
+  pin: A0
+  name: "Furnace LED brightness"
+  update_interval: 1s
+  id: furnace_led_brightness
+
+binary_sensor:
+- platform: analog_threshold
+  name: "Furnace Burning"
+  sensor_id: furnace_led_brightness
+  threshold: 0.7
+  filters:
+  - invert:
+
 ota:
   password: ""
 
