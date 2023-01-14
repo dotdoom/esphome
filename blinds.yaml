@@ -1,0 +1,59 @@
+esphome:
+  name: blinds
+  includes:
+  - somfy.h
+
+esp8266:
+  board: nodemcuv2
+
+logger:
+
+web_server:
+  port: 80
+
+mqtt:
+  broker: mqtt
+  id: mqtt_client
+
+cover:
+- platform: custom
+  lambda: |-
+    auto rfPin = D2;
+    std::vector<esphome::cover::Cover*> blinds;
+
+    for (int i = 0; i < 13; ++i) {
+      auto cover = new SomfyRTS(rfPin, 42420 + i, id(mqtt_client));
+      blinds.push_back(cover);
+      App.register_component(cover);
+    }
+
+    return blinds;
+
+  covers:
+  - name: "Office window"
+  - name: "Bedroom"
+  - name: "Living Room side"
+  - name: "Wardrobe"
+  - name: "Child West door"
+  - name: "Child West window"
+  - name: "Hallway Stairs window"
+  - name: "Kitchen window"
+  - name: "Kitchen door"
+  - name: "Living Room door"
+  - name: "Living Room window"
+  - name: "Guest East window"
+  - name: "Guest East door"
+
+ota:
+  password: ""
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "blinds"
+    password: !secret wifi_fallback_hotspot_password
+
+captive_portal:
