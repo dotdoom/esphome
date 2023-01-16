@@ -15,6 +15,11 @@ mqtt:
   broker: mqtt
   id: mqtt_client
 
+globals:
+- id: somfy_remote_id_base
+  type: int
+  initial_value: !secret somfy_remote_id_base
+
 cover:
 - platform: custom
   lambda: |-
@@ -22,7 +27,10 @@ cover:
     std::vector<esphome::cover::Cover*> blinds;
 
     for (int i = 0; i < 13; ++i) {
-      auto cover = new SomfyRTS(rfPin, 42420 + i, id(mqtt_client));
+      auto cover = new SomfyRTS(
+        rfPin,
+        id(somfy_remote_id_base) + i,
+        id(mqtt_client));
       blinds.push_back(cover);
       App.register_component(cover);
     }
