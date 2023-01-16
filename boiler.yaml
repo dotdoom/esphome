@@ -26,6 +26,8 @@ sensor:
 - platform: dallas
   address: 0x133c2cf648f40728
   name: "Boiler Temperature"
+  filters:
+  - offset: 3.3
 
 - platform: adc
   pin: A0
