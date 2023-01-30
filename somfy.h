@@ -36,8 +36,8 @@ class SomfyRTS : public Component, public Cover {
     CoverTraits get_traits() override {
       auto traits = CoverTraits();
       traits.set_is_assumed_state(true);
-      traits.set_supports_position(false);
-      traits.set_supports_tilt(false);
+      traits.set_supports_position(true);
+      traits.set_supports_tilt(true);
       traits.set_supports_toggle(false);
       return traits;
     }
