@@ -1,5 +1,10 @@
 esphome:
   name: blinds
+
+  project:
+    name: dasfoo.blinds
+    version: "1.0"
+
   includes:
   - somfy.h
 
@@ -8,9 +13,6 @@ esp8266:
 
 logger:
 
-web_server:
-  port: 80
-
 mqtt:
   broker: mqtt
   id: mqtt_client
@@ -18,6 +20,8 @@ mqtt:
 globals:
 - id: somfy_remote_id_base
   type: int
+  # Can be retrieved from MQTT server. Take the key with lowest integer value
+  # from /rolling_code/ path.
   initial_value: !secret somfy_remote_id_base
 
 cover:
@@ -53,15 +57,9 @@ cover:
   - name: "Guest East door"
 
 ota:
-  password: ""
+  password: !secret ota_password
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "blinds"
-    password: !secret wifi_fallback_hotspot_password
-
-captive_portal:
+  domain: ""

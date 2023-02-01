@@ -62,6 +62,10 @@ class Zehnder : public Component, public Climate {
       (MAX_TEMPERATURE - MIN_TEMPERATURE) / (TEMPERATURE_LEVELS - 1)
     );
 
+    if (has_temperature_sensor_) {
+      traits.set_supports_current_temperature(true);
+    }
+
     traits.set_supported_modes({
       climate::CLIMATE_MODE_HEAT,
       climate::CLIMATE_MODE_OFF
@@ -74,8 +78,17 @@ class Zehnder : public Component, public Climate {
     this->transmitter_ = transmitter;
   }
 
+  void add_temperature_sensor(sensor::Sensor *temperature_sensor) {
+    temperature_sensor->add_on_state_callback([this](float temperature_value) {
+      this->current_temperature = temperature_value;
+      this->publish_state();
+    });
+    has_temperature_sensor_ = true;
+  }
+
  private:
-  remote_transmitter::RemoteTransmitterComponent *transmitter_;
+  remote_transmitter::RemoteTransmitterComponent *transmitter_ = nullptr;
+  bool has_temperature_sensor_ = false;
 
   bool transmit_temperature_(float temp) {
     return this->transmit_level_(temp == 0
