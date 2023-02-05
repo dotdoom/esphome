@@ -1,0 +1,42 @@
+esphome:
+  name: btproxy
+  name_add_mac_suffix: true
+
+  project:
+    name: dasfoo.btproxy
+    version: "1.0"
+
+esp32:
+  board: esp32-poe
+  # Required for BLE.
+  framework:
+    type: esp-idf
+
+# Enable logging.
+logger:
+
+# Allow HA to use our proxy.
+# Don't enable MQTT as the device will be "discovered" twice.
+api:
+
+# Disable web component to save memory.
+esp32_ble_tracker:
+  scan_parameters:
+    # Recommended scan intervals for esphome.
+    interval: 1100ms
+    window: 1100ms
+    active: true
+
+bluetooth_proxy:
+  active: true
+
+ota:
+  password: !secret ota_password
+
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk_mode: GPIO17_OUT
+  phy_addr: 0
+  power_pin: GPIO12
