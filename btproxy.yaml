@@ -30,6 +30,10 @@ esp32_ble_tracker:
 bluetooth_proxy:
   active: true
 
+button:
+- platform: restart
+  name: "btproxy Restart"
+
 ota:
   password: !secret ota_password
 
