@@ -14,7 +14,9 @@ esp8266:
 logger:
 
 mqtt:
-  broker: mqtt
+  broker: homeassistant
+  username: esphome
+  password: !secret mqtt_password
 
 dallas:
 - pin: D1

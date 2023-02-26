@@ -12,7 +12,9 @@ esp32:
 logger:
 
 mqtt:
-  broker: mqtt
+  broker: homeassistant
+  username: esphome
+  password: !secret mqtt_password
 
 # Required for ruuvitag.
 esp32_ble_tracker:
