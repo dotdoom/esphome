@@ -1,0 +1,44 @@
+esphome:
+  name: watermeter
+
+  project:
+    name: dasfoo.watermeter
+    version: "1.0"
+
+esp32:
+  board: esp32doit-devkit-v1
+
+logger:
+
+mqtt:
+  broker: homeassistant
+  username: esphome
+  password: !secret mqtt_password
+
+sensor:
+- platform: pulse_meter
+  pin:
+    number: 12
+    inverted: true
+    mode:
+      input: true
+      pullup: true
+
+  name: "Incoming water counter"
+  unit_of_measurement: "L/min"
+  device_class: "water"
+  state_class: "measurement"
+
+  total:
+    name: "Incoming water total"
+    unit_of_measurement: "L"
+    device_class: "water"
+    state_class: "total_increasing"
+
+ota:
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: ""
