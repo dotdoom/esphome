@@ -29,9 +29,8 @@ sensor:
       input: true
       pullup: true
 
-  name: "Incoming water counter"
+  name: "Incoming water flow"
   unit_of_measurement: "L/min"
-  device_class: "water"
   state_class: "measurement"
 
   total:
