@@ -5,19 +5,9 @@ esphome:
     name: dasfoo.ruuvi
     version: "1.0"
 
-esp32:
-  board: esp32-poe
-  # Required for BLE.
-  framework:
-    type: esp-idf
-
-# Enable logging
-logger:
-
-mqtt:
-  broker: homeassistant
-  username: esphome
-  password: !secret mqtt_password
+packages:
+  device_base: !include templates/esp32-poe.yaml
+  mqtt: !include templates/mqtt.yaml
 
 # Required for ruuvitag.
 esp32_ble_tracker:
@@ -47,14 +37,3 @@ sensor:
     name: "Outdoor West Acceleration"
   battery_voltage:
     name: "Outdoor West Sensor Battery Voltage"
-
-ota:
-  password: !secret ota_password
-
-ethernet:
-  type: LAN8720
-  mdc_pin: GPIO23
-  mdio_pin: GPIO18
-  clk_mode: GPIO17_OUT
-  phy_addr: 0
-  power_pin: GPIO12

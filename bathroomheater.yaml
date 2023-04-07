@@ -8,15 +8,8 @@ esphome:
   includes:
   - zehnder.h
 
-esp8266:
-  board: nodemcuv2
-
-logger:
-
-mqtt:
-  broker: homeassistant
-  username: esphome
-  password: !secret mqtt_password
+packages:
+  device_base: !include templates/esp8266.yaml
 
 dallas:
 - pin: D1
@@ -24,7 +17,6 @@ dallas:
 sensor:
 - platform: dallas
   address: 0x0401212E565C7428
-  name: "Bathroom Heater Temperature"
   id: bathroom_heater_temperature
 
 remote_transmitter:
@@ -49,11 +41,3 @@ interval:
   then:
     # Periodically remind heater about the current setting.
     lambda: static_cast<Zehnder*>(id(bathroom_heater))->retransmit();
-
-ota:
-  password: !secret ota_password
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  domain: ""

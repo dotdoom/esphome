@@ -1,0 +1,5 @@
+mqtt:
+  broker: homeassistant
+  username: esphome
+  password: !secret mqtt_password
+  id: mqtt_homeassistant

@@ -6,14 +6,8 @@ esphome:
     name: dasfoo.btproxy
     version: "1.0"
 
-esp32:
-  board: esp32-poe
-  # Required for BLE.
-  framework:
-    type: esp-idf
-
-# Enable logging.
-logger:
+packages:
+  device_base: !include templates/esp32-poe.yaml
 
 # Allow HA to use our proxy.
 # Don't enable MQTT as the device will be "discovered" twice.
@@ -33,14 +27,3 @@ bluetooth_proxy:
 button:
 - platform: restart
   name: "btproxy Restart"
-
-ota:
-  password: !secret ota_password
-
-ethernet:
-  type: LAN8720
-  mdc_pin: GPIO23
-  mdio_pin: GPIO18
-  clk_mode: GPIO17_OUT
-  phy_addr: 0
-  power_pin: GPIO12

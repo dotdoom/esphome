@@ -1,0 +1,19 @@
+esp8266:
+  board: nodemcuv2
+
+packages:
+  wifi: !include wifi.yaml
+  ota: !include ota.yaml
+  mqtt: !include mqtt.yaml
+
+logger:
+
+status_led:
+  pin:
+    # There are 2 LEDs on NodeMCU v2, one next to the WiFi
+    # antenna, another near the power socket / RST button.
+    # The one at WiFi is connected to UART so it blinks on
+    # flash, thus we will use the other one for status.
+    # https://lowvoltage.github.io/2017/07/09/Onboard-LEDs-NodeMCU-Got-Two
+    number: GPIO16
+    inverted: true
