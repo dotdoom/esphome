@@ -19,3 +19,7 @@ logger:
 
 packages:
   ota: !include ota.yaml
+
+button:
+- platform: restart
+  name: "ESP chip restart"
