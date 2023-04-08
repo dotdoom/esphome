@@ -10,10 +10,12 @@ packages:
   device_base: !include templates/esp32-poe.yaml
 
 # Allow HA to use our proxy.
-# Don't enable MQTT as the device will be "discovered" twice.
 api:
 
-# Disable web component to save memory.
+# Disable MQTT discovery to prevent duplicate device.
+mqtt:
+  discovery: false
+
 esp32_ble_tracker:
   scan_parameters:
     # Recommended scan intervals for esphome.

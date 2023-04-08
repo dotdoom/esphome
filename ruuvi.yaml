@@ -7,7 +7,6 @@ esphome:
 
 packages:
   device_base: !include templates/esp32-poe.yaml
-  mqtt: !include templates/mqtt.yaml
 
 # Required for ruuvitag.
 esp32_ble_tracker:

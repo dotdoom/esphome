@@ -19,6 +19,7 @@ logger:
 
 packages:
   ota: !include ota.yaml
+  mqtt: !include mqtt.yaml
 
 button:
 - platform: restart
