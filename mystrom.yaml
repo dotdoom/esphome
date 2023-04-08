@@ -1,0 +1,119 @@
+substitutions:
+  # Change this via CLI with:
+  # $ esphome run -s name tools mystrom.yaml
+  name: "spare"
+  full_name: "mystrom-${name}"
+
+esphome:
+  name: "${full_name}"
+
+  project:
+    name: "dasfoo.${full_name}"
+    version: "1.0"
+
+esp32:
+  board: esp32doit-devkit-v1
+  framework:
+    type: esp-idf
+
+packages:
+  mqtt: !include templates/mqtt.yaml
+  ota: !include templates/ota.yaml
+  wifi: !include templates/wifi.yaml
+
+logger:
+
+button:
+- platform: restart
+  name: "${full_name} ESP chip restart"
+
+i2c:
+  sda: 22
+  scl: 19
+  scan: false
+
+status_led:
+  # Red LED on the front panel.
+  pin: GPIO16
+
+light:
+- platform: binary
+  name: "${full_name} Identify LED (white)"
+  id: mystrom_led_identify
+  restore_mode: ALWAYS_OFF
+  output: mystrom_led_white
+
+output:
+- id: mystrom_led_white
+  platform: gpio
+  pin: GPIO17
+  inverted: true
+
+binary_sensor:
+- platform: gpio
+  id: mystrom_side
+  name: "${full_name} Side button (plus) pressed"
+  pin:
+    number: GPIO23
+    mode:
+      input: true
+      pullup: true
+    inverted: true
+- platform: gpio
+  id: mystrom_bottom
+  name: "${full_name} Bottom button (power) pressed"
+  pin:
+    number: GPIO18
+    mode:
+      input: true
+      pullup: true
+    inverted: true
+  on_press:
+    then:
+    - switch.toggle: mystrom_relay
+
+sensor:
+- platform: pulse_meter
+  pin: 4
+  id: mystrom_power_consumption
+  name: "${full_name} Power relay consumption"
+
+  unit_of_measurement: "W"
+  device_class: "power"
+  state_class: "measurement"
+
+  accuracy_decimals: 2
+  filters:
+  - multiply: 0.031
+  - throttle_average: 10s
+  - filter_out: nan
+  - heartbeat: 35s
+
+  total:
+    name: "${full_name} Power consumption total"
+    unit_of_measurement: "Wh"
+    device_class: "energy"
+    state_class: "total_increasing"
+    accuracy_decimals: 2
+    filters:
+    - multiply: 0.000517
+    - throttle_average: 10s
+    - filter_out: nan
+    - heartbeat: 35s
+
+- platform: tmp102
+  id: mystrom_temperature
+  name: "${full_name} Internal temperature"
+  update_interval: 60s
+  address: 0x48
+  on_value_range:
+    above: 80
+    then:
+    - switch.turn_off: mystrom_relay
+
+switch:
+- platform: gpio
+  name: "${full_name} Power relay"
+  pin: GPIO27
+  id: mystrom_relay
+  restore_mode: RESTORE_DEFAULT_ON
