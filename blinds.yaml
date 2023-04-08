@@ -10,7 +10,7 @@ esphome:
 
 packages:
   device_base: !include templates/esp8266.yaml
-  mqtt: !include templates/mqtt.yaml
+  sensor: !include templates/esp8266-vcc.yaml
 
 globals:
 - id: somfy_remote_id_base

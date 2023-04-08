@@ -7,6 +7,7 @@ esphome:
 
 packages:
   device_base: !include templates/esp8266.yaml
+  sensor: !include templates/esp8266-vcc.yaml
 
 sensor:
 - platform: pulse_meter

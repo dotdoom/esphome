@@ -1,0 +1,6 @@
+# Make sure nothing is connected to the A0 pin.
+
+sensor:
+- platform: adc
+  pin: VCC
+  name: "VCC Voltage"
