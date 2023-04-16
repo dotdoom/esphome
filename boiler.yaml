@@ -9,7 +9,11 @@ packages:
   device_base: !include templates/esp8266.yaml
 
 i2c:
+  # The default is GPIO4 (D2), but the way display is connected
+  # right now (plugged into breadboard), we can only use these pins.
   sda: D3
+  # The default is GPIO5 (D1).
+  # As a side effect, D4 LED (antenna) will be blinking.
   scl: D4
 
 font:
@@ -35,7 +39,7 @@ display:
     }
 
 dallas:
-- pin: D1
+- pin: D5
 
 sensor:
 - platform: dallas
