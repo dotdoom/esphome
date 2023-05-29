@@ -25,3 +25,4 @@ packages:
 button:
 - platform: restart
   name: "ESP chip restart"
+  entity_category: diagnostic

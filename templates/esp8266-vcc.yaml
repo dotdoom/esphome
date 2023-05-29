@@ -4,3 +4,4 @@ sensor:
 - platform: adc
   pin: VCC
   name: "VCC Voltage"
+  entity_category: diagnostic
