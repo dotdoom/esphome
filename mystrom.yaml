@@ -1,6 +1,6 @@
 substitutions:
   # Change this via CLI with:
-  # $ esphome run -s name tools mystrom.yaml
+  # $ esphome -s name tools run mystrom.yaml
   name: "spare"
   full_name: "mystrom-${name}"
 
@@ -85,7 +85,7 @@ sensor:
   accuracy_decimals: 2
   filters:
   - multiply: 0.031
-  - throttle_average: 10s
+  - throttle_average: 5s
   - filter_out: nan
   - heartbeat: 35s
 
@@ -97,7 +97,7 @@ sensor:
     accuracy_decimals: 2
     filters:
     - multiply: 0.000517
-    - throttle_average: 10s
+    - throttle_average: 5s
     - filter_out: nan
     - heartbeat: 35s
 
