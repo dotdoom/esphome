@@ -11,6 +11,17 @@ packages:
 
 sensor:
 - platform: pulse_meter
+  # Our meter (USLF20) is rated Q3=4.0 (m3/h).
+  # The official one is rated 5.0 (assuming also Q3).
+  # There's no Q4 value available.
+  #
+  # 3600 / 5000 = 0.72 seconds per liter. That's the shortest
+  # pulse length at a normal flow rate for the meter. Assuming
+  # 5x worst case, take 100ms as a reasonable margin.
+  internal_filter: 100ms
+  # Assuming Q1=70 (l/h), a flow with 52 second between pulses
+  # is beyond the measuring capabilities.
+  timeout: 1min
   pin:
     number: D2
     inverted: true
