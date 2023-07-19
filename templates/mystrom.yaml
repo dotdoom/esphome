@@ -17,9 +17,9 @@ esp32:
     type: esp-idf
 
 packages:
-  mqtt: !include templates/mqtt.yaml
-  ota: !include templates/ota.yaml
-  wifi: !include templates/wifi.yaml
+  mqtt: !include mqtt.yaml
+  ota: !include ota.yaml
+  wifi: !include wifi.yaml
 
 logger:
 
@@ -73,33 +73,38 @@ binary_sensor:
     - switch.toggle: mystrom_relay
 
 sensor:
-- platform: pulse_meter
+- platform: pulse_counter
   pin: 4
+  update_interval: 10s
   id: mystrom_power_consumption
   name: "${full_name} Power relay consumption"
-
-  unit_of_measurement: "W"
   device_class: "power"
   state_class: "measurement"
-
-  accuracy_decimals: 2
+  unit_of_measurement: "W"
+  accuracy_decimals: 0
   filters:
-  - multiply: 0.031
-  - throttle_average: 5s
-  - filter_out: nan
-  - heartbeat: 35s
+  # Map from sensor -> measured value (pulse/min -> W),
+  # taken from https://github.com/mightea/esphome-mystrom-devices
+  - calibrate_linear:
+    - 0.0 -> 1.55
+    - 2698.5 -> 85
+    - 4397.25 -> 146
+    - 30900 -> 1005
+    - 44634.56 -> 1439
+    - 59643.75 -> 1930
+  # Correct 1.55W for the power usage of the plug.
+  - offset: -1.55
+  # Make everything below 1W appear as just 0W.
+  - lambda: if (x < 1) return 0; return x;
 
-  total:
-    name: "${full_name} Power consumption total"
-    unit_of_measurement: "Wh"
-    device_class: "energy"
-    state_class: "total_increasing"
-    accuracy_decimals: 2
-    filters:
-    - multiply: 0.000517
-    - throttle_average: 5s
-    - filter_out: nan
-    - heartbeat: 35s
+- platform: integration
+  sensor: mystrom_power_consumption
+  name: "${full_name} Power consumption total"
+  time_unit: "h"
+  unit_of_measurement: "Wh"
+  device_class: "energy"
+  state_class: "total_increasing"
+  accuracy_decimals: 2
 
 - platform: tmp102
   id: mystrom_temperature

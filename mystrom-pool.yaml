@@ -1,0 +1,19 @@
+substitutions:
+  name: "pool"
+
+packages:
+  device_base: !include templates/mystrom.yaml
+
+time:
+- platform: sntp
+  on_time:
+  - hours: 9
+    minutes: 55
+    seconds: 0
+    then:
+    - switch.turn_on: mystrom_relay
+  - hours: 21
+    minutes: 55
+    seconds: 0
+    then:
+    - switch.turn_off: mystrom_relay
