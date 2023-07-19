@@ -1,5 +1,5 @@
 substitutions:
-  name: "pool"
+  name: "pool-pump"
 
 packages:
   device_base: !include templates/mystrom.yaml
