@@ -35,15 +35,14 @@ done
 for mystrom_appliance in \
 	car-charger \
 	freezer \
-	liv-room-entertainment \
+	living-room-entertainment \
 	outdoor-deer \
-	pool \
+	pool-pump \
 	recirculation-pump \
-	spare \
 	storage-heater \
-	tools
+	tools-power
 do
-	custom_file="mystrom-${mystrom_appliance?}.yaml"
+	custom_file="${mystrom_appliance?}.yaml"
 	if [ -f "${custom_file?}" ]; then
 		flash+=("${command?} ${custom_file?}")
 	else

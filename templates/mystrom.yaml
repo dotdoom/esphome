@@ -1,14 +1,13 @@
 substitutions:
   # Change this via CLI with:
   # $ esphome -s name tools run mystrom.yaml
-  name: "spare"
-  full_name: "mystrom-${name}"
+  name: "spare-power-meter"
 
 esphome:
-  name: "${full_name}"
+  name: "${name}"
 
   project:
-    name: "dasfoo.${full_name}"
+    name: "dasfoo.${name}"
     version: "1.0"
 
 esp32:
@@ -25,7 +24,7 @@ logger:
 
 button:
 - platform: restart
-  name: "${full_name} ESP chip restart"
+  name: "${name} ESP chip restart"
 
 i2c:
   sda: 22
@@ -38,7 +37,7 @@ status_led:
 
 light:
 - platform: binary
-  name: "${full_name} Identify LED (white)"
+  name: "${name} Identify LED (white)"
   id: mystrom_led_identify
   restore_mode: ALWAYS_OFF
   output: mystrom_led_white
@@ -52,7 +51,7 @@ output:
 binary_sensor:
 - platform: gpio
   id: mystrom_side
-  name: "${full_name} Side button (plus) pressed"
+  name: "${name} Side button (plus) pressed"
   pin:
     number: GPIO23
     mode:
@@ -61,7 +60,7 @@ binary_sensor:
     inverted: true
 - platform: gpio
   id: mystrom_bottom
-  name: "${full_name} Bottom button (power) pressed"
+  name: "${name} Bottom button (power) pressed"
   pin:
     number: GPIO18
     mode:
@@ -77,7 +76,7 @@ sensor:
   pin: 4
   update_interval: 10s
   id: mystrom_power_consumption
-  name: "${full_name} Power relay consumption"
+  name: "${name} Power relay consumption"
   device_class: "power"
   state_class: "measurement"
   unit_of_measurement: "W"
@@ -99,7 +98,7 @@ sensor:
 
 - platform: integration
   sensor: mystrom_power_consumption
-  name: "${full_name} Power consumption total"
+  name: "${name} Power consumption total"
   time_unit: "h"
   unit_of_measurement: "Wh"
   device_class: "energy"
@@ -108,7 +107,7 @@ sensor:
 
 - platform: tmp102
   id: mystrom_temperature
-  name: "${full_name} Internal temperature"
+  name: "${name} Internal temperature"
   update_interval: 60s
   address: 0x48
   on_value_range:
@@ -118,7 +117,7 @@ sensor:
 
 switch:
 - platform: gpio
-  name: "${full_name} Power relay"
+  name: "${name} Power relay"
   pin: GPIO27
   id: mystrom_relay
   restore_mode: RESTORE_DEFAULT_ON
