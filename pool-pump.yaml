@@ -7,8 +7,8 @@ packages:
 time:
 - platform: sntp
   on_time:
-  - hours: 9
-    minutes: 55
+  - hours: 15
+    minutes: 35
     seconds: 0
     then:
     - switch.turn_on: mystrom_relay
