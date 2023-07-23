@@ -30,7 +30,7 @@ class SomfyRTS : public Component, public Cover {
                    remoteId, payload.c_str());
           this->rollingCode = atoi(payload.c_str());
         }
-      }, /*qos=*/1);
+      }, /*qos=*/1 /* (at least once) */);
     }
 
     CoverTraits get_traits() override {
@@ -59,6 +59,12 @@ class SomfyRTS : public Component, public Cover {
     int rollingCode = 0;
     esphome::mqtt::MQTTClientComponent* mqtt;
 
+    /* Wake up the blinds motor controller and send the command.
+     * Overall, with repeats and syncs, takes about 510ms.
+     *
+     * mqtt.publish is synchronous unless idf_send_async is set, and may
+     * introduce an unknown delay into the method execution timeline.
+     */
     void send(byte command) {
       if (rollingCode == 0) {
         ESP_LOGE(TAG, "Remote #%d was requested to run command %d, but has not "
@@ -84,8 +90,6 @@ class SomfyRTS : public Component, public Cover {
       };
 
       ++rollingCode;
-      mqtt->publish(ROLLING_CODE_PREFIX + std::to_string(remoteId),
-                    std::to_string(rollingCode), /*qos=*/1, /*retain=*/true);
 
       // Checksum calculation: a XOR of all the nibbles.
       byte checksum = 0;
@@ -145,5 +149,11 @@ class SomfyRTS : public Component, public Cover {
         // Inter-frame silence.
         delayMicroseconds(30415);
       }
+
+      // Publish the new rolling code at the end to ensure fast reaction time
+      // when the component is called. This method may be synchronous and
+      // introduces an unpredictable delay.
+      mqtt->publish(ROLLING_CODE_PREFIX + std::to_string(remoteId),
+                    std::to_string(rollingCode), /*qos=*/1, /*retain=*/true);
     }
 };
