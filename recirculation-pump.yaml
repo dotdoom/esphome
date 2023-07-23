@@ -7,6 +7,11 @@ packages:
 time:
 - platform: sntp
   on_time:
+  # Heating schedule is 5AM to 8PM. Judging by the burner state, it means that
+  # by 5AM the water is expected to be hot (60C) and at 8PM it's expected to be
+  # still hot as well (within the normal range of 56-60C).
+  #
+  # So the actual heating will start earlier, and so should recirculation.
   - hours: 4
     minutes: 30
     seconds: 0
