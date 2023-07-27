@@ -3,3 +3,7 @@ mqtt:
   username: esphome
   password: !secret mqtt_password
   id: mqtt_homeassistant
+  # We have some common entities across multiple devices,
+  # e.g. Reset button, and component+object_id doesn't cut it
+  # to provide uniqueness.
+  discovery_unique_id_generator: mac
