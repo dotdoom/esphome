@@ -1,0 +1,25 @@
+substitutions:
+  name: "storage-heater"
+
+packages:
+  device_base: !include templates/mystrom.yaml
+
+globals:
+- id: heater_was_on_previous_interval
+  type: bool
+  restore_value: no
+  initial_value: "false"
+
+interval:
+- interval: 3hours
+  then:
+    # Turn off the heater if it's on for 3-6 hours in a row.
+    lambda: |-
+      if (id(mystrom_relay).state) {
+        if (id(heater_was_on_previous_interval)) {
+          id(mystrom_relay).turn_off();
+        }
+        id(heater_was_on_previous_interval) = true;
+      } else {
+        id(heater_was_on_previous_interval) = false;
+      }
