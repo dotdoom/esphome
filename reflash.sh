@@ -72,12 +72,13 @@ print_results_table() {
 for cmdline in "${flash[@]}"; do
 	if [ $# -gt 0 ]; then
 		if [[ "$cmdline" =~ "$1" ]]; then
-			flash_result["$cmdline"]=CURRENT
+			:;
 		else
 			flash_result["$cmdline"]=SKIPPED
 			continue
 		fi
 	fi
+	flash_result["$cmdline"]=CURRENT
 
 	print_results_table
 	echo "Launching esphome: $cmdline"
