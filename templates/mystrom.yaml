@@ -24,7 +24,7 @@ logger:
 
 button:
 - platform: restart
-  name: "${name} ESP chip restart"
+  name: "ESP chip restart"
 
 i2c:
   sda: 22
@@ -37,7 +37,7 @@ status_led:
 
 light:
 - platform: binary
-  name: "${name} Identify LED (white)"
+  name: "Identify LED (white)"
   id: mystrom_led_identify
   restore_mode: ALWAYS_OFF
   output: mystrom_led_white
@@ -51,7 +51,7 @@ output:
 binary_sensor:
 - platform: gpio
   id: mystrom_side
-  name: "${name} Side button (plus) pressed"
+  name: "Side button (plus) pressed"
   pin:
     number: GPIO23
     mode:
@@ -60,7 +60,7 @@ binary_sensor:
     inverted: true
 - platform: gpio
   id: mystrom_bottom
-  name: "${name} Bottom button (power) pressed"
+  name: "Bottom button (power) pressed"
   pin:
     number: GPIO18
     mode:
@@ -76,7 +76,7 @@ sensor:
   pin: 4
   update_interval: 10s
   id: mystrom_power_consumption
-  name: "${name} Power relay consumption"
+  name: "Power relay consumption"
   device_class: "power"
   state_class: "measurement"
   unit_of_measurement: "W"
@@ -98,7 +98,7 @@ sensor:
 
 - platform: integration
   sensor: mystrom_power_consumption
-  name: "${name} Power consumption total"
+  name: "Power consumption total"
   time_unit: "h"
   unit_of_measurement: "Wh"
   device_class: "energy"
@@ -107,7 +107,7 @@ sensor:
 
 - platform: tmp102
   id: mystrom_temperature
-  name: "${name} Internal temperature"
+  name: "Internal temperature"
   update_interval: 60s
   address: 0x48
   on_value_range:
@@ -117,7 +117,7 @@ sensor:
 
 switch:
 - platform: gpio
-  name: "${name} Power relay"
+  name: "Power relay"
   pin: GPIO27
   id: mystrom_relay
   restore_mode: RESTORE_DEFAULT_ON
