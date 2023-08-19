@@ -109,6 +109,7 @@ sensor:
   id: mystrom_temperature
   name: "Internal temperature"
   update_interval: 60s
+  entity_category: diagnostic
   address: 0x48
   on_value_range:
     above: 80
