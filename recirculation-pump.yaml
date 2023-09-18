@@ -20,7 +20,53 @@ time:
     seconds: 0
     then:
     - switch.turn_on: mystrom_relay
-  - hours: 20
+  - hours: 5
+    minutes: 0
+    seconds: 0
+    then:
+    - switch.turn_off: mystrom_relay
+  # Set up several periods of recirculation pump activity to keep boiler water
+  # circulating, but not at too high expense of cooling it down through the
+  # pipeline.
+  - hours: 7
+    minutes: 00
+    seconds: 0
+    then:
+    - switch.turn_on: mystrom_relay
+  - hours: 7
+    minutes: 30
+    seconds: 0
+    then:
+    - switch.turn_off: mystrom_relay
+
+  - hours: 10
+    minutes: 00
+    seconds: 0
+    then:
+    - switch.turn_on: mystrom_relay
+  - hours: 10
+    minutes: 30
+    seconds: 0
+    then:
+    - switch.turn_off: mystrom_relay
+
+  - hours: 13
+    minutes: 00
+    seconds: 0
+    then:
+    - switch.turn_on: mystrom_relay
+  - hours: 14
+    minutes: 0
+    seconds: 0
+    then:
+    - switch.turn_off: mystrom_relay
+
+  - hours: 16
+    minutes: 00
+    seconds: 0
+    then:
+    - switch.turn_on: mystrom_relay
+  - hours: 17
     minutes: 0
     seconds: 0
     then:
