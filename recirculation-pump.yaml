@@ -1,6 +1,9 @@
 substitutions:
   name: "recirculation-pump"
 
+esphome:
+  friendly_name: "Recirculation pump"
+
 packages:
   device_base: !include templates/mystrom.yaml
 
