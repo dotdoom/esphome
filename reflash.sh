@@ -44,8 +44,7 @@ for mystrom_appliance in \
 do
 	custom_file="${mystrom_appliance?}.yaml"
 	if [ -f "${custom_file?}" ]; then
-		# Append "mystrom" to identify in the search.
-		flash+=("${command?} ${custom_file?}  # mystrom")
+		flash+=("${command?} ${custom_file?}")
 	else
 		flash+=("-s name ${mystrom_appliance?} ${command?} templates/mystrom.yaml")
 	fi
