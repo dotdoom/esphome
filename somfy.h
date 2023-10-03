@@ -3,10 +3,10 @@
 namespace {
   static const char* const TAG = __FILE__;
 
-  static const byte CMD_STOP = 0x01;
-  static const byte CMD_UP = 0x02;
-  static const byte CMD_DOWN = 0x04;
-  static const byte CMD_PROG = 0x08;
+  static const uint8_t CMD_STOP = 0x01;
+  static const uint8_t CMD_UP = 0x02;
+  static const uint8_t CMD_DOWN = 0x04;
+  static const uint8_t CMD_PROG = 0x08;
   static const std::string ROLLING_CODE_PREFIX = "rolling_code/";
 
   static const int RF_SYMBOL = 640;
@@ -65,7 +65,7 @@ class SomfyRTS : public Component, public Cover {
      * mqtt.publish is synchronous unless idf_send_async is set, and may
      * introduce an unknown delay into the method execution timeline.
      */
-    void send(byte command) {
+    void send(uint8_t command) {
       if (rollingCode == 0) {
         ESP_LOGE(TAG, "Remote #%d was requested to run command %d, but has not "
                       "yet received its rolling code. Refusing to proceed, to "
@@ -77,30 +77,30 @@ class SomfyRTS : public Component, public Cover {
       ESP_LOGI(TAG, "Remote #%d sending command %d with rolling code %d",
                remoteId, command, rollingCode);
 
-      byte frame[] = {
-        0xA7,          // Encryption key.
-        command << 4,  // 4 lsb will be checksum.
+      uint8_t frame[] = {
+        0xA7,  // Encryption key.
+        static_cast<uint8_t>(command << 4),  // 4 lsb will be checksum.
 
-        rollingCode >> 8,
-        rollingCode,
+        static_cast<uint8_t>(rollingCode >> 8),
+        static_cast<uint8_t>(rollingCode),
 
-        remoteId >> 16,
-        remoteId >> 8,
-        remoteId,
+        static_cast<uint8_t>(remoteId >> 16),
+        static_cast<uint8_t>(remoteId >> 8),
+        static_cast<uint8_t>(remoteId),
       };
 
       ++rollingCode;
 
       // Checksum calculation: a XOR of all the nibbles.
-      byte checksum = 0;
-      for (byte i = 0; i < 7; i++) {
+      uint8_t checksum = 0;
+      for (uint8_t i = 0; i < 7; i++) {
         checksum = checksum ^ frame[i] ^ (frame[i] >> 4);
       }
       checksum &= 0b1111; // We keep the last 4 bits only.
       frame[1] |= checksum;
 
       // Obfuscation: a XOR of all the bytes.
-      for (byte i = 1; i < 7; i++) {
+      for (uint8_t i = 1; i < 7; i++) {
         frame[i] ^= frame[i-1];
       }
 
@@ -112,8 +112,8 @@ class SomfyRTS : public Component, public Cover {
 
       for (int repeat = 0; repeat < 3; ++repeat) {
         // Hardware sync.
-        byte sync = repeat == 0 ? 2 : 7;
-        for (byte i = 0; i < sync; i++) {
+        uint8_t sync = repeat == 0 ? 2 : 7;
+        for (uint8_t i = 0; i < sync; i++) {
           digitalWrite(rfPin, HIGH);
           delayMicroseconds(4*RF_SYMBOL);
           digitalWrite(rfPin, LOW);
@@ -127,10 +127,10 @@ class SomfyRTS : public Component, public Cover {
         delayMicroseconds(RF_SYMBOL);
 
         // Data: bits are sent one by one.
-        for (byte octet = 0; octet < 7; ++octet) {
+        for (uint8_t octet = 0; octet < 7; ++octet) {
           // Starting with MSB.
           for (signed char bit = 7; bit >= 0; --bit) {
-            byte value = (frame[octet] >> bit) & 1;
+            uint8_t value = (frame[octet] >> bit) & 1;
             if (value == 1) {
               digitalWrite(rfPin, LOW);
               delayMicroseconds(RF_SYMBOL);
