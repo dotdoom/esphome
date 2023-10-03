@@ -13,8 +13,7 @@ esphome:
   - SPI
 
 packages:
-  device_base: !include templates/esp8266.yaml
-  sensor: !include templates/esp8266-vcc.yaml
+  device_base: !include templates/esp32-poe.yaml
 
 globals:
 - id: somfy_remote_id_base
