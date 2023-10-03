@@ -1,6 +1,9 @@
 substitutions:
   name: "pool-pump"
 
+esphome:
+  friendly_name: "Pool pump"
+
 packages:
   device_base: !include templates/mystrom.yaml
 

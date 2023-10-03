@@ -1,6 +1,9 @@
 substitutions:
   name: "storage-heater"
 
+esphome:
+  friendly_name: "Storage heater"
+
 packages:
   device_base: !include templates/mystrom.yaml
 
