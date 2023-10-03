@@ -1,4 +1,3 @@
-#include <SPI.h>
 #include "esphome.h"
 
 namespace {
@@ -105,8 +104,6 @@ class SomfyRTS : public Component, public Cover {
         frame[i] ^= frame[i-1];
       }
 
-      noInterrupts();
-
       // Wake-up pulse & silence.
       digitalWrite(rfPin, HIGH);
       delayMicroseconds(9415);
@@ -152,8 +149,6 @@ class SomfyRTS : public Component, public Cover {
         // Inter-frame silence.
         delayMicroseconds(30415);
       }
-
-      interrupts();
 
       // Publish the new rolling code at the end to ensure fast reaction time
       // when the component is called. This method may be synchronous and
