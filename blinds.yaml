@@ -4,13 +4,15 @@ esphome:
 
   project:
     name: dasfoo.blinds
-    version: "1.0"
+    version: "2.0"
 
   includes:
   - somfy.h
+  - cc1101.h
 
   libraries:
   - SPI
+  - lsatan/SmartRC-CC1101-Driver-Lib
 
 packages:
   device_base: !include templates/esp32-poe.yaml
@@ -25,7 +27,7 @@ globals:
 cover:
 - platform: custom
   lambda: |-
-    auto rfPin = D2;
+    auto rfPin = 4;
     std::vector<esphome::cover::Cover*> blinds;
 
     for (int i = 0; i < 13; ++i) {
@@ -36,6 +38,9 @@ cover:
       blinds.push_back(cover);
       App.register_component(cover);
     }
+
+    // SomfyRTS ctor will set correct pin modes, now we can initialize cc1101.
+    cc1101_Init();
 
     return blinds;
 

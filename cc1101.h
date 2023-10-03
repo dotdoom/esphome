@@ -1,0 +1,10 @@
+#include <ELECHOUSE_CC1101_SRC_DRV.h>
+
+void cc1101_Init() {
+	ELECHOUSE_cc1101.addSpiPin(14, 16, 15, 13, 0);
+	ELECHOUSE_cc1101.setModul(0);
+	ELECHOUSE_cc1101.Init();
+	ELECHOUSE_cc1101.setPA(7);
+	ELECHOUSE_cc1101.setMHZ(433.34);
+	ELECHOUSE_cc1101.SetTx();
+}
