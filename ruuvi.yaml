@@ -6,6 +6,11 @@ esphome:
     name: dasfoo.ruuvi
     version: "1.0"
 
+esp32:
+  # Required for BLE.
+  framework:
+    type: esp-idf
+
 packages:
   device_base: !include templates/esp32-poe.yaml
 

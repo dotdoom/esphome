@@ -1,8 +1,5 @@
 esp32:
   board: esp32-poe
-  # Required for BLE.
-  framework:
-    type: esp-idf
 
 status_led:
   pin: GPIO2
