@@ -1,3 +1,16 @@
+sensor:
+- platform: wifi_signal
+  name: "WiFi signal"
+
+text_sensor:
+- platform: wifi_info
+  mac_address:
+    name: "Device MAC"
+  ip_address:
+    name: "Device IP"
+  bssid:
+    name: "Connected to BSSID"
+
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
