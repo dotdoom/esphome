@@ -1,0 +1,40 @@
+# To bootstrap and then use OTA to flash firmware.
+
+esp32:
+  board: esp32doit-devkit-v1
+
+esphome:
+  name: empty32-cam
+  name_add_mac_suffix: true
+
+packages:
+  wifi: !include ../templates/wifi.yaml
+  ota: !include ../templates/ota.yaml
+
+esp32_camera:
+  external_clock:
+    pin: GPIO0
+    frequency: 20MHz
+  i2c_pins:
+    sda: GPIO26
+    scl: GPIO27
+  data_pins: [GPIO5, GPIO18, GPIO19, GPIO21, GPIO36, GPIO39, GPIO34, GPIO35]
+  vsync_pin: GPIO25
+  href_pin: GPIO23
+  pixel_clock_pin: GPIO22
+  power_down_pin: GPIO32
+
+  name: Camera
+  resolution: 800x600  # Max 1600x1200.
+  idle_framerate: 0.1fps
+
+output:
+- platform: ledc
+  pin: GPIO4
+  channel: 2  # PWM channel 1 is used for esp32_camera.
+  id: led
+
+light:
+- platform: monochromatic
+  output: led
+  name: Flash
