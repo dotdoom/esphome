@@ -1,16 +1,12 @@
 # To bootstrap and then use OTA to flash firmware.
 
+esp32:
+  board: esp32doit-devkit-v1
+
 esphome:
   name: empty32
   name_add_mac_suffix: true
 
-esp32:
-  board: esp32doit-devkit-v1
-
-ota:
-  password: !secret ota_password
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  domain: ""
+packages:
+  wifi: !include ../templates/wifi.yaml
+  ota: !include ../templates/ota.yaml
