@@ -5,6 +5,7 @@ packages:
   wifi: !include wifi.yaml
   ota: !include ota.yaml
   mqtt: !include mqtt.yaml
+  uptime: !include uptime.yaml
 
 logger:
 
