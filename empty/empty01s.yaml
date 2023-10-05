@@ -1,0 +1,18 @@
+# To bootstrap and then use OTA to flash firmware.
+
+esp8266:
+  board: esp01_1m
+
+esphome:
+  name: empty01s
+  name_add_mac_suffix: true
+
+packages:
+  wifi: !include ../templates/wifi.yaml
+  ota: !include ../templates/ota.yaml
+
+switch:
+- platform: gpio
+  pin: GPIO0
+  name: "Relay"
+  inverted: true
