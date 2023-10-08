@@ -20,8 +20,14 @@ time:
     seconds: 0
     then:
     - switch.turn_on: mystrom_relay
-  - hours: 20
-    minutes: 0
-    seconds: 0
+  # Then, pump every 30 minutes for 3 minutes long.
+  - hours: "5-20"
+    minutes: "0,30"
+    seconds: "0"
     then:
     - switch.turn_off: mystrom_relay
+  - hours: "5-19"
+    minutes: "27,57"
+    seconds: "0"
+    then:
+    - switch.turn_on: mystrom_relay
