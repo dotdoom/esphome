@@ -1,0 +1,15 @@
+esp32:
+  board: esp32doit-devkit-v1
+
+packages:
+  wifi: !include wifi.yaml
+  ota: !include ota.yaml
+  mqtt: !include mqtt.yaml
+  uptime: !include uptime.yaml
+  restart: !include restart.yaml
+
+logger:
+
+status_led:
+  pin:
+    number: GPIO2
