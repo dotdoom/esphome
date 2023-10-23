@@ -19,8 +19,4 @@ packages:
   ota: !include ota.yaml
   mqtt: !include mqtt.yaml
   uptime: !include uptime.yaml
-
-button:
-- platform: restart
-  name: "ESP chip restart"
-  entity_category: diagnostic
+  restart: !include restart.yaml

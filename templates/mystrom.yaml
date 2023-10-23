@@ -20,12 +20,9 @@ packages:
   ota: !include ota.yaml
   wifi: !include wifi.yaml
   uptime: !include uptime.yaml
+  restart: !include restart.yaml
 
 logger:
-
-button:
-- platform: restart
-  name: "ESP chip restart"
 
 i2c:
   sda: 22
