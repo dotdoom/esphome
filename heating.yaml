@@ -1,0 +1,133 @@
+esphome:
+  name: heating
+  friendly_name: "Heating"
+
+  project:
+    name: dasfoo.heating
+    version: "2.0"
+
+  on_boot:
+    then:
+      - if:
+          condition:
+            switch.is_off: relay_temperature_manual
+          then:
+            - select.set:
+                id: floor_heating_mode
+                option: "auto"
+          else:
+            - if:
+                condition:
+                  switch.is_on: relay_temperature_warm
+                then:
+                  - select.set:
+                      id: floor_heating_mode
+                      option: "off"
+                else:
+                  - select.set:
+                      id: floor_heating_mode
+                      option: "on"
+
+packages:
+  device_base: !include templates/esp32.yaml
+
+i2c:
+  sda: GPIO21
+  # Marked as SCK on the display itself for some reason,
+  # thus the GPIO choice.
+  scl: GPIO18
+
+font:
+- file: "fonts/DejaVuSans.ttf"
+  id: font_sans
+  size: 20
+
+display:
+- platform: ssd1306_i2c
+  model: "SSD1306 128x32"
+  id: oled_display
+  lambda: |-
+    it.printf(
+      4, 6,
+      id(font_sans),
+      "%.2f C",
+      id(boiler_temperature).state);
+
+    if (id(furnace_burning).state) {
+      it.filled_circle(112, 16, 12);
+    } else {
+      it.circle(112, 16, 12);
+    }
+
+dallas:
+- pin: GPIO27
+
+sensor:
+- platform: dallas
+  address: 0x133c2cf648f40728
+  id: boiler_temperature
+  name: "Boiler temperature"
+  filters:
+  - offset: 0.5
+
+- platform: adc
+  pin: GPIO32
+  update_interval: 1s
+  id: furnace_led_brightness
+
+- platform: adc
+  pin: GPIO33
+  update_interval: 1s
+  id: heating_led_brightness
+
+binary_sensor:
+- platform: analog_threshold
+  id: furnace_burning
+  name: "Furnace burning"
+  sensor_id: furnace_led_brightness
+  threshold: 0.7
+  filters:
+  - invert:
+
+- platform: analog_threshold
+  id: heating_enabled
+  name: "Floor heating active"
+  sensor_id: heating_led_brightness
+  threshold: 0.7
+  filters:
+  - invert:
+
+switch:
+- platform: gpio
+  pin: GPIO25
+  id: relay_temperature_manual
+  inverted: true
+  restore_mode: RESTORE_DEFAULT_OFF
+
+- platform: gpio
+  pin: GPIO26
+  id: relay_temperature_warm
+  inverted: true
+  restore_mode: RESTORE_DEFAULT_OFF
+
+select:
+- platform: template
+  name: "Floor heating mode"
+  id: floor_heating_mode
+  options:
+  - "on"
+  - "off"
+  - "auto"
+  optimistic: true
+  set_action:
+    lambda: |-
+      if (x == "auto") {
+        id(relay_temperature_manual).turn_off();
+      } else {
+        if (x == "off") {
+          id(relay_temperature_warm).turn_on();
+        } else {
+          id(relay_temperature_warm).turn_off();
+        }
+        id(relay_temperature_manual).turn_on();
+      }
