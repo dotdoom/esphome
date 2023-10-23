@@ -74,11 +74,17 @@ sensor:
   pin: GPIO32
   update_interval: 1s
   id: furnace_led_brightness
+  name: "Furnace LED brightness"
+  entity_category: diagnostic
+  disabled_by_default: true
 
 - platform: adc
   pin: GPIO33
   update_interval: 1s
   id: heating_led_brightness
+  name: "Floor heating LED brightness"
+  entity_category: diagnostic
+  disabled_by_default: true
 
 binary_sensor:
 - platform: analog_threshold
