@@ -21,7 +21,7 @@ fi
 flash=(
 	"${command?} bathroomheater.yaml"
 	"${command?} blinds.yaml"
-	"${command?} boiler.yaml"
+	"${command?} heating.yaml"
 	"${command?} ruuvi.yaml"
 	"${command?} watermeter.yaml"
 )
