@@ -74,6 +74,8 @@ sensor:
   pin: GPIO32
   update_interval: 1s
   id: furnace_led_brightness
+  attenuation: auto
+  # Make voltage value available in UI for debugging and history.
   name: "Furnace LED brightness"
   entity_category: diagnostic
   disabled_by_default: true
@@ -82,6 +84,8 @@ sensor:
   pin: GPIO33
   update_interval: 1s
   id: heating_led_brightness
+  attenuation: auto
+  # Make voltage value available in UI for debugging and history.
   name: "Floor heating LED brightness"
   entity_category: diagnostic
   disabled_by_default: true
@@ -91,7 +95,7 @@ binary_sensor:
   id: furnace_burning
   name: "Furnace burning"
   sensor_id: furnace_led_brightness
-  threshold: 0.7
+  threshold: 1.8
   filters:
   - invert:
 
@@ -99,7 +103,7 @@ binary_sensor:
   id: heating_enabled
   name: "Floor heating active"
   sensor_id: heating_led_brightness
-  threshold: 0.7
+  threshold: 1.8
   filters:
   - invert:
 
