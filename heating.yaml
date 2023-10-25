@@ -95,7 +95,7 @@ binary_sensor:
   id: furnace_burning
   name: "Furnace burning"
   sensor_id: furnace_led_brightness
-  threshold: 1.8
+  threshold: 2.0
   filters:
   - invert:
 
