@@ -1,0 +1,17 @@
+esp8266:
+  board: esp01_1m
+
+packages:
+  wifi: !include wifi.yaml
+  ota: !include ota.yaml
+  mqtt: !include mqtt.yaml
+  uptime: !include uptime.yaml
+  restart: !include restart.yaml
+
+logger:
+
+switch:
+- platform: gpio
+  pin: GPIO0
+  name: None
+  inverted: true

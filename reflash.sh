@@ -22,6 +22,7 @@ flash=(
 	"${command?} bathroomheater.yaml"
 	"${command?} blinds.yaml"
 	"${command?} heating.yaml"
+	"${command?} loud-siren.yaml"
 	"${command?} ruuvi.yaml"
 	"${command?} watermeter.yaml"
 )

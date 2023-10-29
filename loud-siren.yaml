@@ -1,0 +1,10 @@
+esphome:
+  name: loud-siren
+  friendly_name: "Loud siren"
+
+  project:
+    name: dasfoo.siren
+    version: "1.0"
+
+packages:
+  device_base: !include templates/esp01s.yaml
