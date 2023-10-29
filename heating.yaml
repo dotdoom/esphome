@@ -70,6 +70,11 @@ sensor:
   filters:
   - offset: 0.5
 
+- platform: dallas
+  address: 0x6a0316643959ff28
+  id: floor_temperature
+  name: "Floor temperature"
+
 - platform: adc
   pin: GPIO32
   update_interval: 1s
