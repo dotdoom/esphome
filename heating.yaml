@@ -2,6 +2,30 @@ esphome:
   name: heating
   friendly_name: "Heating"
 
+  # The entire setup consists of:
+  #
+  # - Furnace that burns oil and produces heat.
+  #   It only burns when necessary, i.e. some of the
+  #   controlled temperatures are below set values.
+  #
+  #   r/o: active (burning) / inactive (idle).
+  #
+  # - Boiler which keeps hot water (but can also heat it
+  #   electrically, albeit turned on/off at the mains).
+  #
+  #   r/o: temperature.
+  #
+  # - Floor heating which is technically controlled
+  #   via furnace control panel, but is a separate system.
+  #   It also includes two radiators (which are normally off),
+  #   but due to ambiguity of "heating" meaning both the process
+  #   and a house-warming system, we opt in for this specific
+  #   "floor heating" term.
+  #
+  #   r/o: flow temperature.
+  #   r/o: active (flow temperature controlled) / inactive (idle).
+  #   r/w: mode (instruct the flow to start heating).
+
   project:
     name: dasfoo.heating
     version: "2.0"
@@ -13,7 +37,7 @@ esphome:
             switch.is_off: relay_temperature_manual
           then:
             - select.set:
-                id: floor_heating_mode
+                id: floor_mode
                 option: "auto"
           else:
             - if:
@@ -21,11 +45,11 @@ esphome:
                   switch.is_on: relay_temperature_warm
                 then:
                   - select.set:
-                      id: floor_heating_mode
+                      id: floor_mode
                       option: "off"
                 else:
                   - select.set:
-                      id: floor_heating_mode
+                      id: floor_mode
                       option: "on"
 
 packages:
@@ -78,20 +102,20 @@ sensor:
 - platform: adc
   pin: GPIO32
   update_interval: 1s
-  id: furnace_led_brightness
+  id: furnace_burning_led_brightness
   attenuation: auto
   # Make voltage value available in UI for debugging and history.
-  name: "Furnace LED brightness"
+  name: "Furnace burning - LED brightness"
   entity_category: diagnostic
   disabled_by_default: true
 
 - platform: adc
   pin: GPIO33
   update_interval: 1s
-  id: heating_led_brightness
+  id: floor_active_led_brightness
   attenuation: auto
   # Make voltage value available in UI for debugging and history.
-  name: "Floor heating LED brightness"
+  name: "Floor active - LED brightness"
   entity_category: diagnostic
   disabled_by_default: true
 
@@ -99,15 +123,15 @@ binary_sensor:
 - platform: analog_threshold
   id: furnace_burning
   name: "Furnace burning"
-  sensor_id: furnace_led_brightness
+  sensor_id: furnace_burning_led_brightness
   threshold: 2.0
   filters:
   - invert:
 
 - platform: analog_threshold
   id: heating_enabled
-  name: "Floor heating active"
-  sensor_id: heating_led_brightness
+  name: "Floor active"
+  sensor_id: floor_active_led_brightness
   threshold: 1.8
   filters:
   - invert:
@@ -127,8 +151,8 @@ switch:
 
 select:
 - platform: template
-  name: "Floor heating mode"
-  id: floor_heating_mode
+  name: "Floor mode"
+  id: floor_mode
   options:
   - "on"
   - "off"
