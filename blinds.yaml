@@ -7,54 +7,54 @@ esphome:
     version: "2.0"
 
   includes:
-  - somfy.h
-  - cc1101.h
+    - somfy.h
+    - cc1101.h
 
   libraries:
-  - SPI
-  - lsatan/SmartRC-CC1101-Driver-Lib
+    - SPI
+    - lsatan/SmartRC-CC1101-Driver-Lib
 
 packages:
   device_base: !include templates/esp32-poe.yaml
 
 globals:
-- id: somfy_remote_id_base
-  type: int
-  # Can be retrieved from MQTT server. Take the key with lowest integer value
-  # from /rolling_code/ path.
-  initial_value: !secret somfy_remote_id_base
+  - id: somfy_remote_id_base
+    type: int
+    # Can be retrieved from MQTT server. Take the key with lowest integer value
+    # from /rolling_code/ path.
+    initial_value: !secret somfy_remote_id_base
 
 cover:
-- platform: custom
-  lambda: |-
-    auto rfPin = 4;
-    std::vector<esphome::cover::Cover*> blinds;
+  - platform: custom
+    lambda: |-
+      auto rfPin = 4;
+      std::vector<esphome::cover::Cover*> blinds;
 
-    for (int i = 0; i < 13; ++i) {
-      auto cover = new SomfyRTS(
-        rfPin,
-        id(somfy_remote_id_base) + i,
-        id(mqtt_homeassistant));
-      blinds.push_back(cover);
-      App.register_component(cover);
-    }
+      for (int i = 0; i < 13; ++i) {
+        auto cover = new SomfyRTS(
+          rfPin,
+          id(somfy_remote_id_base) + i,
+          id(mqtt_homeassistant));
+        blinds.push_back(cover);
+        App.register_component(cover);
+      }
 
-    // SomfyRTS ctor will set correct pin modes, now we can initialize cc1101.
-    cc1101_Init();
+      // SomfyRTS ctor will set correct pin modes, now we can initialize cc1101.
+      cc1101_Init();
 
-    return blinds;
+      return blinds;
 
-  covers:
-  - name: "Office window"
-  - name: "Bedroom"
-  - name: "Living Room side"
-  - name: "Wardrobe"
-  - name: "Child West door"
-  - name: "Child West window"
-  - name: "Hallway Stairs window"
-  - name: "Kitchen window"
-  - name: "Kitchen door"
-  - name: "Living Room door"
-  - name: "Living Room window"
-  - name: "Guest East window"
-  - name: "Guest East door"
+    covers:
+      - name: "Office window"
+      - name: "Bedroom"
+      - name: "Living Room side"
+      - name: "Wardrobe"
+      - name: "Child West door"
+      - name: "Child West window"
+      - name: "Hallway Stairs window"
+      - name: "Kitchen window"
+      - name: "Kitchen door"
+      - name: "Living Room door"
+      - name: "Living Room window"
+      - name: "Guest East window"
+      - name: "Guest East door"
