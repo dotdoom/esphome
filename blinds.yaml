@@ -68,10 +68,12 @@ cover:
       - switch.turn_off: wintergarten_deploy
       - switch.turn_off: wintergarten_retract
     open_action:
+      - switch.turn_off: wintergarten_deploy
       - switch.turn_on: wintergarten_retract
       - delay: 30s
       - switch.turn_off: wintergarten_retract # TODO: check last action
     close_action:
+      - switch.turn_off: wintergarten_retract
       - switch.turn_on: wintergarten_deploy
       - delay: 30s
       - switch.turn_off: wintergarten_deploy # TODO: check last action
