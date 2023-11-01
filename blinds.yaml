@@ -58,3 +58,33 @@ cover:
       - name: "Living Room window"
       - name: "Guest East window"
       - name: "Guest East door"
+
+  - platform: template
+    name: "Wintergarten"
+    device_class: shade
+    optimistic: true
+    assumed_state: true # always show both buttons
+    stop_action:
+      - switch.turn_off: wintergarten_deploy
+      - switch.turn_off: wintergarten_retract
+    open_action:
+      - switch.turn_on: wintergarten_retract
+      - delay: 30s
+      - switch.turn_off: wintergarten_retract # TODO: check last action
+    close_action:
+      - switch.turn_on: wintergarten_deploy
+      - delay: 30s
+      - switch.turn_off: wintergarten_deploy # TODO: check last action
+
+switch:
+  - platform: gpio
+    pin: GPIO32
+    id: wintergarten_deploy
+    restore_mode: RESTORE_DEFAULT_OFF
+    inverted: true
+
+  - platform: gpio
+    pin: GPIO33
+    id: wintergarten_retract
+    restore_mode: RESTORE_DEFAULT_OFF
+    inverted: true
