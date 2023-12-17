@@ -82,11 +82,11 @@ switch:
   - platform: gpio
     pin: GPIO32
     id: wintergarten_deploy
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: ALWAYS_OFF
     inverted: true
 
   - platform: gpio
     pin: GPIO33
     id: wintergarten_retract
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: ALWAYS_OFF
     inverted: true
