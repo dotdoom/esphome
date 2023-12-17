@@ -1,0 +1,44 @@
+esp8266:
+  board: esp12e
+
+packages:
+  wifi: !include templates/wifi.yaml
+  ota: !include templates/ota.yaml
+  mqtt: !include templates/mqtt.yaml
+  uptime: !include templates/uptime.yaml
+  restart: !include templates/restart.yaml
+
+logger:
+
+status_led:
+  pin:
+    number: GPIO5
+    inverted: true
+
+esphome:
+  name: heating-eg
+  friendly_name: "Heating EG"
+
+  project:
+    name: dasfoo.heating-eg
+    version: "1.0"
+
+switch:
+  # Switches in the order of relais onboard, ltr.
+  # Specified onboard LED number.
+  - platform: gpio
+    pin: GPIO16 # LED 2
+    restore_mode: RESTORE_DEFAULT_OFF
+    name: "Living Room table"
+  - platform: gpio
+    pin: GPIO14 # LED 3
+    restore_mode: RESTORE_DEFAULT_OFF
+    name: "Guest Toilet and Hallway"
+  - platform: gpio
+    pin: GPIO12 # LED 1
+    restore_mode: RESTORE_DEFAULT_OFF
+    name: "Kitchen"
+  - platform: gpio
+    pin: GPIO13 # LED 4
+    restore_mode: RESTORE_DEFAULT_OFF
+    name: "Living Room TV"
