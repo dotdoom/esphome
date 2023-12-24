@@ -25,6 +25,8 @@ flash=(
 	"${command?} loud-siren.yaml"
 	"${command?} ruuvi.yaml"
 	"${command?} watermeter.yaml"
+	"${command?} heating-eg.yaml"
+	"${command?} heating-og.yaml"
 )
 
 for btproxy_replica in \

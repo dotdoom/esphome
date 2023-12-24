@@ -1,0 +1,53 @@
+esp8266:
+  board: esp12e
+
+packages:
+  wifi: !include templates/wifi.yaml
+  ota: !include templates/ota.yaml
+  mqtt: !include templates/mqtt.yaml
+  uptime: !include templates/uptime.yaml
+  restart: !include templates/restart.yaml
+
+logger:
+
+esphome:
+  name: heating-og
+  friendly_name: "Heating OG"
+
+  project:
+    name: dasfoo.heating-og
+    version: "1.0"
+
+switch:
+  - platform: gpio
+    pin: GPIO16
+    name: "Shower"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: gpio
+    pin: GPIO14
+    name: "Bedroom"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: gpio
+    pin: GPIO12
+    name: "Wardrobe"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: gpio
+    pin: GPIO13
+    name: "Office + Hallway"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: gpio
+    pin: GPIO15
+    name: "Child West"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: gpio
+    pin: GPIO00
+    name: "Bathroom"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: gpio
+    pin: GPIO04
+    name: "Child East"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: gpio
+    pin: GPIO05
+    id: unused_relay8
+    restore_mode: RESTORE_DEFAULT_OFF
