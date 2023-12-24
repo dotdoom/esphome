@@ -124,7 +124,9 @@ binary_sensor:
   id: furnace_burning
   name: "Furnace burning"
   sensor_id: furnace_burning_led_brightness
-  threshold: 2.0
+  # The reading (V) gets lower as brightness increases. Keep the threshold
+  # low (close to LED reading) to avoid triggering with a lamp or natural light.
+  threshold: 2.2 # LED on = 1.93V, flashlight on = 2.5V.
   filters:
   - invert:
 
@@ -132,7 +134,8 @@ binary_sensor:
   id: heating_enabled
   name: "Floor active"
   sensor_id: floor_active_led_brightness
-  threshold: 1.8
+  # This sensor is more exposed to external light due to construction.
+  threshold: 1.9 # LED on = 1.76V, flashlight on = 2.1V.
   filters:
   - invert:
 
