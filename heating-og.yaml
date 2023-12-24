@@ -33,7 +33,7 @@ switch:
     restore_mode: RESTORE_DEFAULT_OFF
   - platform: gpio
     pin: GPIO13
-    name: "Office + Hallway"
+    name: "Office and Hallway"
     restore_mode: RESTORE_DEFAULT_OFF
   - platform: gpio
     pin: GPIO15

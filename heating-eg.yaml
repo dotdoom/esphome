@@ -33,7 +33,7 @@ switch:
   - platform: gpio
     pin: GPIO14 # LED 3
     restore_mode: RESTORE_DEFAULT_OFF
-    name: "Guest Toilet and Hallway"
+    name: "Guest Toilet and Entryway"
   - platform: gpio
     pin: GPIO12 # LED 1
     restore_mode: RESTORE_DEFAULT_OFF
