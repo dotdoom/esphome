@@ -3,6 +3,7 @@ substitutions:
 
 esphome:
   friendly_name: "Car charger"
+  area: "Garage"
 
 packages:
   device_base: !include templates/mystrom.yaml

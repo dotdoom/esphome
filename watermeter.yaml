@@ -1,6 +1,7 @@
 esphome:
   name: watermeter
   friendly_name: "Water meter"
+  area: "Laundry"
 
   project:
     name: dasfoo.watermeter

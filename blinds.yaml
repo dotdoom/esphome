@@ -1,6 +1,7 @@
 esphome:
   name: blinds
   friendly_name: "Blinds"
+  area: "Entryway"
 
   project:
     name: dasfoo.blinds

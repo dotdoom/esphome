@@ -1,6 +1,7 @@
 esphome:
   name: ruuvi
   friendly_name: "Ruuvi"
+  area: "Attic"
 
   project:
     name: dasfoo.ruuvi

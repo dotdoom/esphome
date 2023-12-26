@@ -1,6 +1,7 @@
 esphome:
   name: bathroomheater
   friendly_name: "Bathroom heater"
+  area: "Bathroom"
 
   project:
     name: dasfoo.bathroomheater

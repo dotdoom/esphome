@@ -1,6 +1,7 @@
 esphome:
   name: heating
   friendly_name: "Heating"
+  area: "Workshop"
 
   # The entire setup consists of:
   #
