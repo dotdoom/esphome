@@ -120,3 +120,4 @@ switch:
   pin: GPIO27
   id: mystrom_relay
   restore_mode: RESTORE_DEFAULT_ON
+  device_class: outlet
