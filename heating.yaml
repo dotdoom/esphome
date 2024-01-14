@@ -96,6 +96,11 @@ sensor:
   - offset: 0.5
 
 - platform: dallas
+  address: 0x4845b7211864ff28
+  id: hot_water_temperature
+  name: "Hot water temperature"
+
+- platform: dallas
   address: 0x6a0316643959ff28
   id: floor_temperature
   name: "Floor temperature"
