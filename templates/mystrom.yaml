@@ -118,7 +118,7 @@ sensor:
 
 switch:
 - platform: gpio
-  name: "Power relay"
+  name: None  # Main entity for the device.
   pin: GPIO27
   id: mystrom_relay
   restore_mode: RESTORE_DEFAULT_ON
