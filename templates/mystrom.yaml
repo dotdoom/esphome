@@ -98,10 +98,12 @@ sensor:
   sensor: mystrom_power_consumption
   name: "Power consumption total"
   time_unit: "h"
-  unit_of_measurement: "Wh"
+  unit_of_measurement: "kWh"
   device_class: "energy"
   state_class: "total_increasing"
   accuracy_decimals: 2
+  filters:
+  - multiply: 0.001
 
 - platform: tmp102
   id: mystrom_temperature
