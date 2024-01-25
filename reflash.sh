@@ -18,39 +18,32 @@ else
 	command="run --no-logs"
 fi
 
-flash=(
-	"${command?} bathroomheater.yaml"
-	"${command?} blinds.yaml"
-	"${command?} heating.yaml"
-	"${command?} loud-siren.yaml"
-	"${command?} ruuvi.yaml"
-	"${command?} watermeter.yaml"
-	"${command?} heating-eg.yaml"
-	"${command?} heating-og.yaml"
-)
+declare -a flash
+
+for config in \
+		bathroomheater.yaml \
+		blinds.yaml \
+		heating.yaml \
+		loud-siren.yaml \
+		ruuvi.yaml \
+		watermeter.yaml \
+		heating-eg.yaml \
+		heating-og.yaml \
+		car-charger.yaml \
+		freezer.yaml \
+		living-room-entertainment.yaml \
+		outdoor-equipment.yaml \
+		recirculation-pump.yaml \
+		storage-heater.yaml \
+		basement-rack.yaml \
+		tools-power.yaml; do
+	flash+=("${command?} ${config?}")
+done
 
 for btproxy_replica in \
 	c25bac
 do
 	flash+=("${command?} btproxy.yaml --device btproxy-${btproxy_replica?}")
-done
-
-for mystrom_appliance in \
-	car-charger \
-	freezer \
-	living-room-entertainment \
-	outdoor-deer \
-	pool-pump \
-	recirculation-pump \
-	storage-heater \
-	tools-power
-do
-	custom_file="${mystrom_appliance?}.yaml"
-	if [ -f "${custom_file?}" ]; then
-		flash+=("${command?} ${custom_file?}")
-	else
-		flash+=("-s name ${mystrom_appliance?} ${command?} templates/mystrom.yaml")
-	fi
 done
 
 declare -A flash_result

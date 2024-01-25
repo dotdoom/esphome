@@ -1,8 +1,8 @@
 substitutions:
   name: "storage-heater"
+  friendly_name: "Storage heater"
 
 esphome:
-  friendly_name: "Storage heater"
   area: "Storage"
 
 packages:

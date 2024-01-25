@@ -1,0 +1,9 @@
+substitutions:
+  name: "car-charger"
+  friendly_name: "Car charger"
+
+esphome:
+  area: "Garage"
+
+packages:
+  device_base: !include templates/mystrom.yaml

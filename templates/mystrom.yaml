@@ -1,10 +1,12 @@
 substitutions:
   # Change this via CLI with:
-  # $ esphome -s name tools run mystrom.yaml
+  # $ esphome -s name tools -s friendly_name Tools run mystrom.yaml
   name: "spare-power-meter"
+  friendly_name: "Spare power meter"
 
 esphome:
   name: "${name}"
+  friendly_name: "${friendly_name}"
 
   project:
     name: "dasfoo.${name}"

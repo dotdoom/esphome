@@ -1,0 +1,9 @@
+substitutions:
+  name: "living-room-entertainment"
+  friendly_name: "Living room entertainment"
+
+esphome:
+  area: "Living room"
+
+packages:
+  device_base: !include templates/mystrom.yaml

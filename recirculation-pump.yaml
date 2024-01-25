@@ -1,8 +1,8 @@
 substitutions:
   name: "recirculation-pump"
+  friendly_name: "Recirculation pump"
 
 esphome:
-  friendly_name: "Recirculation pump"
   area: "Workshop"
 
 packages:

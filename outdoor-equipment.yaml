@@ -1,8 +1,8 @@
 substitutions:
-  name: "pool-pump"
+  name: "outdoor-equipment"
+  friendly_name: "Outdoor equipment"
 
 esphome:
-  friendly_name: "Pool pump"
   area: "Backyard"
 
 packages:
@@ -14,10 +14,12 @@ time:
   - hours: 15
     minutes: 35
     seconds: 0
+    months: APR-OCT
     then:
     - switch.turn_on: mystrom_relay
   - hours: 21
     minutes: 55
     seconds: 0
+    months: APR-OCT
     then:
     - switch.turn_off: mystrom_relay

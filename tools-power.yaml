@@ -1,0 +1,9 @@
+substitutions:
+  name: "tools-power"
+  friendly_name: "Tools power"
+
+esphome:
+  area: "Workshop"
+
+packages:
+  device_base: !include templates/mystrom.yaml

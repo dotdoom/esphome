@@ -1,0 +1,9 @@
+substitutions:
+  name: "freezer"
+  friendly_name: "Freezer"
+
+esphome:
+  area: "Cellar"
+
+packages:
+  device_base: !include templates/mystrom.yaml
