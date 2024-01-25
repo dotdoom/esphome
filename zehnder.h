@@ -1,3 +1,4 @@
+#include "math.h"
 #include "esphome.h"
 
 namespace {
@@ -17,6 +18,10 @@ class Zehnder : public Component, public Climate {
     ClimateMode target_mode = this->mode;
     float target_temp = this->target_temperature;
 
+    if (isnan(target_temp)) {
+    	    target_temp = 0;
+    }
+
     ESP_LOGD(TAG, "Received control message:");
     if (call.get_mode().has_value()) {
       target_mode = *call.get_mode();
@@ -24,7 +29,7 @@ class Zehnder : public Component, public Climate {
         ESP_LOGD(TAG, "  target mode off (set temperature to zero)");
         target_temp = 0;
       } else if (target_temp == 0) {
-        // If mode is switch to heat but target temperature is zero,
+        // If mode is switched to heat but target temperature is unset,
         // adjust target temperature to the maximum -- otherwise, it
         // doesn't make sense.
         ESP_LOGD(TAG, "  target mode heat (reset temperature to max)");
