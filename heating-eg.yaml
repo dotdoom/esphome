@@ -30,7 +30,7 @@ switch:
   - platform: gpio
     pin: GPIO16 # LED 2
     restore_mode: RESTORE_DEFAULT_OFF
-    name: "Living Room table"
+    name: "Living Room dining"
   - platform: gpio
     pin: GPIO14 # LED 3
     restore_mode: RESTORE_DEFAULT_OFF
@@ -42,4 +42,4 @@ switch:
   - platform: gpio
     pin: GPIO13 # LED 4
     restore_mode: RESTORE_DEFAULT_OFF
-    name: "Living Room TV"
+    name: "Living Room entertainment"
