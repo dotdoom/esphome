@@ -11,6 +11,10 @@ packages:
 time:
 - platform: sntp
   on_time:
+
+  #
+  # Pool pump
+  #
   - hours: 15
     minutes: 35
     seconds: 0
