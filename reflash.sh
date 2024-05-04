@@ -36,6 +36,7 @@ for config in \
 		recirculation-pump.yaml \
 		storage-heater.yaml \
 		basement-rack.yaml \
+		zigbee-coordinator.yaml \
 		tools-power.yaml; do
 	flash+=("${command?} ${config?}")
 done

@@ -1,0 +1,98 @@
+# Olimex ESP32-PoE with cc2652p connected to it.
+#
+# Product page:
+# https://github.com/tube0013/tube_gateways/tree/main/models/retired/tubeszb-cc2652-poe
+#
+# cc2652p firmware (launchpad):
+# https://github.com/Koenkk/Z-Stack-firmware/tree/master/coordinator/Z-Stack_3.x.0/bin
+# (latest flashed copy in zigbee-coordinator directory).
+#
+# Firmware flashing tool:
+# https://github.com/JelmerT/cc2538-bsl
+
+esphome:
+  name: zigbee-coordinator
+  friendly_name: "ZigBee Coordinator"
+  area: "Storage"
+
+  project:
+    name: dasfoo.cc2652-poe
+    version: "4.0"
+
+  on_boot:
+    priority: 600
+    then:
+    - script.execute: cc2652_reset
+
+packages:
+  device_base: !include templates/esp32-poe.yaml
+
+esp32:
+  framework:
+    type: esp-idf
+
+external_components:
+  - source: github://oxan/esphome-stream-server
+
+script:
+- id: fw_update_mode
+  then:
+  - switch.turn_on: zBSL
+  - delay: 1s
+  - switch.turn_on: zRST_gpio
+  - delay: 1s
+  - switch.turn_off: zRST_gpio
+  - logger.log: "Delaying ~10 seconds for cc2652p2 to settle"
+  - delay: 11s
+  - switch.turn_off: zBSL
+  - logger.log: "Please try update with cc2538-bsl tool now"
+  - logger.log: "cc-bsl usage: cc2538-bsl.py -p socket://ip-of-gw:6638 -evw firmware.hex"
+
+- id: cc2652_reset
+  then:
+  - switch.turn_on: zRST_gpio
+  - delay: 15ms
+  - switch.turn_off: zRST_gpio
+
+switch:
+- platform: gpio
+  pin: 33
+  id: zRST_gpio
+  inverted: yes
+  restore_mode: ALWAYS_OFF
+
+- platform: gpio
+  pin: 32
+  id: zBSL
+  inverted: yes
+  restore_mode: ALWAYS_OFF
+
+button:
+- platform: template
+  name: "ZigBee Module reset"
+  disabled_by_default: true
+  id: zRST
+  on_press:
+  - script.execute: cc2652_reset
+
+- platform: template
+  name: "ZigBee Module enter programming mode"
+  disabled_by_default: true
+  on_press:
+  - script.execute: fw_update_mode
+
+uart:
+  id: uart_bus
+  rx_pin: GPIO5
+  tx_pin: GPIO16
+  baud_rate: 115200
+
+stream_server:
+  uart_id: uart_bus
+  id: ss
+  port: 6638
+
+binary_sensor:
+- platform: stream_server
+  connected:
+    name: "ZigBee Module serial stream connected"
