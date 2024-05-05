@@ -8,8 +8,8 @@ esphome:
     version: "2.0"
 
   includes:
-    - somfy.h
-    - cc1101.h
+    - blinds/somfy.h
+    - blinds/cc1101.h
 
   libraries:
     - SPI

@@ -8,7 +8,7 @@ esphome:
     version: "1.0"
 
   includes:
-  - zehnder.h
+  - bathroomheater/zehnder.h
 
 packages:
   device_base: !include templates/esp8266.yaml
