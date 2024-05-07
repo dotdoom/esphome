@@ -118,6 +118,11 @@ sensor:
     then:
     - switch.turn_off: mystrom_relay
 
+- platform: duty_time
+  id: continuous_on_time
+  name: Continuous on time
+  lambda: "return id(mystrom_relay).state;"
+
 switch:
 - platform: gpio
   name: None  # Main entity for the device.
@@ -125,3 +130,5 @@ switch:
   id: mystrom_relay
   restore_mode: RESTORE_DEFAULT_ON
   device_class: outlet
+  on_turn_off:
+  - sensor.duty_time.reset: continuous_on_time

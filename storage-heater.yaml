@@ -8,13 +8,14 @@ esphome:
 packages:
   device_base: !include templates/mystrom.yaml
 
-sensor:
-- platform: duty_time
-  id: row_heating_time
-  name: Row heating time
-  lambda: "return id(mystrom_relay).state;"
-  on_value_range:
-    above: 18000 # 5h
-    then:
-    - switch.turn_off: mystrom_relay
-    - sensor.duty_time.reset: row_heating_time
+
+interval:
+- interval: 1min
+  then:
+  - if:
+      condition:
+        sensor.in_range:
+          id: continuous_on_time
+          above: 18000 # 5h
+      then:
+      - switch.turn_off: mystrom_relay
