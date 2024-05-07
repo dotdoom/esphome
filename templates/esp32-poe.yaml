@@ -14,9 +14,13 @@ ethernet:
   domain: ""
 
 text_sensor:
-  - platform: ethernet_info
-    ip_address:
-      name: "Device IP (Ethernet)"
+- platform: ethernet_info
+  ip_address:
+    name: "Device IP (Ethernet)"
+
+sensor:
+- platform: esp32_hall
+  name: "ESP chip Hall Effect strength"
 
 logger:
 
