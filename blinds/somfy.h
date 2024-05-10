@@ -7,7 +7,6 @@ namespace {
   static const uint8_t CMD_UP = 0x02;
   static const uint8_t CMD_DOWN = 0x04;
   static const uint8_t CMD_PROG = 0x08;
-  static const std::string ROLLING_CODE_PREFIX = "rolling_code/";
 
   static const int RF_SYMBOL = 640;
 }
@@ -18,12 +17,13 @@ class SomfyRTS : public Component, public Cover {
       this->rfPin = rfPin;
       this->remoteId = remoteId;
       this->mqtt = mqtt;
+      this->mqttTopicPrefix = mqtt->get_topic_prefix() + "/rolling_code/";
     }
 
     void setup() override {
       pinMode(rfPin, OUTPUT);
       digitalWrite(rfPin, LOW);
-      mqtt->subscribe(ROLLING_CODE_PREFIX + std::to_string(remoteId),
+      mqtt->subscribe(mqttTopicPrefix + std::to_string(remoteId),
                       [=](const std::string &topic, const std::string &payload) {
         if (rollingCode == 0) {
           ESP_LOGI(TAG, "Received rolling code for remote #%d from MQTT: %s",
@@ -58,6 +58,7 @@ class SomfyRTS : public Component, public Cover {
     int remoteId;
     int rollingCode = 0;
     esphome::mqtt::MQTTClientComponent* mqtt;
+    std::string mqttTopicPrefix;
 
     /* Wake up the blinds motor controller and send the command.
      * Overall, with repeats and syncs, takes about 510ms.
@@ -153,7 +154,7 @@ class SomfyRTS : public Component, public Cover {
       // Publish the new rolling code at the end to ensure fast reaction time
       // when the component is called. This method may be synchronous and
       // introduces an unpredictable delay.
-      mqtt->publish(ROLLING_CODE_PREFIX + std::to_string(remoteId),
+      mqtt->publish(mqttTopicPrefix + std::to_string(remoteId),
                     std::to_string(rollingCode), /*qos=*/1, /*retain=*/true);
     }
 };
