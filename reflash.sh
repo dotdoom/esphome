@@ -37,6 +37,8 @@ for config in \
 		storage-heater.yaml \
 		basement-rack.yaml \
 		zigbee-coordinator.yaml \
+		basementdoorlock.yaml \
+		frontdoorlock.yaml \
 		tools-power.yaml; do
 	flash+=("${command?} ${config?}")
 done
