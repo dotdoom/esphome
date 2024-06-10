@@ -10,3 +10,5 @@
 **/partitions.csv
 secrets.yaml
 /templates/.gitignore
+/.vscode
+**/__pycache__/
