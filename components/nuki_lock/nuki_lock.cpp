@@ -231,6 +231,49 @@ bool NukiLockComponent::update_key_turner_state_() {
   return true;
 }
 
+bool NukiLockComponent::update_lock_time_() {
+  if (time_source_ == nullptr) {
+    ESP_LOGE(TAG, "updating lock time failed: time source not set");
+    return false;
+  }
+
+  Nuki::CmdResult result = nuki_lock_->verifySecurityPin();
+  if (result != Nuki::CmdResult::Success) {
+    ESP_LOGE(TAG, "verifying security pin for lock time update failed: %s",
+             Adapt::cmd_result_to_string(result).c_str());
+    error_text_sensor_->publish_state(
+        Adapt::error_to_string(nuki_lock_->getLastError()));
+    return false;
+  }
+
+  ESPTime now = time_source_->utcnow();
+  if (!now.is_valid()) {
+    ESP_LOGE(TAG, "updating lock time failed: time source is invalid");
+    return false;
+  }
+
+  Nuki::TimeValue tv = {
+      .year = now.year,
+      .month = now.month,
+      .day = now.day_of_month,
+      .hour = now.hour,
+      .minute = now.minute,
+      .second = now.second,
+  };
+
+  ESP_LOGI(TAG, "Setting lock time: %.4d-%.2d-%.2d %.2d:%.2d:%.2d", tv.year,
+           tv.month, tv.day, tv.hour, tv.minute, tv.second);
+  result = nuki_lock_->updateTime(tv);
+  if (result != Nuki::CmdResult::Success) {
+    ESP_LOGE(TAG, "updating lock time failed: %s",
+             Adapt::cmd_result_to_string(result).c_str());
+    error_text_sensor_->publish_state(
+        Adapt::error_to_string(nuki_lock_->getLastError()));
+    return false;
+  }
+  return true;
+}
+
 bool NukiLockComponent::update_battery_report_() {
   NukiLock::BatteryReport batteryReport;
   Nuki::CmdResult result =
@@ -303,6 +346,10 @@ void NukiLockComponent::setup() {
   nuki_lock_->registerBleScanner(&scanner_);
   nuki_lock_->initialize();
   nuki_lock_->setEventHandler(this);
+
+  if (pin_set_) {
+    nuki_lock_->saveSecurityPincode(pin_);
+  }
 
   bool paired = nuki_lock_->isPairedWithLock();
   paired_binary_sensor_->publish_initial_state(paired);
@@ -387,6 +434,10 @@ void NukiLockComponent::ble_loop_() {
 void NukiLockComponent::update() {
   bool paired = nuki_lock_->isPairedWithLock();
   if (paired) {
+    if (time_source_ != nullptr) {
+      // Update time first, then request the state so we get updated time.
+      update_lock_time_();
+    }
     update_key_turner_state_();
     if (request_battery_reports_) {
       update_battery_report_();
@@ -477,6 +528,14 @@ void NukiLockComponent::dump_config() {
 
   ESP_LOGCONFIG(TAG, "  Restart after beacon latency: %dms",
                 restart_after_beacon_latency_);
+  if (time_source_ != nullptr) {
+    ESP_LOGCONFIG(TAG, "  Time source: set");
+  }
+  if (pin_set_) {
+    ESP_LOGCONFIG(
+        TAG, "  Pin: " ESPHOME_LOG_SECRET_BEGIN "%d" ESPHOME_LOG_SECRET_END,
+        pin_);
+  }
 }
 
 }  // namespace nuki_lock

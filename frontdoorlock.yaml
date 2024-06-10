@@ -22,6 +22,10 @@ button:
   - platform: factory_reset
     name: Restart with Factory Default Settings
 
+time:
+  - platform: sntp
+    id: sntp_time
+
 lock:
   - platform: nuki_lock
     name: None
@@ -44,3 +48,5 @@ lock:
       name: "Last action trigger"
     last_action_completion_status:
       name: "Last action completion status"
+    time_source: sntp_time
+    pin: !secret lock_pin

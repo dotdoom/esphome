@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 import esphome.const as c
-from esphome.components import lock, binary_sensor, text_sensor, sensor, button
+from esphome.components import lock, binary_sensor, text_sensor, sensor, button, time
 
 AUTO_LOAD = ["binary_sensor", "text_sensor", "sensor", "button"]
 
@@ -32,6 +32,7 @@ CONF_REQUEST_BATTERY_REPORTS = "request_battery_reports"
 CONF_RESTART_AFTER_BEACON_LATENCY = "restart_after_beacon_latency"
 CONF_REQUEST_STATE = "request_state"
 CONF_UNPAIR = "unpair"
+CONF_TIME_SOURCE = "time_source"
 
 nuki_lock_ns = cg.esphome_ns.namespace("nuki_lock")
 NukiLockComponent = nuki_lock_ns.class_("NukiLockComponent", lock.Lock, cg.PollingComponent)
@@ -184,6 +185,7 @@ CONFIG_SCHEMA = lock.LOCK_SCHEMA.extend({
         unit_of_measurement=c.UNIT_AMPERE,
         device_class=c.DEVICE_CLASS_CURRENT,
         accuracy_decimals=3,
+        # DEFAULT DISABLE. A few others, too.
     ),
 
     # Configuration.
@@ -203,8 +205,11 @@ CONFIG_SCHEMA = lock.LOCK_SCHEMA.extend({
         entity_category=c.ENTITY_CATEGORY_CONFIG,
         icon="mdi:close",
     ),
-}).extend(cv.polling_component_schema("30min"))
 
+    # Time autoupdate.
+    cv.Optional(c.CONF_PIN): cv.positive_int,
+    cv.Optional(CONF_TIME_SOURCE): cv.use_id(time.RealTimeClock),
+}).extend(cv.polling_component_schema("30min"))
 
 async def to_code(config):
     var = cg.new_Pvariable(config[c.CONF_ID])
@@ -269,3 +274,9 @@ async def to_code(config):
 
     if CONF_RESTART_AFTER_BEACON_LATENCY in config:
         cg.add(var.set_restart_after_beacon_latency(config[CONF_RESTART_AFTER_BEACON_LATENCY]))
+
+    if c.CONF_PIN in config:
+        cg.add(var.set_pin(config[c.CONF_PIN]))
+
+    if CONF_TIME_SOURCE in config:
+        cg.add(var.set_time_source(await cg.get_variable(config[CONF_TIME_SOURCE])))

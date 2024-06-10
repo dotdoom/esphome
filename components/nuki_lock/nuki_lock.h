@@ -8,7 +8,9 @@
 #include "esphome/components/lock/lock.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/text_sensor/text_sensor.h"
+#include "esphome/components/time/real_time_clock.h"
 #include "esphome/core/component.h"
+#include "esphome/core/time.h"
 
 namespace esphome {
 namespace nuki_lock {
@@ -22,7 +24,8 @@ class NukiLockComponent : public lock::Lock,
         last_passive_update_millis_(0),
         restart_after_beacon_latency_(0),
         update_scheduled_(false),
-        request_battery_reports_(false){};
+        request_battery_reports_(false),
+        pin_set_(false){};
 
   // Component.
   void setup() override;
@@ -81,6 +84,13 @@ class NukiLockComponent : public lock::Lock,
     restart_after_beacon_latency_ = value;
   }
 
+  void set_pin(unsigned long value) {
+    pin_ = value;
+    pin_set_ = true;
+  }
+
+  void set_time_source(time::RealTimeClock *value) { time_source_ = value; }
+
   // RequestStateButton.
   void schedule_update();
 
@@ -95,11 +105,15 @@ class NukiLockComponent : public lock::Lock,
  private:
   bool update_key_turner_state_();
   bool update_battery_report_();
+  bool update_lock_time_();
   void ble_loop_();
   void send_action_(NukiLock::LockAction action);
 
   NukiLock::NukiLock *nuki_lock_;
   BleScanner::Scanner scanner_;
+  time::RealTimeClock *time_source_{nullptr};
+  uint16_t pin_;
+  bool pin_set_;
 
   unsigned long last_passive_update_millis_;
   unsigned long restart_after_beacon_latency_;
