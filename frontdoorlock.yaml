@@ -7,46 +7,5 @@ esphome:
     name: dasfoo.frontdoorlock
     version: "1.0"
 
-  libraries:
-    - Preferences
-    - https://github.com/vinmenn/Crc16.git
-    - https://github.com/I-Connect/NukiBleEsp32
-
-external_components:
-  - source: components
-
 packages:
-  device_base: !include templates/esp32-poe.yaml
-
-button:
-  - platform: factory_reset
-    name: Restart with Factory Default Settings
-
-time:
-  - platform: sntp
-    id: sntp_time
-
-lock:
-  - platform: nuki_lock
-    name: None
-    request_battery_reports: true
-    beacon_rssi:
-      name: "Beacon RSSI"
-    heartbeat_latency:
-      name: "Heartbeat latency"
-    beacon_latency:
-      name: "Beacon latency"
-    beacon_ble_address:
-      name: "Beacon BLE address"
-    lock_current_datetime:
-      name: "Lock current datetime"
-    config_update_count:
-      name: "Config update count"
-    last_action:
-      name: "Last action"
-    last_action_trigger:
-      name: "Last action trigger"
-    last_action_completion_status:
-      name: "Last action completion status"
-    time_source: sntp_time
-    pin: !secret lock_pin
+  device_base: !include templates/nuki.yaml
