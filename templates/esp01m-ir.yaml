@@ -1,0 +1,24 @@
+esp8266:
+  board: esp01_1m
+
+packages:
+  wifi: !include wifi.yaml
+  ota: !include ota.yaml
+  mqtt: !include mqtt.yaml
+  uptime: !include uptime.yaml
+  restart: !include restart.yaml
+
+logger:
+
+remote_transmitter:
+  pin: GPIO4
+  carrier_duty_percent: 50%
+
+remote_receiver:
+  id: ir_receiver
+  pin:
+    number: 14
+    inverted: true
+    mode:
+      input: true
+      pullup: true
