@@ -1,0 +1,16 @@
+esphome:
+  name: child-west-ac
+  friendly_name: "Child West AC"
+  area: "Child West"
+
+  project:
+    name: dasfoo.child-west-ac
+    version: "1.0"
+
+packages:
+  device_base: !include templates/esp01m-ir.yaml
+
+climate:
+  - platform: tcl112
+    name: None  # Main entity for the device.
+    receiver_id: ir_receiver
