@@ -123,6 +123,9 @@ sensor:
   name: Continuous on time
   lambda: "return id(mystrom_relay).state;"
 
+- platform: esp32_hall
+  name: "ESP chip Hall Effect strength"
+
 switch:
 - platform: gpio
   name: None  # Main entity for the device.
