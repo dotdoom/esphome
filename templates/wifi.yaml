@@ -10,6 +10,8 @@ text_sensor:
     name: "Device IP"
   bssid:
     name: "Connected to BSSID"
+    filters:
+    - substitute: !secret wifi_ap_lookup
 
 wifi:
   ssid: !secret wifi_ssid
