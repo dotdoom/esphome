@@ -84,23 +84,24 @@ display:
       it.circle(112, 16, 12);
     }
 
-dallas:
-- pin: GPIO27
+one_wire:
+- platform: gpio
+  pin: GPIO27
 
 sensor:
-- platform: dallas
+- platform: dallas_temp
   address: 0x133c2cf648f40728
   id: boiler_temperature
   name: "Boiler temperature"
   filters:
   - offset: 0.5
 
-- platform: dallas
+- platform: dallas_temp
   address: 0x4845b7211864ff28
   id: hot_water_temperature
   name: "Hot water temperature"
 
-- platform: dallas
+- platform: dallas_temp
   address: 0x6a0316643959ff28
   id: floor_temperature
   name: "Floor temperature"
