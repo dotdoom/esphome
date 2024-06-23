@@ -11,6 +11,7 @@ text_sensor:
   bssid:
     name: "Connected to BSSID"
     filters:
+    - to_upper
     - substitute: !secret wifi_ap_lookup
 
 wifi:
