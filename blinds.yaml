@@ -57,8 +57,8 @@ cover:
       - name: "Kitchen door"
       - name: "Living Room door"
       - name: "Living Room window"
-      - name: "Guest East window"
-      - name: "Guest East door"
+      - name: "Child East window"
+      - name: "Child East door"
 
   - platform: template
     name: "Wintergarten"
