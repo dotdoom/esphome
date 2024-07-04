@@ -10,6 +10,7 @@ packages:
 
 time:
 - platform: sntp
+  servers: [eye]
   on_time:
 
   #

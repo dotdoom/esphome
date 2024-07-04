@@ -19,6 +19,7 @@ button:
 
 time:
   - platform: sntp
+    servers: [eye]
     id: sntp_time
 
 lock:
