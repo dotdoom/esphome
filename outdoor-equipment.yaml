@@ -14,7 +14,11 @@ time:
   on_time:
 
   #
-  # Pool pump
+  # Pool pump: requires 6h of pumping daily, of which 3h
+  #            run with saltwater system enabled, usually
+  #            17:00 - 20:00 to balance between lower sunlight
+  #            (for chlorine generation) and lower humidity
+  #            (for ozone generation).
   #
   - hours: 15
     minutes: 35
@@ -23,7 +27,7 @@ time:
     then:
     - switch.turn_on: mystrom_relay
   - hours: 21
-    minutes: 55
+    minutes: 35
     seconds: 0
     months: APR-OCT
     then:
