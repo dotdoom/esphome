@@ -17,6 +17,8 @@ text_sensor:
 - platform: ethernet_info
   ip_address:
     name: "Device IP (Ethernet)"
+  mac_address:
+    name: "Device MAC (Ethernet)"
 
 sensor:
 - platform: esp32_hall
