@@ -13,7 +13,3 @@ logger:
 status_led:
   pin:
     number: GPIO2
-
-sensor:
-- platform: esp32_hall
-  name: "ESP chip Hall Effect strength"
