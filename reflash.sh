@@ -35,7 +35,7 @@ for config in \
 		outdoor-equipment.yaml \
 		recirculation-pump.yaml \
 		storage-heater.yaml \
-		basement-rack.yaml \
+		basement-dehum.yaml \
 		zigbee-coordinator.yaml \
 		basementdoorlock.yaml \
 		frontdoorlock.yaml \

@@ -1,0 +1,9 @@
+substitutions:
+  name: "basement-dehum"
+  friendly_name: "Basement dehumidifier"
+
+esphome:
+  area: "Basement"
+
+packages:
+  device_base: !include templates/mystrom.yaml
