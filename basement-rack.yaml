@@ -1,9 +1,0 @@
-substitutions:
-  name: "basement-rack"
-  friendly_name: "Basement rack"
-
-esphome:
-  area: "Basement"
-
-packages:
-  device_base: !include templates/mystrom.yaml
