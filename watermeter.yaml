@@ -20,9 +20,9 @@ sensor:
   # pulse length at a maximum flow rate for the meter.
   internal_filter: 720ms
   # Assuming Qmin=50 (l/h), a flow with >72 seconds between pulses
-  # is beyond the measuring capabilities (0.83 L/min which is just
-  # below irrigation consumption).
-  timeout: 72s
+  # is beyond the measuring capabilities. However, one of the
+  # irrigation valves only consumes 0.73 L/min, so we push it a bit.
+  timeout: 90s
 
   pin:
     number: D2
