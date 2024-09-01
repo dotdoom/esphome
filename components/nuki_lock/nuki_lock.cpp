@@ -294,15 +294,16 @@ bool NukiLockComponent::update_battery_report_() {
                                          1000.0f);
   battery_resistance_sensor_->publish_state(batteryReport.batteryResistance /
                                             1000.0f);
-  battery_lowest_voltage_sensor_->publish_state(batteryReport.lowestVoltage /
+  last_action_lowest_voltage_sensor_->publish_state(batteryReport.lowestVoltage /
                                                 1000.0f);
   last_action_start_voltage_sensor_->publish_state(batteryReport.startVoltage /
                                                    1000.0f);
   last_action_lock_distance_sensor_->publish_state(batteryReport.lockDistance);
   last_action_start_temperature_sensor_->publish_state(
       batteryReport.startTemperature);
+  // Milliwattseconds (mWs) to Wh.
   last_action_battery_drain_sensor_->publish_state(batteryReport.batteryDrain /
-                                                   1000.0f);
+                                                   1000.0f / 3600.0f);
   last_action_max_turn_current_sensor_->publish_state(
       batteryReport.maxTurnCurrent / 1000.0f);
 
@@ -518,7 +519,7 @@ void NukiLockComponent::dump_config() {
     // Optional sensors - battery report.
     LOG_SENSOR("  ", "", battery_voltage_sensor_);
     LOG_SENSOR("  ", "", battery_resistance_sensor_);
-    LOG_SENSOR("  ", "", battery_lowest_voltage_sensor_);
+    LOG_SENSOR("  ", "", last_action_lowest_voltage_sensor_);
     LOG_SENSOR("  ", "", last_action_start_voltage_sensor_);
     LOG_SENSOR("  ", "", last_action_lock_distance_sensor_);
     LOG_SENSOR("  ", "", last_action_start_temperature_sensor_);

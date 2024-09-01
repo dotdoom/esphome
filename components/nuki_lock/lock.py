@@ -22,7 +22,7 @@ CONF_LAST_ACTION_TRIGGER = "last_action_trigger"
 CONF_LAST_ACTION_COMPLETION_STATUS = "last_action_completion_status"
 CONF_NIGHT_MODE_ACTIVE = "night_mode_active"
 CONF_BATTERY_RESISTANCE = "battery_resistance"
-CONF_BATTERY_LOWEST_VOLTAGE = "battery_lowest_voltage"
+CONF_LAST_ACTION_LOWEST_VOLTAGE = "last_action_lowest_voltage"
 CONF_LAST_ACTION_START_VOLTAGE = "last_action_start_voltage"
 CONF_LAST_ACTION_LOCK_DISTANCE = "last_action_lock_distance"
 CONF_LAST_ACTION_START_TEMPERATURE = "last_action_start_temperature"
@@ -44,39 +44,39 @@ CONFIG_SCHEMA = lock.LOCK_SCHEMA.extend({
 
     # Required sensors (if unconfigured, defaults are used).
     cv.Optional(CONF_PAIRED, default={
-        "name": "Paired",
+        c.CONF_NAME: "Paired",
     }): binary_sensor.binary_sensor_schema(
         device_class=c.DEVICE_CLASS_CONNECTIVITY,
     ),
     cv.Optional(CONF_ERROR, default={
-        "name": "Error",
+        c.CONF_NAME: "Error",
     }): text_sensor.text_sensor_schema(
         icon="mdi:alert",
     ),
     cv.Optional(CONF_BATTERY_CRITICAL, default={
-        "name": "Battery critical",
+        c.CONF_NAME: "Battery critical",
     }): binary_sensor.binary_sensor_schema(
         device_class=c.DEVICE_CLASS_BATTERY,
     ),
     cv.Optional(c.CONF_BATTERY_LEVEL, default={
-        "name": "Battery",
+        c.CONF_NAME: "Battery",
     }): sensor.sensor_schema(
         device_class=c.DEVICE_CLASS_BATTERY,
         unit_of_measurement=c.UNIT_PERCENT,
     ),
     cv.Optional(CONF_DOOR_CONTACT, default={
-        "name": "Door contact",
+        c.CONF_NAME: "Door contact",
     }): binary_sensor.binary_sensor_schema(
         device_class=c.DEVICE_CLASS_DOOR,
     ),
     cv.Optional(CONF_DOOR_CONTACT_SENSOR, default={
-        "name": "Door contact sensor",
+        c.CONF_NAME: "Door contact sensor",
     }): text_sensor.text_sensor_schema(),
     cv.Optional(CONF_TRIGGER, default={
-        "name": "Trigger",
+        c.CONF_NAME: "Trigger",
     }): text_sensor.text_sensor_schema(),
     cv.Optional(CONF_NIGHT_MODE_ACTIVE, default={
-        "name": "Night mode active",
+        c.CONF_NAME: "Night mode active",
     }): binary_sensor.binary_sensor_schema(
         icon="mdi:weather-night",
     ),
@@ -117,7 +117,7 @@ CONFIG_SCHEMA = lock.LOCK_SCHEMA.extend({
     # Optional sensors - battery report.
     cv.Optional(CONF_REQUEST_BATTERY_REPORTS, default=False): cv.boolean,
     cv.Optional(c.CONF_BATTERY_VOLTAGE, default={
-        "name": "Battery voltage",
+        c.CONF_NAME: "Battery voltage",
     }): sensor.sensor_schema(
         state_class=c.STATE_CLASS_MEASUREMENT,
         entity_category=c.ENTITY_CATEGORY_DIAGNOSTIC,
@@ -126,7 +126,7 @@ CONFIG_SCHEMA = lock.LOCK_SCHEMA.extend({
         accuracy_decimals=3,
     ),
     cv.Optional(CONF_BATTERY_RESISTANCE, default={
-        "name": "Battery resistance",
+        c.CONF_NAME: "Battery resistance",
     }): sensor.sensor_schema(
         state_class=c.STATE_CLASS_MEASUREMENT,
         entity_category=c.ENTITY_CATEGORY_DIAGNOSTIC,
@@ -134,8 +134,8 @@ CONFIG_SCHEMA = lock.LOCK_SCHEMA.extend({
         accuracy_decimals=3,
         icon="mdi:resistor",
     ),
-    cv.Optional(CONF_BATTERY_LOWEST_VOLTAGE, default={
-        "name": "Battery lowest voltage",
+    cv.Optional(CONF_LAST_ACTION_LOWEST_VOLTAGE, default={
+        c.CONF_NAME: "Last action lowest voltage",
     }): sensor.sensor_schema(
         state_class=c.STATE_CLASS_MEASUREMENT,
         entity_category=c.ENTITY_CATEGORY_DIAGNOSTIC,
@@ -144,7 +144,7 @@ CONFIG_SCHEMA = lock.LOCK_SCHEMA.extend({
         accuracy_decimals=3,
     ),
     cv.Optional(CONF_LAST_ACTION_START_VOLTAGE, default={
-        "name": "Last action start voltage",
+        c.CONF_NAME: "Last action start voltage",
     }): sensor.sensor_schema(
         state_class=c.STATE_CLASS_MEASUREMENT,
         entity_category=c.ENTITY_CATEGORY_DIAGNOSTIC,
@@ -153,7 +153,7 @@ CONFIG_SCHEMA = lock.LOCK_SCHEMA.extend({
         accuracy_decimals=3,
     ),
     cv.Optional(CONF_LAST_ACTION_LOCK_DISTANCE, default={
-        "name": "Last action lock distance",
+        c.CONF_NAME: "Last action lock distance",
     }): sensor.sensor_schema(
         state_class=c.STATE_CLASS_MEASUREMENT,
         entity_category=c.ENTITY_CATEGORY_DIAGNOSTIC,
@@ -161,31 +161,31 @@ CONFIG_SCHEMA = lock.LOCK_SCHEMA.extend({
         icon="mdi:rotate-360",
     ),
     cv.Optional(CONF_LAST_ACTION_START_TEMPERATURE, default={
-        "name": "Last action start temperature",
+        c.CONF_NAME: "Last action start temperature",
     }): sensor.sensor_schema(
         state_class=c.STATE_CLASS_MEASUREMENT,
         entity_category=c.ENTITY_CATEGORY_DIAGNOSTIC,
-        unit_of_measurement=c.UNIT_DEGREES,
+        unit_of_measurement=c.UNIT_CELSIUS,
         device_class=c.DEVICE_CLASS_TEMPERATURE,
     ),
     cv.Optional(CONF_LAST_ACTION_BATTERY_DRAIN, default={
-        "name": "Last action battery drain",
+        c.CONF_NAME: "Last action battery drain",
     }): sensor.sensor_schema(
         state_class=c.STATE_CLASS_MEASUREMENT,
         entity_category=c.ENTITY_CATEGORY_DIAGNOSTIC,
         unit_of_measurement=c.UNIT_WATT_HOURS,
         device_class=c.DEVICE_CLASS_ENERGY,
-        accuracy_decimals=3,
+        accuracy_decimals=5,
     ),
     cv.Optional(CONF_LAST_ACTION_MAX_TURN_CURRENT, default={
-        "name": "Last action max turn current",
+        c.CONF_NAME: "Last action max turn current",
+        c.CONF_DISABLED_BY_DEFAULT: True,  # A few others, too.
     }): sensor.sensor_schema(
         state_class=c.STATE_CLASS_MEASUREMENT,
         entity_category=c.ENTITY_CATEGORY_DIAGNOSTIC,
         unit_of_measurement=c.UNIT_AMPERE,
         device_class=c.DEVICE_CLASS_CURRENT,
         accuracy_decimals=3,
-        # DEFAULT DISABLE. A few others, too.
     ),
 
     # Configuration.
@@ -193,13 +193,13 @@ CONFIG_SCHEMA = lock.LOCK_SCHEMA.extend({
 
     # Actions.
     cv.Optional(CONF_REQUEST_STATE, default={
-        "name": "Request state",
+        c.CONF_NAME: "Request state",
     }): button.button_schema(RequestStateButton,
         entity_category=c.ENTITY_CATEGORY_CONFIG,
         icon="mdi:refresh",
     ),
     cv.Optional(CONF_UNPAIR, default={
-        "name": "Unpair",
+        c.CONF_NAME: "Unpair",
     }): button.button_schema(
         UnpairButton,
         entity_category=c.ENTITY_CATEGORY_CONFIG,
@@ -265,7 +265,7 @@ async def to_code(config):
         cg.add(var.set_request_battery_reports(True))
         cg.add(var.set_battery_voltage_sensor(await sensor.new_sensor(config[c.CONF_BATTERY_VOLTAGE])))
         cg.add(var.set_battery_resistance_sensor(await sensor.new_sensor(config[CONF_BATTERY_RESISTANCE])))
-        cg.add(var.set_battery_lowest_voltage_sensor(await sensor.new_sensor(config[CONF_BATTERY_LOWEST_VOLTAGE])))
+        cg.add(var.set_last_action_lowest_voltage_sensor(await sensor.new_sensor(config[CONF_LAST_ACTION_LOWEST_VOLTAGE])))
         cg.add(var.set_last_action_start_voltage_sensor(await sensor.new_sensor(config[CONF_LAST_ACTION_START_VOLTAGE])))
         cg.add(var.set_last_action_lock_distance_sensor(await sensor.new_sensor(config[CONF_LAST_ACTION_LOCK_DISTANCE])))
         cg.add(var.set_last_action_start_temperature_sensor(await sensor.new_sensor(config[CONF_LAST_ACTION_START_TEMPERATURE])))

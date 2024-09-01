@@ -64,7 +64,7 @@ class NukiLockComponent : public lock::Lock,
   // Battery report.
   SUB_SENSOR(battery_voltage)
   SUB_SENSOR(battery_resistance)
-  SUB_SENSOR(battery_lowest_voltage)
+  SUB_SENSOR(last_action_lowest_voltage)
   SUB_SENSOR(last_action_start_voltage)
   SUB_SENSOR(last_action_lock_distance)
   SUB_SENSOR(last_action_start_temperature)
