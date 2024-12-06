@@ -1,0 +1,36 @@
+# ESP32-PoE with cc2652p7 connected to it.
+#
+# Primary purpose is home lights (and related sensors, such as motion) ZigBee
+# network.
+#
+# The original config is:
+# https://github.com/tube0013/TubesZB-ESPHome-Builder/blob/main/esphome-config/tubeszb-cc2652p7-poe-2023.yaml
+
+substitutions:
+  channel: "25"
+
+esphome:
+  area: "Office"
+
+packages:
+  device_base: !include templates/tubeszb-coordinator.yaml
+
+switch:
+- platform: gpio
+  pin: 5
+  id: zRST_gpio
+  inverted: yes
+  restore_mode: ALWAYS_OFF
+
+- platform: gpio
+  pin: 16
+  id: zBSL
+  inverted: yes
+  restore_mode: ALWAYS_OFF
+
+uart:
+  id: uart_bus
+  rx_pin: GPIO36
+  tx_pin: GPIO4
+  baud_rate: 115200
+  rx_buffer_size: 1024

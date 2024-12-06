@@ -1,0 +1,33 @@
+# Olimex ESP32-PoE with cc2652p connected to it.
+#
+# Product page:
+# https://github.com/tube0013/tube_gateways/tree/main/models/retired/tubeszb-cc2652-poe
+
+substitutions:
+  channel: "24"
+
+esphome:
+  area: "Storage"
+
+packages:
+  device_base: !include templates/tubeszb-coordinator.yaml
+
+switch:
+- platform: gpio
+  pin: 33
+  id: zRST_gpio
+  inverted: yes
+  restore_mode: ALWAYS_OFF
+
+- platform: gpio
+  pin: 32
+  id: zBSL
+  inverted: yes
+  restore_mode: ALWAYS_OFF
+
+uart:
+  id: uart_bus
+  rx_pin: GPIO5
+  tx_pin: GPIO16
+  baud_rate: 115200
+  rx_buffer_size: 1024

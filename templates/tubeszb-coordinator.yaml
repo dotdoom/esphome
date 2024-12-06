@@ -1,7 +1,5 @@
-# Olimex ESP32-PoE with cc2652p connected to it.
-#
-# Product page:
-# https://github.com/tube0013/tube_gateways/tree/main/models/retired/tubeszb-cc2652-poe
+# ESP32 PoE board with ZigBee module (cc2652) connected to it via serial.
+# The purpose is to expose that serial port via TCP.
 #
 # cc2652p firmware (launchpad):
 # https://github.com/Koenkk/Z-Stack-firmware/tree/master/coordinator/Z-Stack_3.x.0/bin
@@ -11,13 +9,12 @@
 # https://github.com/JelmerT/cc2538-bsl
 
 esphome:
-  name: zigbee-coordinator
-  friendly_name: "ZigBee Coordinator"
-  area: "Storage"
+  name: "zigbee-coordinator-ch${channel}"
+  friendly_name: "ZigBee Coordinator CH${channel}"
 
   project:
-    name: dasfoo.cc2652-poe
-    version: "4.0"
+    name: "dasfoo.zigbee-coordinator-ch${channel}"
+    version: "5.0"
 
   on_boot:
     priority: 600
@@ -25,7 +22,7 @@ esphome:
     - script.execute: cc2652_reset
 
 packages:
-  device_base: !include templates/esp32-poe.yaml
+  device_base: !include esp32-poe.yaml
 
 esp32:
   framework:
@@ -42,7 +39,7 @@ script:
   - switch.turn_on: zRST_gpio
   - delay: 1s
   - switch.turn_off: zRST_gpio
-  - logger.log: "Delaying ~10 seconds for cc2652p2 to settle"
+  - logger.log: "Delaying ~10 seconds for cc2652 to settle"
   - delay: 11s
   - switch.turn_off: zBSL
   - logger.log: "Please try update with cc2538-bsl tool now"
@@ -53,19 +50,6 @@ script:
   - switch.turn_on: zRST_gpio
   - delay: 15ms
   - switch.turn_off: zRST_gpio
-
-switch:
-- platform: gpio
-  pin: 33
-  id: zRST_gpio
-  inverted: yes
-  restore_mode: ALWAYS_OFF
-
-- platform: gpio
-  pin: 32
-  id: zBSL
-  inverted: yes
-  restore_mode: ALWAYS_OFF
 
 button:
 - platform: template
@@ -81,16 +65,11 @@ button:
   on_press:
   - script.execute: fw_update_mode
 
-uart:
-  id: uart_bus
-  rx_pin: GPIO5
-  tx_pin: GPIO16
-  baud_rate: 115200
-
 stream_server:
   uart_id: uart_bus
   id: ss
   port: 6638
+  buffer_size: 1024
 
 binary_sensor:
 - platform: stream_server
