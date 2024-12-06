@@ -82,30 +82,16 @@ sensor:
   unit_of_measurement: "W"
   accuracy_decimals: 0
   filters:
-  # Map from sensor -> measured value (pulse/min -> W),
-  # taken from https://github.com/mightea/esphome-mystrom-devices
-  - calibrate_linear:
-    - 0.0 -> 1.55
-    - 2698.5 -> 85
-    - 4397.25 -> 146
-    - 30900 -> 1005
-    - 44634.56 -> 1439
-    - 59643.75 -> 1930
-  # Correct 1.55W for the power usage of the plug.
-  - offset: -1.55
-  # Make everything below 1W appear as just 0W.
-  - lambda: if (x < 1) return 0; return x;
+  - multiply: 3.29E-02  # pulse/min -> W
 
-- platform: integration
-  sensor: mystrom_power_consumption
-  name: "Power consumption total"
-  time_unit: "h"
-  unit_of_measurement: "kWh"
-  device_class: "energy"
-  state_class: "total_increasing"
-  accuracy_decimals: 2
-  filters:
-  - multiply: 0.001
+  total:
+    name: "Energy consumption"
+    unit_of_measurement: "kWh"
+    device_class: "energy"
+    state_class: "total_increasing"
+    accuracy_decimals: 3
+    filters:
+    - multiply: 5.48E-07  # pulses -> kWh
 
 - platform: tmp102
   id: mystrom_temperature
