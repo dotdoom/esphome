@@ -36,7 +36,8 @@ for config in \
 		recirculation-pump.yaml \
 		storage-heater.yaml \
 		basement-dehum.yaml \
-		zigbee-coordinator.yaml \
+		zigbee-coordinator-ch24.yaml \
+		zigbee-coordinator-ch25.yaml \
 		basementdoorlock.yaml \
 		frontdoorlock.yaml \
 		child-west-ac.yaml \
