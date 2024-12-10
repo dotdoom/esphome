@@ -14,7 +14,8 @@ esphome:
   # - Boiler which keeps hot water (but can also heat it
   #   electrically, albeit turned on/off at the mains).
   #
-  #   r/o: temperature.
+  #   r/o: internal boiler temperature.
+  #   r/o: outgoing (top) water pipe temperature.
   #
   # - Floor heating which is technically controlled
   #   via furnace control panel, but is a separate system.
@@ -25,33 +26,11 @@ esphome:
   #
   #   r/o: flow temperature.
   #   r/o: active (flow temperature controlled) / inactive (idle).
-  #   r/w: mode (instruct the flow to start heating).
+  #   r/w: intent (instruct the flow to start heating).
 
   project:
     name: dasfoo.heating
     version: "2.0"
-
-  on_boot:
-    then:
-      - if:
-          condition:
-            switch.is_off: relay_temperature_manual
-          then:
-            - select.set:
-                id: floor_mode
-                option: "auto"
-          else:
-            - if:
-                condition:
-                  switch.is_on: relay_temperature_warm
-                then:
-                  - select.set:
-                      id: floor_mode
-                      option: "off"
-                else:
-                  - select.set:
-                      id: floor_mode
-                      option: "on"
 
 packages:
   device_base: !include templates/esp32.yaml
@@ -151,32 +130,10 @@ switch:
   pin: GPIO25
   id: relay_temperature_manual
   inverted: true
-  restore_mode: RESTORE_DEFAULT_OFF
+  # Non-manual is no longer wired to anything.
+  restore_mode: ALWAYS_ON
 
 - platform: gpio
   pin: GPIO26
-  id: relay_temperature_warm
-  inverted: true
+  name: "Floor intent"
   restore_mode: RESTORE_DEFAULT_OFF
-
-select:
-- platform: template
-  name: "Floor mode"
-  id: floor_mode
-  options:
-  - "on"
-  - "off"
-  - "auto"
-  optimistic: true
-  set_action:
-    lambda: |-
-      if (x == "auto") {
-        id(relay_temperature_manual).turn_off();
-      } else {
-        if (x == "off") {
-          id(relay_temperature_warm).turn_on();
-        } else {
-          id(relay_temperature_warm).turn_off();
-        }
-        id(relay_temperature_manual).turn_on();
-      }
