@@ -62,7 +62,7 @@ cover:
 
   - platform: template
     name: "Wintergarten"
-    device_class: shade
+    device_class: awning
     optimistic: true
     assumed_state: true # always show both buttons
     stop_action:
