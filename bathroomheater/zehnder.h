@@ -11,7 +11,7 @@ namespace {
 class Zehnder : public Component, public Climate {
  public:
   void retransmit() {
-    this->transmit_temperature_(this->target_temperature);
+    this->transmit_temperature_(&this->target_temperature);
   }
 
   void control(const ClimateCall &call) override {
@@ -19,7 +19,7 @@ class Zehnder : public Component, public Climate {
     float target_temp = this->target_temperature;
 
     if (isnan(target_temp)) {
-    	    target_temp = 0;
+      target_temp = 0;
     }
 
     ESP_LOGD(TAG, "Received control message:");
@@ -50,7 +50,7 @@ class Zehnder : public Component, public Climate {
       }
     }
 
-    if (this->transmit_temperature_(target_temp)) {
+    if (this->transmit_temperature_(&target_temp)) {
       this->mode = target_mode;
       this->target_temperature = target_temp;
       this->publish_state();
@@ -63,9 +63,11 @@ class Zehnder : public Component, public Climate {
 
     traits.set_visual_min_temperature(MIN_TEMPERATURE);
     traits.set_visual_max_temperature(MAX_TEMPERATURE);
-    traits.set_visual_temperature_step(
-      (MAX_TEMPERATURE - MIN_TEMPERATURE) / (TEMPERATURE_LEVELS - 1)
-    );
+    // Must be
+    // (MAX_TEMPERATURE - MIN_TEMPERATURE) / (TEMPERATURE_LEVELS - 1)
+    // but no longer supported by HA, because this component
+    // uses the same value to transmit precision.
+    traits.set_visual_temperature_step(1);
 
     if (has_temperature_sensor_) {
       traits.set_supports_current_temperature(true);
@@ -95,16 +97,23 @@ class Zehnder : public Component, public Climate {
   remote_transmitter::RemoteTransmitterComponent *transmitter_ = nullptr;
   bool has_temperature_sensor_ = false;
 
-  bool transmit_temperature_(float temp) {
-    return this->transmit_level_(temp == 0
-      ? 0
-      : (
-        (temp - MIN_TEMPERATURE) *
+  bool transmit_temperature_(float* temp) {
+    uint8_t level;
+    if (*temp == 0) {
+      level = 0;
+    } else {
+      level =
+        (*temp - MIN_TEMPERATURE) *
         (TEMPERATURE_LEVELS - 1) /
         (MAX_TEMPERATURE - MIN_TEMPERATURE) +
-        1
-      )
-    );
+        1;
+      *temp =
+        (MAX_TEMPERATURE - MIN_TEMPERATURE) /
+        (TEMPERATURE_LEVELS - 1) *
+        level +
+        MIN_TEMPERATURE;
+    }
+    return this->transmit_level_(level);
   }
 
   bool transmit_level_(uint8_t level) {
