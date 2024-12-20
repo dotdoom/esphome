@@ -97,7 +97,7 @@ class Zehnder : public Component, public Climate {
   remote_transmitter::RemoteTransmitterComponent *transmitter_ = nullptr;
   bool has_temperature_sensor_ = false;
 
-  bool transmit_temperature_(float* temp) {
+  bool transmit_temperature_(float *temp) {
     uint8_t level;
     if (*temp == 0) {
       level = 0;
@@ -107,17 +107,21 @@ class Zehnder : public Component, public Climate {
         (TEMPERATURE_LEVELS - 1) /
         (MAX_TEMPERATURE - MIN_TEMPERATURE) +
         1;
+      if (level > TEMPERATURE_LEVELS) {
+        level = TEMPERATURE_LEVELS;
+      }
+
       *temp =
         (MAX_TEMPERATURE - MIN_TEMPERATURE) /
         (TEMPERATURE_LEVELS - 1) *
-        level +
+        (level - 1) +
         MIN_TEMPERATURE;
     }
     return this->transmit_level_(level);
   }
 
   bool transmit_level_(uint8_t level) {
-    if (level > 8) {
+    if (level > TEMPERATURE_LEVELS) {
       ESP_LOGE(TAG, "Unsupported heater level: %d. Ignoring command", level);
       return false;
     }
