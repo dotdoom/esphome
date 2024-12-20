@@ -8,3 +8,18 @@ esphome:
 
 packages:
   device_base: !include templates/esp01s.yaml
+
+button:
+  - platform: template
+    name: "Short beep"
+    on_press:
+      - switch.turn_on: relay
+      - delay: 1ms
+      - switch.turn_off: relay
+
+  - platform: template
+    name: "Beep"
+    on_press:
+      - switch.turn_on: relay
+      - delay: 200ms
+      - switch.turn_off: relay

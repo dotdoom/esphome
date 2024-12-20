@@ -15,3 +15,4 @@ switch:
   pin: GPIO0
   name: None
   inverted: true
+  id: relay
