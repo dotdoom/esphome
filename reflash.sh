@@ -48,7 +48,8 @@ for config in \
 done
 
 for btproxy_replica in \
-	c25bac
+	c25bac \
+	c25b74
 do
 	flash+=("${command?} btproxy.yaml --device btproxy-${btproxy_replica?}")
 done
