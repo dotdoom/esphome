@@ -1,5 +1,5 @@
 mqtt:
-  broker: eye
+  broker: !secret mqtt_broker
   username: esphome
   password: !secret mqtt_password
   id: mqtt_homeassistant

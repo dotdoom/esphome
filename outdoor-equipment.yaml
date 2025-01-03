@@ -10,7 +10,7 @@ packages:
 
 time:
 - platform: sntp
-  servers: [eye]
+  servers: !secret sntp_servers
   on_time:
 
   #

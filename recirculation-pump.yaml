@@ -10,7 +10,7 @@ packages:
 
 time:
 - platform: sntp
-  servers: [eye]
+  servers: !secret sntp_servers
   on_time:
   # Heating schedule is 5AM to 8PM. Judging by the burner state, it means that
   # by 5AM the water is expected to be hot (60C) and at 8PM it's expected to be
