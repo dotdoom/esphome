@@ -48,6 +48,7 @@ for config in \
 done
 
 for btproxy_replica in \
+	c257a8 \
 	c25bac \
 	c25b74
 do
