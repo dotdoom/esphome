@@ -11,6 +11,7 @@ external_components:
 
 packages:
   device_base: !include esp32-poe.yaml
+  time: !include time.yaml
 
 button:
   - platform: factory_reset
@@ -19,7 +20,7 @@ button:
 
 time:
   - platform: sntp
-    servers: [eye]
+    servers: !secret sntp_servers
     id: sntp_time
 
 lock:
