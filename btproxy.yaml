@@ -1,6 +1,7 @@
 esphome:
   name: btproxy
   name_add_mac_suffix: true
+  friendly_name: "BTProxy"
 
   project:
     name: dasfoo.btproxy

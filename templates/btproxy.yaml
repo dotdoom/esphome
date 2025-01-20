@@ -5,12 +5,42 @@ esp32:
   framework:
     type: esp-idf
 
+globals:
+  - id: ble_scans
+    type: int
+    restore_value: no
+    initial_value: '0'
+
 esp32_ble_tracker:
   scan_parameters:
     # Recommended scan intervals for esphome.
     interval: 1100ms
     window: 1100ms
     active: true
+  on_scan_end:
+    - then:
+      - sensor.template.publish:
+          id: ble_scans_finished
+          state: !lambda 'return ++id(ble_scans);'
 
 bluetooth_proxy:
+  id: btproxy
   active: true
+
+sensor:
+  - platform: template
+    name: "btproxy connections free"
+    lambda: 'return id(btproxy).get_bluetooth_connections_free();'
+    update_interval: 60s
+    state_class: "measurement"
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    icon: "mdi:bluetooth-settings"
+
+  - platform: template
+    name: "BLE scans finished"
+    id: ble_scans_finished
+    state_class: "total_increasing"
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    icon: "mdi:bluetooth-settings"
