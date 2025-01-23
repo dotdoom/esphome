@@ -22,10 +22,18 @@ esp32_ble_tracker:
       - sensor.template.publish:
           id: ble_scans_finished
           state: !lambda 'return ++id(ble_scans);'
+      - script.execute: restart_after_delay
 
 bluetooth_proxy:
   id: btproxy
   active: true
+
+script:
+  - id: restart_after_delay
+    mode: restart
+    then:
+      - delay: 10min
+      - button.press: restart_button
 
 sensor:
   - platform: template
