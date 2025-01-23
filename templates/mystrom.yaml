@@ -23,6 +23,7 @@ packages:
   wifi: !include wifi.yaml
   uptime: !include uptime.yaml
   restart: !include restart.yaml
+  syslog: !include syslog.yaml
 
 logger:
 

@@ -1,0 +1,14 @@
+external_components:
+  # Path is relative to the main YAML file, not this device_base template!
+  - source: components
+
+syslog:
+  ip_address: !secret syslog_server
+
+mqtt:
+  # Disable logging to save bandwidth.
+  log_topic: null
+
+logger:
+  # Disable logging to save cycles.
+  baud_rate: 0
