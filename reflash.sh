@@ -25,7 +25,6 @@ for config in \
 		blinds.yaml \
 		heating.yaml \
 		loud-siren.yaml \
-		ruuvi.yaml \
 		watermeter.yaml \
 		heating-eg.yaml \
 		heating-og.yaml \
@@ -38,7 +37,6 @@ for config in \
 		basement-dehum.yaml \
 		zigbee-coordinator-ch24.yaml \
 		zigbee-coordinator-ch25.yaml \
-		basementdoorlock.yaml \
 		frontdoorlock.yaml \
 		child-west-ac.yaml \
 		child-east-ac.yaml \
