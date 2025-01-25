@@ -1,20 +1,15 @@
 #include "syslog.h"
+#ifdef USE_NETWORK
 
 #include <sstream>
 
 #include "esphome/core/log.h"
 #include "esphome/core/application.h"
+#include "esphome/components/network/util.h"
 
 #ifdef USE_LOGGER
 #include "esphome/components/logger/logger.h"
 #endif
-
-#include "esphome/components/network/util.h"
-/*
-#include "esphome/core/helpers.h"
-#include "esphome/core/defines.h"
-#include "esphome/core/version.h"
-*/
 
 namespace esphome {
 
@@ -86,12 +81,21 @@ void Syslog::setup() {
     }
 #endif
 
-  this->socket_fd_ = ::socket(AF_INET, SOCK_DGRAM, 0);
+#if defined(USE_SOCKET_IMPL_BSD_SOCKETS) || defined(USE_SOCKET_IMPL_LWIP_SOCKETS)
+  this->socket_ = socket::socket(AF_INET, SOCK_DGRAM, PF_INET);
+  // We don't expect any reply from syslog server, so there's no need to block.
+  this->socket_->setblocking(false);
+  this->destination_len_ = socket::set_sockaddr(
+    reinterpret_cast<sockaddr *>(&this->destination_), sizeof(this->destination_),
+    this->server_ip_address_, this->server_port_);
 
-  memset(&this->destination_, 0, sizeof(this->destination_));
-  this->destination_.sin_family = AF_INET;
-  this->destination_.sin_port = htons(this->server_port_);
-  this->destination_.sin_addr.s_addr = inet_addr(this->server_ip_address_.c_str());
+  if (this->destination_len_ == 0) {
+    std::string error_message(strerror(errno));
+    ESP_LOGE(TAG, "Cannot use IP address '%s' or port %d for server connection: %s",
+      this->server_ip_address_.c_str(), this->server_port_,
+      error_message.c_str());
+  }
+#endif
 }
 
 void Syslog::loop() {
@@ -130,14 +134,26 @@ void Syslog::log(int level, const std::string &tag, const std::string &msg) {
     << App.get_name() << " - - - " << msg;
 
   std::string payload = payload_stream.str();
-  ssize_t bytes_sent = ::sendto(
-    this->socket_fd_,
-    payload.c_str(), payload.length(),
-    0,
-    reinterpret_cast<sockaddr*>(&this->destination_), sizeof(this->destination_));
+  ssize_t bytes_sent = 0;
+#if defined(USE_SOCKET_IMPL_BSD_SOCKETS) || defined(USE_SOCKET_IMPL_LWIP_SOCKETS)
+  if (this->destination_len_ > 0) {
+    bytes_sent = this->socket_->sendto(
+      payload.c_str(), payload.length(),
+      0,
+      reinterpret_cast<sockaddr *>(&this->destination_), this->destination_len_);
+  }
+#else
+  if (this->udp_client_.beginPacket(this->server_ip_address_.c_str(), this->server_port_)) {
+    bytes_sent = this->udp_client_.write(payload.c_str(), payload.length());
+    if (!this->udp_client_.endPacket()) {
+      bytes_sent = 0;
+    }
+  }
+#endif
 
   if (bytes_sent != payload.length()) {
-    // Can't log here, but loop() will pick it up.
+    // Can't log here as we could be within logger callback, but our loop() will
+    // pick it up.
     this->latest_error_message_ = strerror(errno);
     ++this->errors_encountered_;
   }
@@ -145,3 +161,4 @@ void Syslog::log(int level, const std::string &tag, const std::string &msg) {
 
 }  // namespace syslog
 }  // namespace esphome
+#endif

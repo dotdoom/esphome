@@ -7,6 +7,7 @@ packages:
   mqtt: !include mqtt.yaml
   uptime: !include uptime.yaml
   restart: !include restart.yaml
+  syslog: !include syslog.yaml
 
 logger:
 

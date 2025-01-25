@@ -1,20 +1,27 @@
 #pragma once
+#include "esphome/core/defines.h"
+#ifdef USE_NETWORK
 
 /* Potential future improvements:
 
  - hostname instead of IP address
  - custom mapping of log leves to syslog levels
  - set custom facility
- - protocol support: Structured Data, BSD, IPv6
+ - protocol support: Structured Data, BSD
  - allow specifying time component to get timestamp
  - code optimization (e.g. marking methods as HOT or using fewer complex ops)
+ - fix esp8266 skipping logs at startup due to dump_config flood
  */
 
 #include "esphome/core/component.h"
-#include "esphome/core/defines.h"
 #include "esphome/core/automation.h"
 #include "esphome/core/log.h"
+
+#if defined(USE_SOCKET_IMPL_BSD_SOCKETS) || defined(USE_SOCKET_IMPL_LWIP_SOCKETS)
 #include "esphome/components/socket/socket.h"
+#else
+#include "WiFiUdp.h"
+#endif
 
 namespace esphome {
 
@@ -47,8 +54,14 @@ class Syslog : public Component {
   bool forward_logger_;
   bool strip_color_codes_;
 
-  int socket_fd_;
-  struct sockaddr_in destination_;
+#if defined(USE_SOCKET_IMPL_BSD_SOCKETS) || defined(USE_SOCKET_IMPL_LWIP_SOCKETS)
+  std::unique_ptr<esphome::socket::Socket> socket_{};
+  struct sockaddr_storage destination_;
+  socklen_t destination_len_;
+#else
+  // The socket class doesn't implement UDP for ESP8266.
+  WiFiUDP udp_client_{};
+#endif
 
   int errors_encountered_;
   std::string latest_error_message_;
@@ -76,3 +89,4 @@ class Syslog : public Component {
 } // namespace syslog
 
 } // namespace esphome
+#endif

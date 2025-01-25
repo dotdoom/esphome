@@ -16,6 +16,7 @@ packages:
   mqtt: !include templates/mqtt.yaml
   uptime: !include templates/uptime.yaml
   restart: !include templates/restart.yaml
+  syslog: !include templates/syslog.yaml
 
 logger:
 

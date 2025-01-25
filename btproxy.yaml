@@ -13,5 +13,3 @@ packages:
   btproxy: !include templates/btproxy.yaml
   # Allow HA to use our proxy.
   api: !include templates/api.yaml
-  # With idf framework, we can use syslog.
-  syslog: !include templates/syslog.yaml
