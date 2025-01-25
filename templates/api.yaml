@@ -2,6 +2,8 @@ api:
   encryption:
     key: !secret api_encryption_key
 
-# Disable MQTT discovery to prevent duplicate device.
 mqtt:
+  # Disable MQTT discovery to prevent duplicate device.
   discovery: false
+  # Disable MQTT logging to lower the traffic.
+  log_topic: null
