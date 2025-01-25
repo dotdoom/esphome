@@ -32,7 +32,10 @@ script:
   - id: restart_after_delay
     mode: restart
     then:
-      - delay: 10min
+      - delay: 15min
+      - logger.log:
+          level: ERROR
+          format: "No recent successful Bluetooth scan, restarting ESP chip"
       - button.press: restart_button
 
 sensor:
