@@ -13,24 +13,34 @@ namespace {
 
 class SomfyRTS : public Component, public Cover {
   public:
-    SomfyRTS(int rfPin, int remoteId, esphome::mqtt::MQTTClientComponent* mqtt) {
+    SomfyRTS(int rfPin, int remoteId, esphome::mqtt::MQTTClientComponent* mqtt, int *rollingCode) {
       this->rfPin = rfPin;
       this->remoteId = remoteId;
       this->mqtt = mqtt;
       this->mqttTopicPrefix = mqtt->get_topic_prefix() + "/rolling_code/";
+      this->rollingCode = rollingCode;
     }
 
     void setup() override {
       pinMode(rfPin, OUTPUT);
       digitalWrite(rfPin, LOW);
-      mqtt->subscribe(mqttTopicPrefix + std::to_string(remoteId),
-                      [=](const std::string &topic, const std::string &payload) {
-        if (rollingCode == 0) {
-          ESP_LOGI(TAG, "Received rolling code for remote #%d from MQTT: %s",
-                   remoteId, payload.c_str());
-          this->rollingCode = atoi(payload.c_str());
-        }
-      }, /*qos=*/1 /* (at least once) */);
+
+      if (*rollingCode == 0) {
+        // Either a new version was flashed, flash was corrupt, or this firmware
+        // was flashed to a different ESP chip. Either way, try to restore from
+        // MQTT.
+        mqtt->subscribe(mqttTopicPrefix + std::to_string(remoteId),
+                        [=](const std::string &topic, const std::string &payload) {
+          if (*rollingCode == 0) {
+            ESP_LOGI(TAG, "Received rolling code for remote #%d from MQTT: %s",
+                     remoteId, payload.c_str());
+            *this->rollingCode = atoi(payload.c_str());
+          }
+        }, /*qos=*/1 /* (at least once) */);
+      } else {
+        ESP_LOGI(TAG, "Restored rolling code for remote #%d from flash: %d",
+                 remoteId, *rollingCode);
+      }
     }
 
     CoverTraits get_traits() override {
@@ -56,7 +66,7 @@ class SomfyRTS : public Component, public Cover {
   private:
     int rfPin;
     int remoteId;
-    int rollingCode = 0;
+    int *rollingCode;
     esphome::mqtt::MQTTClientComponent* mqtt;
     std::string mqttTopicPrefix;
 
@@ -67,7 +77,7 @@ class SomfyRTS : public Component, public Cover {
      * introduce an unknown delay into the method execution timeline.
      */
     void send(uint8_t command) {
-      if (rollingCode == 0) {
+      if (*rollingCode == 0) {
         ESP_LOGE(TAG, "Remote #%d was requested to run command %d, but has not "
                       "yet received its rolling code. Refusing to proceed, to "
                       "avoid crippling MQTT rolling code storage",
@@ -76,21 +86,21 @@ class SomfyRTS : public Component, public Cover {
       }
 
       ESP_LOGI(TAG, "Remote #%d sending command %d with rolling code %d",
-               remoteId, command, rollingCode);
+               remoteId, command, *rollingCode);
 
       uint8_t frame[] = {
         0xA7,  // Encryption key.
         static_cast<uint8_t>(command << 4),  // 4 lsb will be checksum.
 
-        static_cast<uint8_t>(rollingCode >> 8),
-        static_cast<uint8_t>(rollingCode),
+        static_cast<uint8_t>(*rollingCode >> 8),
+        static_cast<uint8_t>(*rollingCode),
 
         static_cast<uint8_t>(remoteId >> 16),
         static_cast<uint8_t>(remoteId >> 8),
         static_cast<uint8_t>(remoteId),
       };
 
-      ++rollingCode;
+      ++*rollingCode;
 
       // Checksum calculation: a XOR of all the nibbles.
       uint8_t checksum = 0;
@@ -155,6 +165,6 @@ class SomfyRTS : public Component, public Cover {
       // when the component is called. This method may be synchronous and
       // introduces an unpredictable delay.
       mqtt->publish(mqttTopicPrefix + std::to_string(remoteId),
-                    std::to_string(rollingCode), /*qos=*/1, /*retain=*/true);
+                    std::to_string(*rollingCode), /*qos=*/1, /*retain=*/true);
     }
 };

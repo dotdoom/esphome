@@ -24,6 +24,10 @@ globals:
     # Can be retrieved from MQTT server. Take the key with lowest integer value
     # from /rolling_code/ path.
     initial_value: !secret somfy_remote_id_base
+  - id: somfy_rolling_codes
+    type: 'int[13]'
+    initial_value: '{0,0,0,0,0,0,0,0,0,0,0,0,0}'
+    restore_value: yes
 
 cover:
   - platform: custom
@@ -35,7 +39,8 @@ cover:
         auto cover = new SomfyRTS(
           rfPin,
           id(somfy_remote_id_base) + i,
-          id(mqtt_homeassistant));
+          id(mqtt_homeassistant),
+          &(id(somfy_rolling_codes)[i]));
         blinds.push_back(cover);
         App.register_component(cover);
       }
