@@ -7,3 +7,6 @@ mqtt:
   # e.g. Reset button, and component+object_id doesn't cut it
   # to provide uniqueness.
   discovery_unique_id_generator: mac
+  # No point in publishing NaN as it will not be accepted by
+  # HA and only generate error messages.
+  publish_nan_as_none: true
