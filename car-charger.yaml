@@ -7,3 +7,9 @@ esphome:
 
 packages:
   device_base: !include templates/mystrom.yaml
+
+esp32:
+  framework:
+    # esp-idf has some problems with connectivity on this device.
+    # Could it be that it was flashed with Arduino over serial?
+    type: arduino
