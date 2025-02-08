@@ -36,18 +36,16 @@ status_led:
   # Red LED on the front panel.
   pin: GPIO16
 
-light:
-- platform: binary
+switch:
+- platform: gpio
+  # Exposing this as a switch rather than light to avoid
+  # automations and dashboard picking it up as illuminance
+  # source.
   name: "Identify LED (white)"
-  id: mystrom_led_identify
   restore_mode: ALWAYS_OFF
-  output: mystrom_led_white
-
-output:
-- id: mystrom_led_white
-  platform: gpio
-  pin: GPIO17
-  inverted: true
+  pin:
+    number: GPIO17
+    inverted: true
 
 binary_sensor:
 - platform: gpio
