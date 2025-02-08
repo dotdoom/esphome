@@ -7,10 +7,10 @@
  - hostname instead of IP address
  - custom mapping of log leves to syslog levels
  - set custom facility
- - protocol support: Structured Data, BSD
+ - protocol support: Structured Data, BSD, TCP
  - allow specifying time component to get timestamp
  - code optimization (e.g. marking methods as HOT or using fewer complex ops)
- - fix esp8266 skipping logs at startup due to dump_config flood
+ - autoretries (fixes esp8266 skipping logs at startup due to dump_config flood)
  */
 
 #include "esphome/core/component.h"
