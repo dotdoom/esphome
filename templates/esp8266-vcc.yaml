@@ -3,5 +3,5 @@
 sensor:
 - platform: adc
   pin: VCC
-  name: "VCC Voltage"
+  name: "ESP chip VCC Voltage"
   entity_category: diagnostic

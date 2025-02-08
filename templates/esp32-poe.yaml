@@ -16,9 +16,9 @@ ethernet:
 text_sensor:
 - platform: ethernet_info
   ip_address:
-    name: "Device IP (Ethernet)"
+    name: "ESP chip IP (Ethernet)"
   mac_address:
-    name: "Device MAC (Ethernet)"
+    name: "ESP chip MAC (Ethernet)"
 
 logger:
 

@@ -15,7 +15,7 @@ packages:
 
 button:
   - platform: factory_reset
-    name: Forget the lock and restart
+    name: "Forget the lock and restart"
     disabled_by_default: true
 
 time:

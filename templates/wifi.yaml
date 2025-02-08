@@ -1,15 +1,15 @@
 sensor:
 - platform: wifi_signal
-  name: "WiFi signal"
+  name: "ESP chip WiFi signal"
 
 text_sensor:
 - platform: wifi_info
   mac_address:
-    name: "Device MAC"
+    name: "ESP chip MAC"
   ip_address:
-    name: "Device IP"
+    name: "ESP chip IP"
   bssid:
-    name: "Connected to BSSID"
+    name: "ESP chip connected to BSSID"
     filters:
     - to_upper
     - substitute: !secret wifi_ap_lookup

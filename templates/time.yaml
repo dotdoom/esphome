@@ -1,6 +1,6 @@
 binary_sensor:
 - platform: template
-  name: "Device clock invalid"
+  name: "ESP chip clock invalid"
   lambda: 'return !id(sntp_time).now().is_valid();'
   entity_category: diagnostic
   device_class: problem
