@@ -7,6 +7,11 @@ esphome:
     name: dasfoo.btproxy
     version: "1.0"
 
+mqtt:
+  # MQTT writes will have conflicting nodes because all our proxies have
+  # the same name. API should be sufficient.
+  enable_on_boot: false
+
 packages:
   device_base: !include templates/esp32-poe.yaml
 
