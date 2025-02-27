@@ -1,5 +1,51 @@
 # esphome
 
+## Installation
+
+Recommended: [venv](https://docs.python.org/3/library/venv.html).
+
+```shell
+# Optional
+$ python3 -m venv venv
+$ source venv/bin/activate
+
+$ pip3 install -r requirements.txt
+```
+
+## Compiling
+
+```
+$ cp -i secrets.yaml{.sample,}
+$ cp -i templates/secrets.yaml{.sample,}
+
+# Edit both secrets.yaml files.
+
+# Optional
+$ source venv/bin/activate
+
+$ ./reflash.sh compile ''
+```
+
+## Running
+
+```
+# Optional
+$ source venv/bin/activate
+
+$ ./reflash.sh
+```
+
+or
+
+```
+# Optional
+$ source venv/bin/activate
+
+$ esphome run file.yaml
+```
+
+Look up list of runnable files inside `reflash.sh` script.
+
 ## Hardware: heating
 
 ### Photoresistor
