@@ -37,10 +37,8 @@ for config in \
 		basement-dehum.yaml \
 		zigbee-coordinator-ch24.yaml \
 		zigbee-coordinator-ch25.yaml \
-		frontdoorlock.yaml \
 		child-west-ac.yaml \
 		child-east-ac.yaml \
-		bedroom-ac.yaml \
 		tools-power.yaml; do
 	flash+=("${command?} ${config?}")
 done
