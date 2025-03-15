@@ -10,3 +10,15 @@ mqtt:
   # No point in publishing NaN as it will not be accepted by
   # HA and only generate error messages.
   publish_nan_as_none: true
+  on_connect:
+    - sensor.duty_time.start: mqtt_connection_uptime
+  on_disconnect:
+    - sensor.duty_time.stop: mqtt_connection_uptime
+    - sensor.duty_time.reset: mqtt_connection_uptime
+
+sensor:
+  - platform: duty_time
+    id: mqtt_connection_uptime
+    name: "ESP chip MQTT connection uptime"
+    entity_category: diagnostic
+    accuracy_decimals: 0
