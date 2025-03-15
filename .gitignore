@@ -1,4 +1,4 @@
-/venv
+/.venv
 
 # Gitignore settings for ESPHome
 # This is an example and may include too much for your use-case.
