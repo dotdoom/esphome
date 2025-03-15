@@ -96,6 +96,7 @@ sensor:
   id: continuous_on_time
   name: Continuous on time
   lambda: "return id(mystrom_relay).state;"
+  accuracy_decimals: 0
 
 switch:
 - platform: gpio
