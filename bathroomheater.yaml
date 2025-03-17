@@ -7,8 +7,8 @@ esphome:
     name: dasfoo.bathroomheater
     version: "1.0"
 
-  includes:
-  - bathroomheater/zehnder.h
+external_components:
+- source: components
 
 packages:
   device_base: !include templates/esp8266.yaml
@@ -29,19 +29,8 @@ remote_transmitter:
   id: heater_ir_transmitter
 
 climate:
-- platform: custom
-  lambda: |-
-    auto heater = new Zehnder();
-    App.register_component(heater);
-    heater->set_transmitter(id(heater_ir_transmitter));
-    heater->add_temperature_sensor(id(bathroom_heater_temperature));
-    return {heater};
-  climates:
-  - name: None  # Main entity for the device.
-    id: bathroom_heater
-
-interval:
-- interval: 1min
-  then:
-    # Periodically remind heater about the current setting.
-    lambda: static_cast<Zehnder*>(id(bathroom_heater))->retransmit();
+- platform: zehnder
+  name: None
+  id: bathroom_heater
+  transmitter_id: heater_ir_transmitter
+  temperature_sensor_id: bathroom_heater_temperature
