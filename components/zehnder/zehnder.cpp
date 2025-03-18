@@ -80,12 +80,13 @@ climate::ClimateTraits ZehnderComponent::traits() {
   traits.set_visual_max_temperature(MAX_TEMPERATURE);
   // Must be
   // (MAX_TEMPERATURE - MIN_TEMPERATURE) / (TEMPERATURE_LEVELS - 1)
-  // but no longer supported by HA, because this component
-  // uses the same value to transmit precision.
-  traits.set_visual_temperature_step(1);
+  // but ClimateTraits implementation infers precision from step value,
+  // getting a value outside of HA supported range [0.1, 0.5, 1].
+  traits.set_visual_target_temperature_step(1);
 
   if (has_temperature_sensor_) {
     traits.set_supports_current_temperature(true);
+    traits.set_visual_current_temperature_step(0.1);
   }
 
   traits.set_supported_modes({
