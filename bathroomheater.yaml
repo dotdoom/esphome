@@ -23,6 +23,11 @@ sensor:
   address: 0x0401212E565C7428
   id: bathroom_heater_temperature
 
+- platform: duty_time
+  id: continuous_on_time
+  name: Continuous on time
+  accuracy_decimals: 0
+
 remote_transmitter:
   pin: D2
   carrier_duty_percent: 50%
@@ -34,3 +39,25 @@ climate:
   id: bathroom_heater
   transmitter_id: heater_ir_transmitter
   temperature_sensor_id: bathroom_heater_temperature
+  on_state:
+  - if:
+      condition:
+        lambda: 'return x.mode == climate::CLIMATE_MODE_HEAT;'
+      then:
+      - sensor.duty_time.start: continuous_on_time
+      else:
+      - sensor.duty_time.stop: continuous_on_time
+      - sensor.duty_time.reset: continuous_on_time
+
+interval:
+- interval: 1min
+  then:
+  - if:
+      condition:
+        sensor.in_range:
+          id: continuous_on_time
+          above: 43200 # 12h
+      then:
+      - climate.control:
+          id: bathroom_heater
+          mode: "OFF"
