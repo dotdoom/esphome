@@ -17,8 +17,10 @@ text_sensor:
 - platform: ethernet_info
   ip_address:
     name: "ESP chip IP (Ethernet)"
+    icon: mdi:ip-network
   mac_address:
     name: "ESP chip MAC (Ethernet)"
+    icon: mdi:expansion-card
 
 logger:
 
