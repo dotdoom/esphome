@@ -27,6 +27,10 @@ packages:
 
 logger:
 
+wifi:
+  # BSS Transition Management support which we have enabled in APs.
+  enable_btm: true
+
 i2c:
   sda: 22
   scl: 19

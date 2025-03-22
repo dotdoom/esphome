@@ -20,4 +20,7 @@ text_sensor:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  # Used for uploading, and our DNS server understands unqualified queries.
   domain: ""
+  # Require reliable WiFi connection for IoT.
+  power_save_mode: none
