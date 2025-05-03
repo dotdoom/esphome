@@ -25,6 +25,8 @@ void SomfyRTSCover::dump_config() {
   } else {
     ESP_LOGCONFIG(TAG, "  Rolling Code: N/A");
   }
+  ESP_LOGCONFIG(TAG, "  Rolling Code MQTT prefix: %s",
+                this->mqtt_topic_prefix_.c_str());
 }
 
 cover::CoverTraits SomfyRTSCover::get_traits() {
