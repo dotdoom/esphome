@@ -5,11 +5,7 @@ esphome:
 
   project:
     name: dasfoo.blinds
-    version: "2.0"
-
-  includes:
-    - blinds/somfy.h
-    - blinds/cc1101.h
+    version: "3.0"
 
   libraries:
     - SPI
@@ -18,52 +14,56 @@ esphome:
 packages:
   device_base: !include templates/esp32-poe.yaml
 
-globals:
-  - id: somfy_remote_id_base
-    type: int
-    # Can be retrieved from MQTT server. Take the key with lowest integer value
-    # from /rolling_code/ path.
-    initial_value: !secret somfy_remote_id_base
-  - id: somfy_rolling_codes
-    type: 'int[13]'
-    initial_value: '{0,0,0,0,0,0,0,0,0,0,0,0,0}'
-    restore_value: yes
+external_components:
+  # Path is relative to the main YAML file, not this device_base template!
+  - source: components
 
 cover:
-  - platform: custom
-    lambda: |-
-      auto rfPin = 4;
-      std::vector<esphome::cover::Cover*> blinds;
+  - name: "Office window"
+    remote_id_offset: 0
+    <<: &somfy_cover
+      platform: somfy
+      rf_pin: 4
+      # Can be retrieved from MQTT server. Take the key with lowest integer value
+      # from /$board/rolling_code/ path.
+      remote_id_base: !secret somfy_remote_id_base
 
-      for (int i = 0; i < 13; ++i) {
-        auto cover = new SomfyRTS(
-          rfPin,
-          id(somfy_remote_id_base) + i,
-          id(mqtt_homeassistant),
-          &(id(somfy_rolling_codes)[i]));
-        blinds.push_back(cover);
-        App.register_component(cover);
-      }
-
-      // SomfyRTS ctor will set correct pin modes, now we can initialize cc1101.
-      cc1101_Init();
-
-      return blinds;
-
-    covers:
-      - name: "Office window"
-      - name: "Bedroom"
-      - name: "Living Room side"
-      - name: "Wardrobe"
-      - name: "Child West door"
-      - name: "Child West window"
-      - name: "Hallway Stairs window"
-      - name: "Kitchen window"
-      - name: "Kitchen door"
-      - name: "Living Room door"
-      - name: "Living Room window"
-      - name: "Child East window"
-      - name: "Child East door"
+  - name: "Bedroom"
+    remote_id_offset: 1
+    <<: *somfy_cover
+  - name: "Living Room side"
+    remote_id_offset: 2
+    <<: *somfy_cover
+  - name: "Wardrobe"
+    remote_id_offset: 3
+    <<: *somfy_cover
+  - name: "Child West door"
+    remote_id_offset: 4
+    <<: *somfy_cover
+  - name: "Child West window"
+    remote_id_offset: 5
+    <<: *somfy_cover
+  - name: "Hallway Stairs window"
+    remote_id_offset: 6
+    <<: *somfy_cover
+  - name: "Kitchen window"
+    remote_id_offset: 7
+    <<: *somfy_cover
+  - name: "Kitchen door"
+    remote_id_offset: 8
+    <<: *somfy_cover
+  - name: "Living Room door"
+    remote_id_offset: 9
+    <<: *somfy_cover
+  - name: "Living Room window"
+    remote_id_offset: 10
+    <<: *somfy_cover
+  - name: "Child East window"
+    remote_id_offset: 11
+    <<: *somfy_cover
+  - name: "Child East door"
+    remote_id_offset: 12
+    <<: *somfy_cover
 
   - platform: template
     name: "Wintergarten"
