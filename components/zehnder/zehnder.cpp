@@ -3,7 +3,7 @@
 #include "esphome/components/remote_base/remote_base.h"
 
 namespace {
-static const char* const TAG = __FILE__;
+static const char *const TAG = __FILE__;
 static const uint8_t MIN_TEMPERATURE = 35;
 static const uint8_t MAX_TEMPERATURE = 70;
 static const uint8_t TEMPERATURE_LEVELS = 8;
@@ -12,7 +12,8 @@ static void add_header_(esphome::remote_base::RemoteTransmitData *data) {
   data->item(30, 1000);
 }
 
-static void add_byte_(esphome::remote_base::RemoteTransmitData *data, uint8_t value) {
+static void add_byte_(esphome::remote_base::RemoteTransmitData *data,
+                      uint8_t value) {
   for (int i = 0; i < 8; ++i) {
     data->item(30, value & 0b10000000 ? 830 : 650);
     value <<= 1;
@@ -23,7 +24,7 @@ static void add_post_(esphome::remote_base::RemoteTransmitData *data) {
   data->item(30, 460);
   data->item(30, 650);
 }
-}
+}  // namespace
 
 namespace esphome {
 namespace zehnder {
@@ -67,9 +68,8 @@ void ZehnderComponent::setup() {
 }
 
 void ZehnderComponent::update() {
-  float target_temp = this->mode == climate::CLIMATE_MODE_HEAT ?
-    this->target_temperature :
-    0;
+  float target_temp =
+      this->mode == climate::CLIMATE_MODE_HEAT ? this->target_temperature : 0;
   this->transmit_temperature_(&target_temp);
 }
 
@@ -89,17 +89,16 @@ climate::ClimateTraits ZehnderComponent::traits() {
     traits.set_visual_current_temperature_step(0.1);
   }
 
-  traits.set_supported_modes({
-    climate::CLIMATE_MODE_HEAT,
-    climate::CLIMATE_MODE_OFF
-  });
+  traits.set_supported_modes(
+      {climate::CLIMATE_MODE_HEAT, climate::CLIMATE_MODE_OFF});
 
   return traits;
 }
 
 void ZehnderComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Zehnder:");
-  ESP_LOGCONFIG(TAG, "  has temperature sensor: %s", this->has_temperature_sensor_ ? "yes" : "no");
+  ESP_LOGCONFIG(TAG, "  has temperature sensor: %s",
+                this->has_temperature_sensor_ ? "yes" : "no");
 }
 
 bool ZehnderComponent::transmit_temperature_(float *temp) {
@@ -107,20 +106,16 @@ bool ZehnderComponent::transmit_temperature_(float *temp) {
   if (*temp == 0) {
     level = 0;
   } else {
-    level =
-      (*temp - MIN_TEMPERATURE) *
-      (TEMPERATURE_LEVELS - 1) /
-      (MAX_TEMPERATURE - MIN_TEMPERATURE) +
-      1;
+    level = (*temp - MIN_TEMPERATURE) * (TEMPERATURE_LEVELS - 1) /
+                (MAX_TEMPERATURE - MIN_TEMPERATURE) +
+            1;
     if (level > TEMPERATURE_LEVELS) {
       level = TEMPERATURE_LEVELS;
     }
 
-    *temp =
-      (MAX_TEMPERATURE - MIN_TEMPERATURE) /
-      (TEMPERATURE_LEVELS - 1) *
-      (level - 1) +
-      MIN_TEMPERATURE;
+    *temp = (MAX_TEMPERATURE - MIN_TEMPERATURE) / (TEMPERATURE_LEVELS - 1) *
+                (level - 1) +
+            MIN_TEMPERATURE;
   }
   return this->transmit_level_(level);
 }
@@ -146,17 +141,9 @@ bool ZehnderComponent::transmit_level_(uint8_t level) {
   data->reset();
   data->set_carrier_frequency(455000);
 
-  static uint8_t mode_bytes[TEMPERATURE_LEVELS + 1] = {
-    0x0D,  // OFF
-    0x86,
-    0x95,
-    0xA0,
-    0xB3,
-    0xCA,
-    0xD9,
-    0xEC,
-    0xFF
-  };
+  static uint8_t mode_bytes[TEMPERATURE_LEVELS + 1] = {0x0D,  // OFF
+                                                       0x86, 0x95, 0xA0, 0xB3,
+                                                       0xCA, 0xD9, 0xEC, 0xFF};
 
   add_header_(data);
   add_byte_(data, 0xB8);

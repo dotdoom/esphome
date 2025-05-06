@@ -294,8 +294,8 @@ bool NukiLockComponent::update_battery_report_() {
                                          1000.0f);
   battery_resistance_sensor_->publish_state(batteryReport.batteryResistance /
                                             1000.0f);
-  last_action_lowest_voltage_sensor_->publish_state(batteryReport.lowestVoltage /
-                                                1000.0f);
+  last_action_lowest_voltage_sensor_->publish_state(
+      batteryReport.lowestVoltage / 1000.0f);
   last_action_start_voltage_sensor_->publish_state(batteryReport.startVoltage /
                                                    1000.0f);
   last_action_lock_distance_sensor_->publish_state(batteryReport.lockDistance);

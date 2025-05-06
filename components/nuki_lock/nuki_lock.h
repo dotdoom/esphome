@@ -25,7 +25,7 @@ class NukiLockComponent : public lock::Lock,
         restart_after_beacon_latency_(0),
         update_scheduled_(false),
         request_battery_reports_(false),
-        pin_set_(false){};
+        pin_set_(false) {};
 
   // Component.
   void setup() override;

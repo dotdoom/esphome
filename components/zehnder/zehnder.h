@@ -8,10 +8,9 @@
 namespace esphome {
 namespace zehnder {
 
-class ZehnderComponent : public climate::Climate,
-                         public PollingComponent {
+class ZehnderComponent : public climate::Climate, public PollingComponent {
  public:
-  explicit ZehnderComponent(): Climate() {};
+  explicit ZehnderComponent() : Climate() {};
 
   // Component.
   void setup() override;

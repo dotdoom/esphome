@@ -13,11 +13,12 @@
  - autoretries (fixes esp8266 skipping logs at startup due to dump_config flood)
  */
 
-#include "esphome/core/component.h"
 #include "esphome/core/automation.h"
+#include "esphome/core/component.h"
 #include "esphome/core/log.h"
 
-#if defined(USE_SOCKET_IMPL_BSD_SOCKETS) || defined(USE_SOCKET_IMPL_LWIP_SOCKETS)
+#if defined(USE_SOCKET_IMPL_BSD_SOCKETS) || \
+    defined(USE_SOCKET_IMPL_LWIP_SOCKETS)
 #include "esphome/components/socket/socket.h"
 #else
 #include "WiFiUdp.h"
@@ -31,13 +32,17 @@ class Syslog : public Component {
  public:
   explicit Syslog();
 
-  float get_setup_priority() const override { return setup_priority::AFTER_WIFI; }
+  float get_setup_priority() const override {
+    return setup_priority::AFTER_WIFI;
+  }
 
   void setup() override;
   void loop() override;
   void dump_config() override;
 
-  void set_server_ip_address(const std::string &address) { this->server_ip_address_ = address; }
+  void set_server_ip_address(const std::string &address) {
+    this->server_ip_address_ = address;
+  }
   void set_server_port(uint16_t port) { this->server_port_ = port; }
   void set_hostname(const std::string &hostname) { this->hostname_ = hostname; }
   void set_min_log_level(int log_level) { this->min_log_level_ = log_level; }
@@ -54,7 +59,8 @@ class Syslog : public Component {
   bool forward_logger_;
   bool strip_color_codes_;
 
-#if defined(USE_SOCKET_IMPL_BSD_SOCKETS) || defined(USE_SOCKET_IMPL_LWIP_SOCKETS)
+#if defined(USE_SOCKET_IMPL_BSD_SOCKETS) || \
+    defined(USE_SOCKET_IMPL_LWIP_SOCKETS)
   std::unique_ptr<esphome::socket::Socket> socket_{};
   struct sockaddr_storage destination_;
   socklen_t destination_len_;
@@ -75,10 +81,8 @@ class Syslog : public Component {
     TEMPLATABLE_VALUE(std::string, payload)
 
     void play(Ts... x) override {
-      this->parent_->log(
-        this->level_.value(x...),
-        this->tag_.value(x...),
-        this->payload_.value(x...));
+      this->parent_->log(this->level_.value(x...), this->tag_.value(x...),
+                         this->payload_.value(x...));
     }
 
    protected:
@@ -86,7 +90,7 @@ class Syslog : public Component {
   };
 };
 
-} // namespace syslog
+}  // namespace syslog
 
-} // namespace esphome
+}  // namespace esphome
 #endif
