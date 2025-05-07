@@ -9,6 +9,15 @@ esphome:
 
 esp8266:
   board: esp12e
+  # The board could reboot due to missing MQTT connection.
+  #
+  # We want it to be resilient and keep water circulating where
+  # it was before the reboot. This is especially important while
+  # on WiFi in a metal cage (poor connection quality).
+  #
+  # Heating itself is controlled centrally and can be shut off
+  # independent of actual GPIO state of this board.
+  restore_from_flash: true
 
 packages:
   wifi: !include templates/wifi.yaml
