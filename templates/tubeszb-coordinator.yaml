@@ -17,7 +17,7 @@ esphome:
     version: "5.0"
 
   on_boot:
-    priority: 600
+    priority: 600  # Default; most sensors set up, no network yet.
     then:
     - script.execute: cc2652_reset
 

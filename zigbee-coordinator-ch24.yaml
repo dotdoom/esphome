@@ -31,3 +31,10 @@ uart:
   tx_pin: GPIO16
   baud_rate: 115200
   rx_buffer_size: 1024
+
+ethernet:
+  manual_ip:
+    # IP address hardcoded in z2m.
+    static_ip: 10.26.160.24
+    gateway: 10.26.160.1
+    subnet: 255.255.255.0
