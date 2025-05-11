@@ -5,11 +5,17 @@ esphome:
 
   project:
     name: dasfoo.blinds
-    version: "3.0"
+    version: "4.0"
 
-  libraries:
-    - SPI
-    - lsatan/SmartRC-CC1101-Driver-Lib
+  on_boot:
+    priority: -100.0  # Everything is initialized.
+    # Use remote_transmitter component instead of digitalWrite in somfy.cpp.
+    then:
+    - lambda: 'id(transceiver)->begin_tx();'
+
+esp32:
+  framework:
+    type: esp-idf
 
 packages:
   device_base: !include templates/esp32-poe.yaml
@@ -17,13 +23,29 @@ packages:
 external_components:
   # Path is relative to the main YAML file, not this device_base template!
   - source: components
+  - source: github://pr#6300
+    components:
+      - cc1101
+
+spi:
+  clk_pin: 14
+  miso_pin: 16
+  mosi_pin: 15
+
+cc1101:
+    id: transceiver
+    cs_pin: 13
+    tuner:
+      frequency: 433340
 
 cover:
   - name: "Office window"
     remote_id_offset: 0
     <<: &somfy_cover
       platform: somfy
-      rf_pin: 4
+      rf_pin:
+        number: 4
+        allow_other_uses: true
       # Can be retrieved from MQTT server. Take the key with lowest integer value
       # from /$board/rolling_code/ path.
       remote_id_base: !secret somfy_remote_id_base

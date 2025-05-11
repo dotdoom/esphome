@@ -1,6 +1,5 @@
 #include "somfy.h"
 
-#include "cc1101.h"
 #include "esphome/components/mqtt/mqtt_client.h"
 #include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
@@ -18,7 +17,7 @@ static const int RF_SYMBOL = 640;
 
 void SomfyRTSCover::dump_config() {
   LOG_COVER("", "Somfy RTS Cover", this);
-  ESP_LOGCONFIG(TAG, "  RF Pin: %d", this->rf_pin_);
+  LOG_PIN("  RF Pin", this->rf_pin_);
   ESP_LOGCONFIG(TAG, "  Remote ID: %d", this->remote_id_);
   if (this->rolling_code_) {
     ESP_LOGCONFIG(TAG, "  Rolling Code: %d", this->rolling_code_);
@@ -39,9 +38,10 @@ cover::CoverTraits SomfyRTSCover::get_traits() {
 }
 
 void SomfyRTSCover::setup() {
-  pinMode(rf_pin_, OUTPUT);
-  digitalWrite(rf_pin_, LOW);
-  cc1101_Init();
+  if (rf_pin_ != nullptr) {
+    rf_pin_->setup();
+    rf_pin_->digital_write(false);
+  }
 
   rolling_code_pref_ =
       global_preferences->make_preference<int>(this->get_object_id_hash());
@@ -87,6 +87,11 @@ void SomfyRTSCover::control(const cover::CoverCall &call) {
 }
 
 void SomfyRTSCover::send(uint8_t command) {
+  if (rf_pin_ == nullptr) {
+    ESP_LOGE(TAG, "Sender GPIO pin is not set");
+    return;
+  }
+
   if (rolling_code_ == 0) {
     ESP_LOGE(TAG,
              "Remote #%d was requested to run command %d, but has not "
@@ -125,25 +130,25 @@ void SomfyRTSCover::send(uint8_t command) {
   }
 
   // Wake-up pulse & silence.
-  digitalWrite(rf_pin_, HIGH);
+  rf_pin_->digital_write(true);
   delayMicroseconds(9415);
-  digitalWrite(rf_pin_, LOW);
+  rf_pin_->digital_write(false);
   delayMicroseconds(89565);
 
   for (int repeat = 0; repeat < 3; ++repeat) {
     // Hardware sync.
     uint8_t sync = repeat == 0 ? 2 : 7;
     for (uint8_t i = 0; i < sync; i++) {
-      digitalWrite(rf_pin_, HIGH);
+      rf_pin_->digital_write(true);
       delayMicroseconds(4 * RF_SYMBOL);
-      digitalWrite(rf_pin_, LOW);
+      rf_pin_->digital_write(false);
       delayMicroseconds(4 * RF_SYMBOL);
     }
 
     // Software sync.
-    digitalWrite(rf_pin_, HIGH);
+    rf_pin_->digital_write(true);
     delayMicroseconds(4550);
-    digitalWrite(rf_pin_, LOW);
+    rf_pin_->digital_write(false);
     delayMicroseconds(RF_SYMBOL);
 
     // Data: bits are sent one by one.
@@ -152,20 +157,20 @@ void SomfyRTSCover::send(uint8_t command) {
       for (signed char bit = 7; bit >= 0; --bit) {
         uint8_t value = (frame[octet] >> bit) & 1;
         if (value == 1) {
-          digitalWrite(rf_pin_, LOW);
+          rf_pin_->digital_write(false);
           delayMicroseconds(RF_SYMBOL);
-          digitalWrite(rf_pin_, HIGH);
+          rf_pin_->digital_write(true);
           delayMicroseconds(RF_SYMBOL);
         } else {
-          digitalWrite(rf_pin_, HIGH);
+          rf_pin_->digital_write(true);
           delayMicroseconds(RF_SYMBOL);
-          digitalWrite(rf_pin_, LOW);
+          rf_pin_->digital_write(false);
           delayMicroseconds(RF_SYMBOL);
         }
       }
     }
 
-    digitalWrite(rf_pin_, LOW);
+    rf_pin_->digital_write(false);
     // Inter-frame silence.
     delayMicroseconds(30415);
   }

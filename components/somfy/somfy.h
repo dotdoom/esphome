@@ -14,7 +14,7 @@ namespace somfy {
 
 class SomfyRTSCover : public cover::Cover, public Component {
  public:
-  void set_rf_pin(uint8_t rf_pin) { this->rf_pin_ = rf_pin; }
+  void set_rf_pin(GPIOPin *rf_pin) { this->rf_pin_ = rf_pin; }
   void set_remote_id(uint32_t remote_id) { this->remote_id_ = remote_id; }
 
   cover::CoverTraits get_traits() override;
@@ -31,11 +31,11 @@ class SomfyRTSCover : public cover::Cover, public Component {
    */
   void send(uint8_t command);
 
-  uint8_t rf_pin_;
   uint32_t remote_id_;
   uint32_t rolling_code_;
   std::string mqtt_topic_prefix_;
   ESPPreferenceObject rolling_code_pref_;
+  GPIOPin *rf_pin_{nullptr};
 };
 
 }  // namespace somfy
