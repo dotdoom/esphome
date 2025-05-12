@@ -30,10 +30,14 @@ void SomfyRTSCover::dump_config() {
 
 cover::CoverTraits SomfyRTSCover::get_traits() {
   auto traits = cover::CoverTraits();
+
   traits.set_is_assumed_state(true);
+  traits.set_supports_stop(true);
+
   traits.set_supports_position(false);
   traits.set_supports_tilt(false);
   traits.set_supports_toggle(false);
+
   return traits;
 }
 
@@ -70,8 +74,9 @@ void SomfyRTSCover::setup() {
         },
         /*qos=*/1 /* (at least once) */);
   } else {
+    this->rolling_code_ = 0;
+    this->mark_failed("Missing rolling_code");
     ESP_LOGE(TAG, "No rolling code in flash, and MQTT client unavailable");
-    rolling_code_ = 0;
   }
 }
 
