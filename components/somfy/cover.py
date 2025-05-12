@@ -4,7 +4,7 @@ from esphome.components import cover
 from esphome import pins
 from esphome.const import CONF_ID, CONF_ALLOW_OTHER_USES
 
-DEPENDENCIES = ["mqtt"]
+DEPENDENCIES = ["mqtt", "remote_transmitter"]
 AUTO_LOAD = ["mqtt"]
 
 somfy_ns = cg.esphome_ns.namespace("somfy")
