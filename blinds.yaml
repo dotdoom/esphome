@@ -7,12 +7,6 @@ esphome:
     name: dasfoo.blinds
     version: "4.0"
 
-  on_boot:
-    priority: -100.0  # Everything is initialized.
-    # Use remote_transmitter component instead of digitalWrite in somfy.cpp.
-    then:
-    - lambda: 'id(transceiver)->begin_tx();'
-
 esp32:
   framework:
     type: esp-idf
@@ -21,7 +15,7 @@ packages:
   device_base: !include templates/esp32-poe.yaml
 
   # Also act as a BT proxy due to convenient location.
-  #btproxy: !include templates/btproxy.yaml
+  btproxy: !include templates/btproxy.yaml
   # Allow HA to use our proxy.
   api: !include templates/api.yaml
 
@@ -44,9 +38,7 @@ cc1101:
     frequency: 433340
 
 remote_transmitter:
-  pin:
-    number: 4
-    allow_other_uses: true
+  pin: 4
   carrier_duty_percent: 100%
   id: somfy_remote_transmitter
   on_transmit:
@@ -61,9 +53,7 @@ cover:
     remote_id_offset: 0
     <<: &somfy_cover
       platform: somfy
-      rf_pin:
-        number: 4
-        allow_other_uses: true
+      transmitter: somfy_remote_transmitter
       # Can be retrieved from MQTT server. Take the key with lowest integer value
       # from /$board/rolling_code/ path.
       remote_id_base: !secret somfy_remote_id_base

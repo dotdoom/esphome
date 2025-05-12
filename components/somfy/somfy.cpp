@@ -22,6 +22,13 @@ struct SomfyRTSProtocolData {
   uint8_t command;
   uint32_t rolling_code;
   uint32_t remote_id;
+
+  void dump() const {
+    ESP_LOGD(TAG, "Somfy RTS command:");
+    ESP_LOGD(TAG, "  Remote ID: %d", remote_id);
+    ESP_LOGD(TAG, "  Rolling Code: %d", rolling_code);
+    ESP_LOGD(TAG, "  Command: %d", command);
+  }
 };
 
 class SomfyRTSProtocol
@@ -94,11 +101,7 @@ class SomfyRTSProtocol
     }
   }
 
-  virtual void dump(const ProtocolData &data) override {
-    ESP_LOGI(TAG, "  Remote ID: %d", data.remote_id);
-    ESP_LOGI(TAG, "  Rolling Code: %d", data.rolling_code);
-    ESP_LOGI(TAG, "  Command: %d", data.command);
-  }
+  virtual void dump(const ProtocolData &data) override { data.dump(); }
 
   virtual optional<ProtocolData> decode(
       remote_base::RemoteReceiveData src) override {
@@ -111,7 +114,6 @@ class SomfyRTSProtocol
 
 void SomfyRTSCover::dump_config() {
   LOG_COVER("", "Somfy RTS Cover", this);
-  LOG_PIN("  RF Pin", this->rf_pin_);
   ESP_LOGCONFIG(TAG, "  Remote ID: %d", this->remote_id_);
   if (this->rolling_code_) {
     ESP_LOGCONFIG(TAG, "  Rolling Code: %d", this->rolling_code_);
@@ -136,11 +138,6 @@ cover::CoverTraits SomfyRTSCover::get_traits() {
 }
 
 void SomfyRTSCover::setup() {
-  if (rf_pin_ != nullptr) {
-    rf_pin_->setup();
-    rf_pin_->digital_write(false);
-  }
-
   rolling_code_pref_ =
       global_preferences->make_preference<int>(this->get_object_id_hash());
 
@@ -186,8 +183,8 @@ void SomfyRTSCover::control(const cover::CoverCall &call) {
 }
 
 void SomfyRTSCover::send(uint8_t command) {
-  if (rf_pin_ == nullptr) {
-    ESP_LOGE(TAG, "Sender GPIO pin is not set");
+  if (transmitter_ == nullptr) {
+    ESP_LOGE(TAG, "RF code transmitter is not set");
     return;
   }
 
@@ -200,27 +197,13 @@ void SomfyRTSCover::send(uint8_t command) {
     return;
   }
 
-  ESP_LOGI(TAG, "Remote #%d sending command %d with rolling code %d",
-           remote_id_, command, rolling_code_);
-
-  SomfyRTSProtocolData data{.command = command,
-                            .rolling_code = rolling_code_,
-                            .remote_id = remote_id_};
-
-  remote_base::RemoteTransmitData transmit_data;
-  SomfyRTSProtocol().encode(&transmit_data, data);
-  remote_base::RawTimings td = transmit_data.get_data();
-
-  for (int i = 0; i < td.size(); ++i) {
-    int32_t pulse = td[i];
-    if (pulse > 0) {
-      rf_pin_->digital_write(true);
-      delayMicroseconds(pulse);
-    } else {
-      rf_pin_->digital_write(false);
-      delayMicroseconds(-pulse);
-    }
-  }
+  SomfyRTSProtocolData data{
+      .command = command,
+      .rolling_code = rolling_code_,
+      .remote_id = remote_id_,
+  };
+  data.dump();
+  transmitter_->transmit<SomfyRTSProtocol>(data);
 
   ++rolling_code_;
   this->rolling_code_pref_.save(&rolling_code_);

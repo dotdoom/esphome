@@ -4,6 +4,7 @@
 
 #include "esphome/components/cover/cover.h"
 #include "esphome/components/mqtt/mqtt_component.h"
+#include "esphome/components/remote_transmitter/remote_transmitter.h"
 #include "esphome/core/component.h"
 #include "esphome/core/hal.h"
 #include "esphome/core/log.h"
@@ -14,7 +15,10 @@ namespace somfy {
 
 class SomfyRTSCover : public cover::Cover, public Component {
  public:
-  void set_rf_pin(GPIOPin *rf_pin) { this->rf_pin_ = rf_pin; }
+  void set_transmitter(
+      remote_transmitter::RemoteTransmitterComponent *transmitter) {
+    this->transmitter_ = transmitter;
+  }
   void set_remote_id(uint32_t remote_id) { this->remote_id_ = remote_id; }
 
   cover::CoverTraits get_traits() override;
@@ -35,7 +39,7 @@ class SomfyRTSCover : public cover::Cover, public Component {
   uint32_t rolling_code_;
   std::string mqtt_topic_prefix_;
   ESPPreferenceObject rolling_code_pref_;
-  GPIOPin *rf_pin_{nullptr};
+  remote_transmitter::RemoteTransmitterComponent *transmitter_{nullptr};
 };
 
 }  // namespace somfy
