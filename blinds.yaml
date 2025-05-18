@@ -22,9 +22,6 @@ packages:
 external_components:
   # Path is relative to the main YAML file, not this device_base template!
   - source: components
-  - source: github://pr#6300
-    components:
-      - cc1101
 
 spi:
   clk_pin: 14
