@@ -1,0 +1,2 @@
+packages:
+  device_base: !include templates/mystrom.yaml

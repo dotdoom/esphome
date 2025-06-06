@@ -39,6 +39,7 @@ for config in \
 		zigbee-coordinator-ch25.yaml \
 		child-west-ac.yaml \
 		child-east-ac.yaml \
+		spare-power-meter.yaml \
 		tools-power.yaml; do
 	flash+=("${command?} ${config?}")
 done
