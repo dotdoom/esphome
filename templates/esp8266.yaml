@@ -13,10 +13,16 @@ logger:
 
 status_led:
   pin:
-    # There are 2 LEDs on NodeMCU v2, one next to the WiFi
-    # antenna, another near the power socket / RST button.
-    # The one at WiFi is connected to UART so it blinks on
-    # flash, thus we will use the other one for status.
+    # There are 2 LEDs on NodeMCU v2 board.
     # https://lowvoltage.github.io/2017/07/09/Onboard-LEDs-NodeMCU-Got-Two
+    #
+    # One next to the WiFi antenna belongs to ESP-12 chip and is bound to UART,
+    # so it blinks on flash.
+    #
+    # Another from NodeMCU itself is located near micro USB interface on the RST
+    # button side. That one is bound to WAKE pin, which is the one to connect to
+    # RESET pin if the board is expected to wake from deep sleep on timer.
+    #
+    # We will use the NodeMCU LED since we rarely need deep sleep.
     number: GPIO16
     inverted: true
