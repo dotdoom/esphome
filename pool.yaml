@@ -1,0 +1,112 @@
+esphome:
+  name: pool
+  friendly_name: "Pool"
+  area: "Backyard"
+
+  project:
+    name: dasfoo.pool
+    version: "1.0"
+
+  on_boot:
+    - priority: 200 # If we update before MQTT, that message is lost.
+      then:
+        - component.update: wakeup_time
+        - component.update: temperature
+
+esp32:
+  # ESP32 has lower power consumption during deep sleep, which is the mode
+  # we spend most time in.
+  board: esp32doit-devkit-v1
+  framework:
+    type: esp-idf
+
+packages:
+  wifi: !include templates/wifi.yaml
+  ota: !include templates/ota.yaml
+  mqtt: !include templates/mqtt.yaml
+
+switch:
+  - platform: template
+    name: "Stay awake"
+    id: stay_awake
+    optimistic: true
+    entity_category: diagnostic
+
+    turn_on_action:
+      - deep_sleep.prevent: chip_deep_sleep
+    turn_off_action:
+      # Will enter deep sleep the next time sensor is updated (~60s).
+      - deep_sleep.allow: chip_deep_sleep
+
+    # Do not want any turn_on/turn_off actions on boot, only MQTT *commands*.
+    restore_mode: DISABLED
+    retain: false
+    # Disable availability to make switch available even when chip is asleep.
+    availability: null
+    # Enable retention so that chip gets the value once it is online again.
+    command_retain: true
+    # State in MQTT will be confusing because esphome won't update it until it
+    # is online. This will be confusing in HA, so we drop this.
+    assumed_state: true
+
+logger:
+  # Higher log level to reduce power consumption and awake duration.
+  level: INFO
+
+# If you have to reflash, do one of the following:
+# - set "Keep awake" to ON (lightning) and wait until next wake up, then OTA.
+# - reset (EN) 10 times to trigger SAFE MODE, then OTA or flash.
+# - hold BOOT and press EN, then release BOOT to enter bootloader mode, then
+#   flash. If using web.esphome.io, just hold the BOOT button before INSTALL.
+deep_sleep:
+  id: chip_deep_sleep
+  sleep_duration: 10min
+  # If we couldn't send data within this interval, sleep anyway.
+  run_duration: 30s
+
+one_wire:
+  - platform: gpio
+    pin: GPIO27
+
+sensor:
+  - platform: dallas_temp
+    # We only have one sensor, but maybe it's faster when addr is known.
+    address: 0x4c0000006a0a5d28
+    resolution: 10 # 0.25C accuracy, <200ms wait time.
+    id: temperature
+    name: "Temperature"
+    # Keep the latest value available in HA.
+    availability: null
+    # But not in MQTT (we subscribe to this topic to know update is delivered).
+    retain: false
+
+  - platform: uptime
+    type: seconds
+    name: "Wakeup time"
+    id: wakeup_time
+    accuracy_decimals: 3
+    # Keep the latest value available in HA.
+    availability: null
+    # We call for update manually.
+    update_interval: never
+
+wifi:
+  fast_connect: true
+  manual_ip: # For faster connection.
+    static_ip: 10.26.160.236
+    gateway: 10.26.160.1
+    subnet: 255.255.255.0
+
+mqtt:
+  on_message:
+    # This is a reflect subscription to our own sensor - when we get a message,
+    # it means that we're done with measurement.
+    #
+    # You can look up the topic in "MQTT INFO" of HA device page.
+    - topic: pool/sensor/temperature/state
+      then:
+        - if:
+            condition:
+              switch.is_off: stay_awake
+            then:
+              - deep_sleep.enter: chip_deep_sleep
