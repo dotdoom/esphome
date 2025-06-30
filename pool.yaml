@@ -75,6 +75,13 @@ sensor:
     resolution: 10 # 0.25C accuracy, <200ms wait time.
     id: temperature
     name: "Temperature"
+    # DS18B20 datasheet indicates 85C as an error reading. In general it makes
+    # little sense to yield values out of reasonable range.
+    filters:
+      - clamp:
+          min_value: 10
+          max_value: 40
+          ignore_out_of_range: true
     # Keep the latest value available in HA.
     availability: null
     # But not in MQTT (we subscribe to this topic to know update is delivered).
