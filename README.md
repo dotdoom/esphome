@@ -53,6 +53,33 @@ $ esphome run file.yaml
 
 Look up list of runnable files inside `reflash.sh` script.
 
+## Running remotely
+
+If you don't have esphome installed on a computer that you connect ESP chip to,
+use https://web.esphome.io/ to upload the compiled binary.
+
+The binary resides in
+`.esphome/build/<component>/.pioenvs/<component>/firmware.factory.bin`.
+
+## Cleaning up removed MQTT entities
+
+This can be done via `clean-mqtt` command line:
+
+```shell
+$ esphome clean-mqtt spare-power-meter.yaml \
+    --topic homeassistant/binary_sensor/<component>/<entity>/config
+```
+
+or
+
+```shell
+$ esphome clean-mqtt spare-power-meter.yaml \
+    --topic homeassistant/+/<component>/#
+```
+
+When `--topic` is specified, the YAML file will only be used to extract MQTT
+credentials. All other topics will remain untouched.
+
 ## Hardware: heating
 
 ### Photoresistor
