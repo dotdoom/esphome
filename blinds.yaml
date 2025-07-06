@@ -60,6 +60,7 @@ cover:
     <<: *somfy_cover
   - name: "Living Room side"
     remote_id_offset: 2
+    # Timing: open 45s, close 44s
     <<: *somfy_cover
   - name: "Wardrobe"
     remote_id_offset: 3
@@ -81,6 +82,7 @@ cover:
     <<: *somfy_cover
   - name: "Living Room door"
     remote_id_offset: 9
+    # Timing: open 46s, close 45s
     <<: *somfy_cover
   - name: "Living Room window"
     remote_id_offset: 10
