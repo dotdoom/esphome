@@ -99,12 +99,14 @@ sensor:
 
 wifi:
   fast_connect: true
+  reboot_timeout: 15s # not counted towards deep_sleep
   manual_ip: # For faster connection.
     static_ip: 10.26.160.236
     gateway: 10.26.160.1
     subnet: 255.255.255.0
 
 mqtt:
+  reboot_timeout: 30s # not counted towards deep_sleep
   on_message:
     # This is a reflect subscription to our own sensor - when we get a message,
     # it means that we're done with measurement.
