@@ -7,15 +7,11 @@ esphome:
     name: dasfoo.pool
     version: "1.0"
 
-  on_boot:
-    - priority: 200 # If we update before MQTT, that message is lost.
-      then:
-        - component.update: wakeup_time
-        - component.update: temperature
-
 esp32:
   # ESP32 has lower power consumption during deep sleep, which is the mode
   # we spend most time in.
+  #
+  # This board has an LED on GPIO16.
   board: esp32doit-devkit-v1
   framework:
     type: esp-idf
@@ -35,7 +31,7 @@ switch:
     turn_on_action:
       - deep_sleep.prevent: chip_deep_sleep
     turn_off_action:
-      # Will enter deep sleep the next time sensor is updated (~60s).
+      # Sleep once we reach run_duration uptime, or immediately if already did.
       - deep_sleep.allow: chip_deep_sleep
 
     # Do not want any turn_on/turn_off actions on boot, only MQTT *commands*.
@@ -48,6 +44,13 @@ switch:
     # State in MQTT will be confusing because esphome won't update it until it
     # is online. This will be confusing in HA, so we drop this.
     assumed_state: true
+
+ota:
+  - platform: esphome
+    on_end:
+      then:
+        # If we did an OTA, likely don't need to stay awake anymore.
+        - switch.turn_off: stay_awake
 
 logger:
   # Higher log level to reduce power consumption and awake duration.
@@ -63,6 +66,9 @@ deep_sleep:
   sleep_duration: 10min
   # If we couldn't send data within this interval, sleep anyway.
   run_duration: 30s
+  # Sleep even if WiFi or MQTT never became ready. Also means that run_duration
+  # starts at boot.
+  setup_priority: 799
 
 one_wire:
   - platform: gpio
@@ -73,6 +79,8 @@ sensor:
     # We only have one sensor, but maybe it's faster when addr is known.
     address: 0x4c0000006a0a5d28
     resolution: 10 # 0.25C accuracy, <200ms wait time.
+    # We update manually, this is a backup in case a measurement fails.
+    update_interval: 5s
     id: temperature
     name: "Temperature"
     # DS18B20 datasheet indicates 85C as an error reading. In general it makes
@@ -99,16 +107,18 @@ sensor:
 
 wifi:
   fast_connect: true
-  reboot_timeout: 15s # not counted towards deep_sleep
   manual_ip: # For faster connection.
     static_ip: 10.26.160.236
     gateway: 10.26.160.1
     subnet: 255.255.255.0
 
 mqtt:
-  reboot_timeout: 30s # not counted towards deep_sleep
+  on_connect:
+    # Not on_boot: if we update before MQTT is ready, that message is lost.
+    - component.update: wakeup_time
+    - component.update: temperature
   on_message:
-    # This is a reflect subscription to our own sensor - when we get a message,
+    # This is a reflect subscription to our own sensors - when we get a message,
     # it means that we're done with measurement.
     #
     # You can look up the topic in "MQTT INFO" of HA device page.
