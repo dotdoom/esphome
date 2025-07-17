@@ -7,6 +7,36 @@ esphome:
     name: dasfoo.pool
     version: "1.0"
 
+  on_boot:
+    - priority: 600
+      then:
+        # The sensor has 500ms response time, which is definitely less than what
+        # WiFi and MQTT need to establish a connection. By the time those are
+        # up, we should have a reliable reading.
+        - output.turn_on: water_sensor_power
+        - output.turn_off: water_sensor_com
+
+globals:
+  - id: temperature_published
+    type: bool
+    restore_value: false
+    initial_value: "false"
+  - id: water_presence_published
+    type: bool
+    restore_value: false
+    initial_value: "false"
+
+script:
+  - id: check_and_sleep
+    then:
+      - if:
+          condition:
+            - lambda: "return id(temperature_published);"
+            - lambda: "return id(water_presence_published);"
+            - switch.is_off: stay_awake
+          then:
+            - deep_sleep.enter: chip_deep_sleep
+
 esp32:
   # ESP32 has lower power consumption during deep sleep, which is the mode
   # we spend most time in.
@@ -82,7 +112,7 @@ sensor:
     # We update manually, this is a backup in case a measurement fails.
     update_interval: 5s
     id: temperature
-    name: "Temperature"
+    name: "Temperature" # remember to update MQTT topic below
     # DS18B20 datasheet indicates 85C as an error reading. In general it makes
     # little sense to yield values out of reasonable range.
     filters:
@@ -112,6 +142,24 @@ wifi:
     gateway: 10.26.160.1
     subnet: 255.255.255.0
 
+binary_sensor:
+  - platform: gpio
+    pin: GPIO18 # yellow
+    name: "Water level dropped" # remember to update MQTT topic below
+    device_class: problem
+    # Keep the latest value available in HA.
+    availability: null
+    # But not in MQTT (we subscribe to this topic to know update is delivered).
+    retain: false
+
+output:
+  - platform: gpio
+    pin: GPIO19 # black
+    id: water_sensor_com
+  - platform: gpio
+    pin: GPIO5 # brown
+    id: water_sensor_power
+
 mqtt:
   on_connect:
     # Not on_boot: if we update before MQTT is ready, that message is lost.
@@ -124,8 +172,13 @@ mqtt:
     # You can look up the topic in "MQTT INFO" of HA device page.
     - topic: pool/sensor/temperature/state
       then:
-        - if:
-            condition:
-              switch.is_off: stay_awake
-            then:
-              - deep_sleep.enter: chip_deep_sleep
+        - globals.set:
+            id: temperature_published
+            value: "true"
+        - script.execute: check_and_sleep
+    - topic: pool/binary_sensor/water_level_dropped/state
+      then:
+        - globals.set:
+            id: water_presence_published
+            value: "true"
+        - script.execute: check_and_sleep
