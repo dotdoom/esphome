@@ -10,9 +10,6 @@ esphome:
   on_boot:
     - priority: 600
       then:
-        # The sensor has 500ms response time, which is definitely less than what
-        # WiFi and MQTT need to establish a connection. By the time those are
-        # up, we should have a reliable reading.
         - output.turn_on: water_sensor_power
         - output.turn_off: water_sensor_com
 
@@ -147,6 +144,9 @@ binary_sensor:
     pin: GPIO18 # yellow
     name: "Water level dropped" # remember to update MQTT topic below
     device_class: problem
+    filters:
+      # XKC-Y25 datasheet: 500ms response time.
+      - delayed_on_off: 500ms
     # Keep the latest value available in HA.
     availability: null
     # But not in MQTT (we subscribe to this topic to know update is delivered).
