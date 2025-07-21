@@ -90,6 +90,7 @@ logger:
 #   flash. If using web.esphome.io, just hold the BOOT button before INSTALL.
 deep_sleep:
   id: chip_deep_sleep
+  # Keep in sync with expire_after of important sensors.
   sleep_duration: 10min
   # If we couldn't send data within this interval, sleep anyway.
   run_duration: 30s
@@ -121,6 +122,7 @@ sensor:
     availability: null
     # But not in MQTT (we subscribe to this topic to know update is delivered).
     retain: false
+    expire_after: 11min
 
   - platform: uptime
     type: seconds
@@ -131,6 +133,7 @@ sensor:
     availability: null
     # We call for update manually.
     update_interval: never
+    expire_after: 11min
 
 wifi:
   fast_connect: true
