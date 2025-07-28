@@ -1,0 +1,9 @@
+substitutions:
+  name: "office-rack"
+  friendly_name: "Office rack"
+
+esphome:
+  area: "Office"
+
+packages:
+  device_base: !include templates/mystrom.yaml

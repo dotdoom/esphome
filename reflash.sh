@@ -40,6 +40,8 @@ for config in \
 		child-west-ac.yaml \
 		child-east-ac.yaml \
 		spare-power-meter.yaml \
+		office-desk-north.yaml \
+		office-rack.yaml \
 		tools-power.yaml; do
 	flash+=("${command?} ${config?}")
 done
