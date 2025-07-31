@@ -31,6 +31,7 @@ for config in \
 		car-charger.yaml \
 		freezer.yaml \
 		living-room-entertainment.yaml \
+		living-room-infra.yaml \
 		outdoor-equipment.yaml \
 		recirculation-pump.yaml \
 		storage-heater.yaml \
@@ -41,6 +42,8 @@ for config in \
 		child-east-ac.yaml \
 		spare-power-meter.yaml \
 		office-desk-north.yaml \
+		office-desk-south.yaml \
+		attic-central.yaml \
 		office-rack.yaml \
 		tools-power.yaml; do
 	flash+=("${command?} ${config?}")

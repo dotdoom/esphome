@@ -1,0 +1,9 @@
+substitutions:
+  name: "living-room-infra"
+  friendly_name: "Living room infra"
+
+esphome:
+  area: "Living room"
+
+packages:
+  device_base: !include templates/mystrom.yaml

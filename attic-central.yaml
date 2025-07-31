@@ -1,0 +1,9 @@
+substitutions:
+  name: "attic-central"
+  friendly_name: "Attic central"
+
+esphome:
+  area: "Attic"
+
+packages:
+  device_base: !include templates/mystrom.yaml

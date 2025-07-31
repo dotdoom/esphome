@@ -1,0 +1,9 @@
+substitutions:
+  name: "office-desk-south"
+  friendly_name: "Office desk south"
+
+esphome:
+  area: "Office"
+
+packages:
+  device_base: !include templates/mystrom.yaml
