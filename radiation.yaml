@@ -1,0 +1,51 @@
+esphome:
+  name: radiation
+  friendly_name: "Radiation"
+  area: "Bedroom"
+
+  project:
+    name: dasfoo.radiation
+    version: "1.0"
+
+  on_boot:
+    - priority: -100.0
+      then:
+        - output.set_level:
+            id: mic_power
+            level: 50%
+
+esp32:
+  board: esp32doit-devkit-v1
+  framework:
+    type: esp-idf
+
+packages:
+  device_base: !include templates/esp32.yaml
+
+output:
+  - platform: esp32_dac
+    pin: GPIO25
+    id: mic_power
+
+sensor:
+- platform: pulse_meter
+  internal_filter: 50ms
+
+  pin:
+    number: GPIO15
+    inverted: true
+    mode:
+      input: true
+
+  name: "Level"
+  unit_of_measurement: "mR/h"
+  state_class: "measurement"
+
+  accuracy_decimals: 3
+
+  filters:
+    - multiply: 0.0000833333 # particles/minute -> milliRad/hour (assuming calibration factor 1200 CPM = 1milliRad)
+    - sliding_window_moving_average:
+        window_size: 20
+        send_every: 2
+    - throttle_average: 5s
