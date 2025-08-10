@@ -2,11 +2,17 @@
 # The purpose is to expose that serial port via TCP.
 #
 # cc2652p firmware (launchpad):
-# https://github.com/Koenkk/Z-Stack-firmware/tree/master/coordinator/Z-Stack_3.x.0/bin
-# (latest flashed copy in zigbee-coordinator directory).
+# https://github.com/Koenkk/Z-Stack-firmware/tree/master/coordinator/Z-Stack_3.x.0
+#
+# Binary files can be found at:
+# https://github.com/Koenkk/Z-Stack-firmware/releases
+# Latest flashed copy can be found in zigbee-coordinator directory.
 #
 # Firmware flashing tool:
 # https://github.com/JelmerT/cc2538-bsl
+#
+# Consider using Docker for flashing:
+# https://www.zigbee2mqtt.io/guide/adapters/flashing/flashing_via_cc2538-bsl.html
 
 esphome:
   name: "zigbee-coordinator-ch${channel}"
