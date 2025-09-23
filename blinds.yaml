@@ -125,3 +125,78 @@ switch:
     id: wintergarten_retract
     restore_mode: ALWAYS_OFF
     inverted: true
+
+# TODO: hide the below (meater) under sub-device after esphome 2025.07.
+
+ble_client:
+  - mac_address: "B8:1F:5E:0F:BB:2F"
+    id: meater
+
+sensor:
+  - name: "Meater Tip temperature"
+    platform: ble_client
+    type: characteristic
+    ble_client_id: meater
+    service_uuid: "a75cc7fc-c956-488f-ac2a-2dbc08b63a04"
+    characteristic_uuid: "7edda774-045e-4bbf-909b-45d1991a2876"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_class: "temperature"
+    state_class: "measurement"
+    notify: true
+    lambda: |-
+      float tip_temp = (x[0] + (x[1] << 8) + 8.0) / 16.0;
+      return tip_temp;
+  - name: "Meater Ambient temperature"
+    platform: ble_client
+    type: characteristic
+    ble_client_id: meater
+    service_uuid: "a75cc7fc-c956-488f-ac2a-2dbc08b63a04"
+    characteristic_uuid: "7edda774-045e-4bbf-909b-45d1991a2876"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_class: "temperature"
+    state_class: "measurement"
+    notify: true
+    lambda: |-
+      uint16_t tip = x[0] + (x[1] << 8);
+      uint16_t ra = x[2] + (x[3] << 8);
+      uint16_t oa = x[4] + (x[5] << 8);
+      uint16_t min_val = 48;
+      float ambient = (tip + std::max(0., (((ra - std::min(min_val, oa)) * 16. * 589.) / 1487.)) + 8.0) / 16.;
+      return ambient;
+  - name: "Meater Battery level"
+    platform: ble_client
+    type: characteristic
+    ble_client_id: meater
+    service_uuid: "a75cc7fc-c956-488f-ac2a-2dbc08b63a04"
+    characteristic_uuid: "2adb4877-68d8-4884-bd3c-d83853bf27b8"
+    unit_of_measurement: "%"
+    device_class: "battery"
+    state_class: "measurement"
+    notify: true
+    lambda: |-
+      uint16_t battery = (x[0] + x[1]) * 10;
+      return battery;
+  - name: "Meater RSSI"
+    platform: ble_client
+    type: rssi
+    ble_client_id: meater
+    device_class: "signal_strength"
+    state_class: "measurement"
+    entity_category: diagnostic
+
+text_sensor:
+  - name: "Meater Firmware"
+    platform: ble_client
+    ble_client_id: meater
+    service_uuid: "180A"
+    entity_category: diagnostic
+    characteristic_uuid: "00002a26-0000-1000-8000-00805f9b34fb"
+    filters:
+      - lambda: |-
+          if (x.size()) {
+            std::string data_string(x.begin(), x.end());
+            return data_string;
+          }
+          return {};
