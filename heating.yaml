@@ -93,7 +93,7 @@ sensor:
   # Make voltage value available in UI for debugging and history.
   name: "Furnace burning - LED brightness"
   entity_category: diagnostic
-  disabled_by_default: true
+  accuracy_decimals: 2
 
 - platform: adc
   pin: GPIO33
@@ -103,7 +103,7 @@ sensor:
   # Make voltage value available in UI for debugging and history.
   name: "Floor active - LED brightness"
   entity_category: diagnostic
-  disabled_by_default: true
+  accuracy_decimals: 2
 
 binary_sensor:
 - platform: analog_threshold
