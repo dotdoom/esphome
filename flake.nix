@@ -26,7 +26,6 @@
           shellHook = ''
             echo -n "ESPHome "
             esphome --version
-            exec zsh
           '';
         };
       }

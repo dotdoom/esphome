@@ -12,3 +12,6 @@ secrets.yaml
 /templates/.gitignore
 /.vscode
 **/__pycache__/
+
+# direnv cache
+/.direnv
