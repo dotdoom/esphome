@@ -33,7 +33,6 @@ for config in \
 		living-room-entertainment.yaml \
 		living-room-infra.yaml \
 		outdoor-equipment.yaml \
-		recirculation-pump.yaml \
 		storage-heater.yaml \
 		basement-dehum.yaml \
 		zigbee-coordinator-ch24.yaml \
