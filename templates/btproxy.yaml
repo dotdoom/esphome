@@ -40,15 +40,6 @@ script:
 
 sensor:
   - platform: template
-    name: "btproxy connections free"
-    lambda: 'return id(btproxy).get_bluetooth_connections_free();'
-    update_interval: 60s
-    state_class: "measurement"
-    accuracy_decimals: 0
-    entity_category: diagnostic
-    icon: "mdi:bluetooth-settings"
-
-  - platform: template
     name: "BLE scans finished"
     id: ble_scans_finished
     state_class: "total_increasing"
