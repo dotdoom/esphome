@@ -13,9 +13,8 @@ CONF_TRANSMITTER = "transmitter"
 CONF_REMOTE_ID_BASE = "remote_id_base"
 CONF_REMOTE_ID_OFFSET = "remote_id_offset"
 
-CONFIG_SCHEMA = cover.COVER_SCHEMA.extend(
+CONFIG_SCHEMA = cover.cover_schema(SomfyRTSCover).extend(
     {
-        cv.GenerateID(): cv.declare_id(SomfyRTSCover),
         cv.Required(CONF_TRANSMITTER): cv.use_id(remote_transmitter.RemoteTransmitterComponent),
         cv.Required(CONF_REMOTE_ID_BASE): cv.uint32_t,
         cv.Required(CONF_REMOTE_ID_OFFSET): cv.uint32_t,
