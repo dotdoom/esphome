@@ -89,7 +89,7 @@ for cmdline in "${flash[@]}"; do
 
 	print_results_table
 	echo "Launching esphome: $cmdline"
-	if esphome $cmdline; then
+	if echo 1 | esphome $cmdline; then
 		flash_result["$cmdline"]=OK
 	else
 		flash_result["$cmdline"]=FAIL
