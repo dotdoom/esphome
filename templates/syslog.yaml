@@ -1,10 +1,18 @@
-external_components:
-  # Path is relative to the main YAML file, not this device_base template!
-  - source: components
+udp:
+  - id: syslog_server
+    addresses: !secret syslog_server
 
-# https://github.com/esphome/esphome/issues/12591
+time:
+  # https://github.com/esphome/esphome/issues/12591
+  - id: syslog_fake_time
+    platform: sntp
+    timezone: UTC
+    servers:
+      - 127.0.0.1
+
 syslog:
-  ip_address: !secret syslog_server
+  udp_id: syslog_server
+  time_id: syslog_fake_time
 
 mqtt:
   # Disable logging to save bandwidth.
