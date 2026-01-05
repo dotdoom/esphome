@@ -166,7 +166,7 @@ void SomfyRTSCover::setup() {
         /*qos=*/1 /* (at least once) */);
   } else {
     this->rolling_code_ = 0;
-    this->mark_failed("Missing rolling_code");
+    this->mark_failed(LOG_STR("Missing rolling_code"));
     ESP_LOGE(TAG, "No rolling code in flash, and MQTT client unavailable");
   }
 }

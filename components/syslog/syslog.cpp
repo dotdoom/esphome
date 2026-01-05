@@ -63,21 +63,22 @@ Syslog::Syslog() {
   this->errors_encountered_ = 0;
 }
 
+void Syslog::on_log(uint8_t level, const char *tag, const char *raw_message, size_t raw_message_len) {
+  if (level > this->min_log_level_) return;
+
+  std::string message = std::string(raw_message, raw_message_len);
+  if (this->strip_color_codes_) {
+    std::string clean_message = remove_ansi_colors(message);
+    this->log(level, tag, clean_message);
+  } else {
+    this->log(level, tag, message);
+  }
+}
+
 void Syslog::setup() {
 #ifdef USE_LOGGER
   if (logger::global_logger != nullptr && this->forward_logger_) {
-    logger::global_logger->add_on_log_callback(
-        [this](int level, const char *tag, const char *raw_message, size_t raw_message_len) {
-          if (level > this->min_log_level_) return;
-
-          std::string message = std::string(raw_message, raw_message_len);
-          if (this->strip_color_codes_) {
-            std::string clean_message = remove_ansi_colors(message);
-            this->log(level, tag, clean_message);
-          } else {
-            this->log(level, tag, message);
-          }
-        });
+    logger::global_logger->add_log_listener(this);
   }
 #endif
 

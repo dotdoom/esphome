@@ -16,6 +16,7 @@
 #include "esphome/core/automation.h"
 #include "esphome/core/component.h"
 #include "esphome/core/log.h"
+#include "esphome/components/logger/logger.h"
 
 #if defined(USE_SOCKET_IMPL_BSD_SOCKETS) || \
     defined(USE_SOCKET_IMPL_LWIP_SOCKETS)
@@ -28,7 +29,7 @@ namespace esphome {
 
 namespace syslog {
 
-class Syslog : public Component {
+class Syslog : public Component, public logger::LogListener {
  public:
   explicit Syslog();
 
@@ -49,6 +50,7 @@ class Syslog : public Component {
   void set_forward_logger(bool forward) { this->forward_logger_ = forward; }
   void set_strip_color_codes(bool strip) { this->strip_color_codes_ = strip; }
 
+  void on_log(uint8_t, const char *, const char *, size_t) override;
   void log(int level, const std::string &tag, const std::string &msg);
 
  protected:

@@ -2,6 +2,7 @@ external_components:
   # Path is relative to the main YAML file, not this device_base template!
   - source: components
 
+# https://github.com/esphome/esphome/issues/12591
 syslog:
   ip_address: !secret syslog_server
 

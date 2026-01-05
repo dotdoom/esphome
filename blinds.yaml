@@ -31,8 +31,7 @@ spi:
 cc1101:
   id: transceiver
   cs_pin: 13
-  tuner:
-    frequency: 433340
+  frequency: 433.34MHz
 
 remote_transmitter:
   pin: 4
@@ -43,7 +42,7 @@ remote_transmitter:
       - cc1101.begin_tx: transceiver
   on_complete:
     then:
-      - cc1101.end_tx: transceiver
+      - cc1101.set_idle: transceiver
 
 cover:
   - name: "Office window"
