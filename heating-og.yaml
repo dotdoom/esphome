@@ -5,22 +5,15 @@ esphome:
 
   project:
     name: dasfoo.heating-og
-    version: "1.0"
+    version: "2.0"
 
-esp8266:
-  board: esp12e
-  # The board could reboot due to missing MQTT connection.
-  #
-  # We want it to be resilient and keep water circulating where
-  # it was before the reboot. This is especially important while
-  # on WiFi in a metal cage (poor connection quality).
-  #
-  # Heating itself is controlled centrally and can be shut off
-  # independent of actual GPIO state of this board.
-  restore_from_flash: true
+esp32:
+  board: esp32doit-devkit-v1
+  framework:
+    type: esp-idf
 
 packages:
-  wifi: !include templates/wifi.yaml
+  # WiFi is present on board but we don't use it.
   ota: !include templates/ota.yaml
   mqtt: !include templates/mqtt.yaml
   uptime: !include templates/uptime.yaml
@@ -29,36 +22,87 @@ packages:
 
 logger:
 
+ethernet:
+  type: JL1101
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk_mode: GPIO17_OUT
+  power_pin: GPIO0
+  phy_addr: 1
+  domain: ""
+
+text_sensor:
+- platform: ethernet_info
+  ip_address:
+    name: "ESP chip IP (Ethernet)"
+    icon: mdi:ip-network
+  mac_address:
+    name: "ESP chip MAC (Ethernet)"
+    icon: mdi:expansion-card
+
+
+sn74hc595: # write
+  - id: 'sn74hc595_hub'
+    clock_pin: GPIO14 # SRCLK
+    data_pin: GPIO13 # SER
+    latch_pin: GPIO15 # RCLK
+    oe_pin: GPIO32 # OE
+    sr_count: 8
+
 switch:
   - platform: gpio
-    pin: GPIO16
+    restore_mode: RESTORE_DEFAULT_OFF
     name: "Shower"
-    restore_mode: RESTORE_DEFAULT_OFF
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 0
+      inverted: false
   - platform: gpio
-    pin: GPIO14
+    restore_mode: RESTORE_DEFAULT_OFF
+    id: sw_unused
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 1
+      inverted: false
+  - platform: gpio
+    restore_mode: RESTORE_DEFAULT_OFF
     name: "Bedroom"
-    restore_mode: RESTORE_DEFAULT_OFF
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 2
+      inverted: false
   - platform: gpio
-    pin: GPIO12
+    restore_mode: RESTORE_DEFAULT_OFF
     name: "Wardrobe"
-    restore_mode: RESTORE_DEFAULT_OFF
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 3
+      inverted: false
   - platform: gpio
-    pin: GPIO13
+    restore_mode: RESTORE_DEFAULT_OFF
     name: "Office and Hallway"
-    restore_mode: RESTORE_DEFAULT_OFF
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 4
+      inverted: false
   - platform: gpio
-    pin: GPIO15
+    restore_mode: RESTORE_DEFAULT_OFF
     name: "Child West"
-    restore_mode: RESTORE_DEFAULT_OFF
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 5
+      inverted: false
   - platform: gpio
-    pin: GPIO00
+    restore_mode: RESTORE_DEFAULT_OFF
     name: "Bathroom"
-    restore_mode: RESTORE_DEFAULT_OFF
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 6
+      inverted: false
   - platform: gpio
-    pin: GPIO04
+    restore_mode: RESTORE_DEFAULT_OFF
     name: "Child East"
-    restore_mode: RESTORE_DEFAULT_OFF
-  - platform: gpio
-    pin: GPIO05
-    id: unused_relay8
-    restore_mode: RESTORE_DEFAULT_OFF
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 7
+      inverted: false
