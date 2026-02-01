@@ -4,22 +4,25 @@ esp32:
   board: esp32doit-devkit-v1
 
 esphome:
-  name: empty32-cam
-  name_add_mac_suffix: true
+  name: cat-feeder-cam
+  friendly_name: "Cat feeder cam"
+  area: Kitchen
 
 packages:
-  wifi: !include ../templates/wifi.yaml
-  ota: !include ../templates/ota.yaml
+  device_base: !include templates/esp32-cam.yaml
 
 psram:
 
-esp32_camera:
+i2c:
+- id: camera_i2c
+  sda: GPIO26
+  scl: GPIO27
+
+esp32_camera: # Ai-Thinker
   external_clock:
     pin: GPIO0
     frequency: 20MHz
-  i2c_pins:
-    sda: GPIO26
-    scl: GPIO27
+  i2c_id: camera_i2c
   data_pins: [GPIO5, GPIO18, GPIO19, GPIO21, GPIO36, GPIO39, GPIO34, GPIO35]
   vsync_pin: GPIO25
   href_pin: GPIO23

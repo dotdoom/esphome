@@ -45,6 +45,7 @@ for config in \
 		attic-central.yaml \
 		office-rack.yaml \
 		radiation.yaml \
+		cat-feeder-cam.yaml \
 		tools-power.yaml; do
 	flash+=("${command?} ${config?}")
 done
