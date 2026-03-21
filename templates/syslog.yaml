@@ -5,10 +5,8 @@ udp:
 time:
   # https://github.com/esphome/esphome/issues/12591
   - id: syslog_fake_time
-    platform: sntp
+    platform: host
     timezone: UTC
-    servers:
-      - 127.0.0.1
 
 syslog:
   udp_id: syslog_server
