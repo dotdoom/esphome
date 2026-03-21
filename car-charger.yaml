@@ -9,6 +9,13 @@ packages:
   device_base: !include templates/mystrom.yaml
   time: !include templates/time.yaml
 
+switch:
+  - platform: template
+    name: "Failsafe schedule"
+    id: failsafe_schedule
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+
 time:
 - platform: sntp
   id: sntp_time
@@ -21,6 +28,7 @@ time:
       then:
         - if:
             condition:
+              - switch.is_on: failsafe_schedule
               - switch.is_off: mystrom_relay
             then:
               - logger.log: >-
