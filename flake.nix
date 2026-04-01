@@ -16,6 +16,7 @@
         default = pkgs.mkShell {
           buildInputs = with pkgs; [
             esphome
+            cc2538-bsl
           ];
 
           shellHook = ''

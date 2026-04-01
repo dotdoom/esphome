@@ -2,22 +2,11 @@
 
 ## Installation
 
-Recommended: [venv](https://docs.python.org/3/library/venv.html).
-
-```shell
-# Optional
-$ python3 -m venv .venv
-$ source .venv/bin/activate
-
-$ pip3 install -r requirements.txt
-```
+1. https://nixos.org/download/
+2. direnv
 
 Your PC timezone is important for esphome schedules, as they will use compiler's
-timezone when syncing the clock (NTP). Consider changing it to your home TZ:
-
-```
-# dpkg-reconfigure tzdata
-```
+timezone when syncing the clock (NTP).
 
 ## Compiling
 
@@ -27,27 +16,18 @@ $ cp -i templates/secrets.yaml{.sample,}
 
 # Edit both secrets.yaml files.
 
-# Optional
-$ source .venv/bin/activate
-
 $ ./reflash.sh compile ''
 ```
 
 ## Running
 
 ```
-# Optional
-$ source .venv/bin/activate
-
 $ ./reflash.sh
 ```
 
 or
 
 ```
-# Optional
-$ source .venv/bin/activate
-
 $ esphome run file.yaml
 ```
 

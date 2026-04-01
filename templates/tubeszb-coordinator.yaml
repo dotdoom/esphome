@@ -6,13 +6,13 @@
 #
 # Binary files can be found at:
 # https://github.com/Koenkk/Z-Stack-firmware/releases
-# Latest flashed copy can be found in zigbee-coordinator directory.
+# Latest flashed copy can be found in tubeszb/ directory.
 #
-# Firmware flashing tool:
-# https://github.com/JelmerT/cc2538-bsl
-#
-# Consider using Docker for flashing:
+# Coordinator flashing instructions:
 # https://www.zigbee2mqtt.io/guide/adapters/flashing/flashing_via_cc2538-bsl.html
+#
+# Router flashing instructions:
+# https://github.com/tube0013/tube_gateways/tree/8cf2d2998602d0d89ff2cd9ce06dbd98997e223d/models/current/tubeszb-router#flashing-the-router
 
 esphome:
   name: "zigbee-coordinator-ch${channel}"
