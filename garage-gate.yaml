@@ -1,0 +1,9 @@
+substitutions:
+  name: "garage-gate"
+  friendly_name: "Garage gate"
+
+esphome:
+  area: "Garage"
+
+packages:
+  device_base: !include templates/mystrom.yaml

@@ -46,6 +46,7 @@ for config in \
 		office-rack.yaml \
 		radiation.yaml \
 		cat-feeder-cam.yaml \
+		garage-gate.yaml \
 		tools-power.yaml; do
 	flash+=("${command?} ${config?}")
 done
