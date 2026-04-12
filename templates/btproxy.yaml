@@ -27,6 +27,10 @@ esp32_ble_tracker:
 bluetooth_proxy:
   id: btproxy
   active: true
+  connection_slots: 4 # recommended limit for ESP32 Ethernet
+
+esp32_ble:
+  max_connections: 4
 
 script:
   - id: restart_after_delay
