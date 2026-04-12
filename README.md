@@ -31,7 +31,7 @@ or
 $ esphome run file.yaml
 ```
 
-Look up list of runnable files inside `reflash.sh` script.
+Look up list of runnable configurations inside `reflash.sh` script.
 
 ## Running remotely
 
@@ -40,6 +40,11 @@ use https://web.esphome.io/ to upload the compiled binary.
 
 The binary resides in
 `.esphome/build/<component>/.pioenvs/<component>/firmware.factory.bin`.
+
+## Serial console
+
+Use `screen /dev/tty.usbserial-0001 115200` (or `/dev/ttyUSB*`) to read the
+console.
 
 ## Cleaning up removed MQTT entities
 
