@@ -8,6 +8,10 @@ esphome:
     version: "2.0"
 
 esp32:
+  # Dingtian DT-R008 board rev 3.6.(9+) from January 2025 for $31.
+  # Header pinout above Ethernet port:
+  #
+  # GND | IO3 (RX) | IO1 (TX) | NRST | IO0 | 3V3 | IO4 | IO5
   board: esp32doit-devkit-v1
   framework:
     type: esp-idf
@@ -45,11 +49,13 @@ text_sensor:
 
 sn74hc595: # write
   - id: 'sn74hc595_hub'
-    clock_pin: GPIO14 # SRCLK
-    data_pin: GPIO13 # SER
-    latch_pin: GPIO15 # RCLK
+    clock_pin: GPIO14 # SRCLK (serial clock)
+    data_pin: GPIO13 # SER (serial input)
+    latch_pin: GPIO15 # RCLK (latch for outputs)
     oe_pin: GPIO32 # OE
     sr_count: 8
+
+# GPIO16 is the data pin for 165 serial output, clock and latch are shared.
 
 switch:
   - platform: gpio
