@@ -26,7 +26,9 @@ ethernet:
   type: JL1101
   mdc_pin: GPIO23
   mdio_pin: GPIO18
-  clk_mode: GPIO17_OUT
+  clk:
+    mode: CLK_OUT
+    pin: GPIO17
   power_pin: GPIO0
   phy_addr: 1
   domain: ""
