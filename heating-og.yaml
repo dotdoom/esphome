@@ -12,6 +12,8 @@ esp32:
   # Header pinout above Ethernet port:
   #
   # GND | IO3 (RX) | IO1 (TX) | NRST | IO0 | 3V3 | IO4 | IO5
+  #
+  # IO0 must be connected to GND upon power-on to enter bootloader.
   board: esp32doit-devkit-v1
   framework:
     type: esp-idf
