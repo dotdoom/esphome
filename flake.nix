@@ -16,6 +16,7 @@
         default = pkgs.mkShell {
           buildInputs = with pkgs; [
             esphome
+            esptool
             cc2538-bsl
           ];
 
