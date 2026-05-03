@@ -1,9 +1,9 @@
 substitutions:
-  name: "office-desk-south"
-  friendly_name: "Office desk south"
+  name: "shadow-udmp"
+  friendly_name: "Shadow UDMP"
 
 esphome:
-  area: "Office"
+  area: "Basement"
 
 packages:
   device_base: !include templates/mystrom.yaml

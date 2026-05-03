@@ -41,7 +41,7 @@ for config in \
 		child-east-ac.yaml \
 		spare-power-meter.yaml \
 		office-desk-north.yaml \
-		office-desk-south.yaml \
+		shadow-udmp.yaml \
 		attic-central.yaml \
 		office-rack.yaml \
 		radiation.yaml \
