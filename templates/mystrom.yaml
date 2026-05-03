@@ -63,6 +63,25 @@ binary_sensor:
     then:
     - switch.toggle: mystrom_relay
 
+script:
+- id: power_cycle_relay
+  mode: single
+  then:
+    - if:
+        condition:
+          switch.is_on: mystrom_relay
+        then:
+        - switch.turn_off: mystrom_relay
+        - delay: 7s
+    - switch.turn_on: mystrom_relay
+
+button:
+  - platform: template
+    name: "Power cycle relay"
+    icon: "mdi:restart"
+    on_press:
+      - script.execute: power_cycle_relay
+
 sensor:
 - platform: pulse_counter
   pin: 4
