@@ -14,7 +14,4 @@ mqtt:
 
 packages:
   device_base: !include templates/esp32-poe.yaml
-
   btproxy: !include templates/btproxy.yaml
-  # Allow HA to use our proxy.
-  api: !include templates/api.yaml

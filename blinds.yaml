@@ -16,8 +16,6 @@ packages:
 
   # Also act as a BT proxy due to convenient location.
   btproxy: !include templates/btproxy.yaml
-  # Allow HA to use our proxy.
-  api: !include templates/api.yaml
 
 external_components:
   # Path is relative to the main YAML file, not this device_base template!

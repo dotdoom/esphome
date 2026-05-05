@@ -5,6 +5,10 @@ esp32:
   framework:
     type: esp-idf
 
+packages:
+  # Allow HomeAssistant to use the proxy.
+  api: !include api.yaml
+
 globals:
   - id: ble_scans
     type: int
