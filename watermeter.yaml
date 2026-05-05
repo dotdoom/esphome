@@ -33,7 +33,9 @@ sensor:
 
   name: "Incoming water flow"
   unit_of_measurement: "L/min"
+  device_class: volume_flow_rate
   state_class: "measurement"
+  icon: mdi:pipe-valve # device_class?
 
   total:
     name: "Incoming water total"
