@@ -1,0 +1,93 @@
+esphome:
+  name: btproxy-laundry
+  friendly_name: "BTProxy Laundry"
+  area: Laundry
+
+  areas:
+    - id: laundry
+      name: Laundry
+    - id: workshop
+      name: Workshop
+
+  devices:
+    - id: laundry_air_quality
+      name: "Laundry air quality"
+      area_id: laundry
+    - id: workshop_air_quality
+      name: "Workshop air quality"
+      area_id: workshop
+
+  project:
+    name: dasfoo.btproxy
+    version: "1.0"
+
+packages:
+  device_base: !include templates/esp32-poe.yaml
+  btproxy: !include templates/btproxy.yaml
+
+bluetooth_proxy:
+  # Of total 4 esp32_ble.max_connections, 2 are reserved for Airthings Wave Mini
+  connection_slots: 2
+
+ble_client:
+  - mac_address: "80:6F:B0:A9:EC:25"
+    id: airthings_wave_mini_laundry
+  - mac_address: "04:EE:03:BC:C5:2F"
+    id: airthings_wave_mini_workshop
+
+sensor:
+  - platform: airthings_wave_mini
+    ble_client_id: airthings_wave_mini_laundry
+    temperature:
+      name: "Temperature"
+      device_id: laundry_air_quality
+    pressure:
+      name: "Atmospheric pressure"
+      device_id: laundry_air_quality
+    humidity:
+      name: "Humidity"
+      device_id: laundry_air_quality
+    tvoc:
+      name: "VOCs"
+      device_id: laundry_air_quality
+    battery_voltage:
+      id: airthings_wave_mini_laundry_bv
+  - platform: copy
+    source_id: airthings_wave_mini_laundry_bv
+    name: "Battery"
+    unit_of_measurement: "%"
+    device_class: battery
+    accuracy_decimals: 0
+    device_id: laundry_air_quality
+    filters:
+      - calibrate_linear:
+        - 2.7 -> 0
+        - 4.5 -> 100
+
+  - platform: airthings_wave_mini
+    ble_client_id: airthings_wave_mini_workshop
+    temperature:
+      name: "Temperature"
+      device_id: workshop_air_quality
+    pressure:
+      name: "Atmospheric pressure"
+      device_id: workshop_air_quality
+    humidity:
+      name: "Humidity"
+      device_id: workshop_air_quality
+    tvoc:
+      name: "VOCs"
+      device_id: workshop_air_quality
+    battery_voltage:
+      id: airthings_wave_mini_workshop_bv
+  - platform: copy
+    source_id: airthings_wave_mini_workshop_bv
+    name: "Battery"
+    unit_of_measurement: "%"
+    device_class: battery
+    accuracy_decimals: 0
+    device_id: workshop_air_quality
+    filters:
+      - calibrate_linear:
+        - 2.7 -> 0
+        - 4.5 -> 100

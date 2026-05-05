@@ -47,12 +47,12 @@ for config in \
 		radiation.yaml \
 		cat-feeder-cam.yaml \
 		garage-gate-power.yaml \
+		btproxy-laundry.yaml \
 		tools-power.yaml; do
 	flash+=("${command?} ${config?}")
 done
 
 for btproxy_replica in \
-	c257a8 \
 	c25bac \
 	c25b74
 do
