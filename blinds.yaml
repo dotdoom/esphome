@@ -3,6 +3,15 @@ esphome:
   friendly_name: "Blinds"
   area: "Entryway"
 
+  areas:
+    - id: wintergarten
+      name: Wintergarten
+
+  devices:
+    - id: meater_device
+      name: Meater
+      area_id: wintergarten
+
   project:
     name: dasfoo.blinds
     version: "4.0"
@@ -123,14 +132,17 @@ switch:
     restore_mode: ALWAYS_OFF
     inverted: true
 
-# TODO: hide the below (meater) under sub-device after esphome 2025.07.
+bluetooth_proxy:
+  # Of total 4 esp32_ble.max_connections, 1 is reserved for Meater.
+  connection_slots: 3
 
 ble_client:
   - mac_address: "B8:1F:5E:0F:BB:2F"
     id: meater
 
 sensor:
-  - name: "Meater Tip temperature"
+  - name: "Tip temperature"
+    device_id: meater_device
     platform: ble_client
     type: characteristic
     ble_client_id: meater
@@ -144,7 +156,8 @@ sensor:
     lambda: |-
       float tip_temp = (x[0] + (x[1] << 8) + 8.0) / 16.0;
       return tip_temp;
-  - name: "Meater Ambient temperature"
+  - name: "Ambient temperature"
+    device_id: meater_device
     platform: ble_client
     type: characteristic
     ble_client_id: meater
@@ -162,7 +175,8 @@ sensor:
       uint16_t min_val = 48;
       float ambient = (tip + std::max(0., (((ra - std::min(min_val, oa)) * 16. * 589.) / 1487.)) + 8.0) / 16.;
       return ambient;
-  - name: "Meater Battery level"
+  - name: "Battery level"
+    device_id: meater_device
     platform: ble_client
     type: characteristic
     ble_client_id: meater
@@ -175,7 +189,8 @@ sensor:
     lambda: |-
       uint16_t battery = (x[0] + x[1]) * 10;
       return battery;
-  - name: "Meater RSSI"
+  - name: "RSSI"
+    device_id: meater_device
     platform: ble_client
     type: rssi
     ble_client_id: meater
@@ -184,7 +199,8 @@ sensor:
     entity_category: diagnostic
 
 text_sensor:
-  - name: "Meater Firmware"
+  - name: "Firmware"
+    device_id: meater_device
     platform: ble_client
     ble_client_id: meater
     service_uuid: "180A"
