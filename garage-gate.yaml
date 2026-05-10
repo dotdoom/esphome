@@ -28,15 +28,14 @@ esp32:
   framework:
     type: arduino
 
-dashboard_import:
-  package_import_url: github://ratgdo/esphome-ratgdo/static/v32disco.yaml@v1409
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [ ratgdo ]
 
 packages:
-  remote_package:
-    url: https://github.com/ratgdo/esphome-ratgdo
-    ref: v1409
-    files: [base.yaml]
-    refresh: 1s
+  ratgdo_base: !include templates/ratgdo_base.yaml
 
 # Sync time with Home Assistant.
 time:
