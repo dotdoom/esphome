@@ -44,24 +44,6 @@ ENUM(LockState, uint8_t,
     (UNKNOWN, 2))
 LockState lock_state_toggle(LockState state);
 
-/// MotionState for all states a the motion can be in.
-ENUM(MotionState, uint8_t,
-    (CLEAR, 0),
-    (DETECTED, 1),
-    (UNKNOWN, 2))
-
-/// Enum for all states a the obstruction can be in.
-ENUM(ObstructionState, uint8_t,
-    (OBSTRUCTED, 0),
-    (CLEAR, 1),
-    (UNKNOWN, 2))
-
-/// Enum for all states a the motor can be in.
-ENUM(MotorState, uint8_t,
-    (OFF, 0),
-    (ON, 1),
-    (UNKNOWN, 2))
-
 /// Enum for all states the button can be in.
 ENUM(ButtonState, uint8_t,
     (PRESSED, 0),
@@ -72,21 +54,6 @@ ENUM_SPARSE(BatteryState, uint8_t,
     (UNKNOWN, 0),
     (CHARGING, 0x6),
     (FULL, 0x8))
-
-/// Enum for learn states.
-ENUM(LearnState, uint8_t,
-    (INACTIVE, 0),
-    (ACTIVE, 1),
-    (UNKNOWN, 2))
-LearnState learn_state_toggle(LearnState state);
-
-ENUM(PairedDevice, uint8_t,
-    (ALL, 0),
-    (REMOTE, 1),
-    (KEYPAD, 2),
-    (WALL_CONTROL, 3),
-    (ACCESSORY, 4),
-    (UNKNOWN, 0xff))
 
 // actions
 ENUM(LightAction, uint8_t,
@@ -125,11 +92,6 @@ ENUM(VehicleLeavingState, uint8_t,
 struct Openings {
     uint16_t count;
     uint8_t flag;
-};
-
-struct PairedDeviceCount {
-    PairedDevice kind;
-    uint8_t count;
 };
 
 struct TimeToClose {

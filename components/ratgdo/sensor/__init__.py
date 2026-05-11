@@ -23,11 +23,6 @@ RATGDOSensorType = ratgdo_ns.enum("RATGDOSensorType")
 CONF_TYPE = "type"
 TYPES = {
     "openings": RATGDOSensorType.RATGDO_OPENINGS,
-    "paired_devices_total": RATGDOSensorType.RATGDO_PAIRED_DEVICES_TOTAL,
-    "paired_devices_remotes": RATGDOSensorType.RATGDO_PAIRED_REMOTES,
-    "paired_devices_keypads": RATGDOSensorType.RATGDO_PAIRED_KEYPADS,
-    "paired_devices_wall_controls": RATGDOSensorType.RATGDO_PAIRED_WALL_CONTROLS,
-    "paired_devices_accessories": RATGDOSensorType.RATGDO_PAIRED_ACCESSORIES,
     "distance": RATGDOSensorType.RATGDO_DISTANCE,
 }
 

@@ -10,9 +10,6 @@ void RATGDOSwitch::dump_config()
 {
     LOG_SWITCH("", "RATGDO Switch", this);
     switch (this->switch_type_) {
-    case SwitchType::RATGDO_LEARN:
-        ESP_LOGCONFIG(TAG, "  Type: Learn");
-        break;
     case SwitchType::RATGDO_LED:
         ESP_LOGCONFIG(TAG, "  Type: LED");
         break;
@@ -24,11 +21,6 @@ void RATGDOSwitch::dump_config()
 void RATGDOSwitch::setup()
 {
     switch (this->switch_type_) {
-    case SwitchType::RATGDO_LEARN:
-        this->parent_->subscribe_learn_state([this](LearnState state) {
-            this->publish_state(state == LearnState::ACTIVE);
-        });
-        break;
     case SwitchType::RATGDO_LED:
         this->pin_->setup();
 #ifdef RATGDO_USE_VEHICLE_SENSORS
@@ -45,13 +37,6 @@ void RATGDOSwitch::setup()
 void RATGDOSwitch::write_state(bool state)
 {
     switch (this->switch_type_) {
-    case SwitchType::RATGDO_LEARN:
-        if (state) {
-            this->parent_->activate_learn();
-        } else {
-            this->parent_->inactivate_learn();
-        }
-        break;
     case SwitchType::RATGDO_LED:
         this->pin_->digital_write(state);
         this->publish_state(state);

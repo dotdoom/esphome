@@ -61,7 +61,6 @@ typedef Parented<RATGDOComponent> RATGDOClient;
 
 const float DOOR_POSITION_UNKNOWN = -1.0;
 const float DOOR_DELTA_UNKNOWN = -2.0;
-const uint8_t PAIRED_DEVICES_UNKNOWN = 0xFF;
 
 struct RATGDOStore {
     volatile uint32_t obstruction_low_count = 0; // count obstruction low pulses
@@ -88,8 +87,6 @@ public:
 
     void init_protocol();
 
-    void obstruction_loop();
-
     float start_opening { -1 };
     single_observable<float> opening_duration { 0 };
     float start_closing { -1 };
@@ -105,11 +102,6 @@ public:
 #endif
 
     single_observable<uint16_t> openings { 0 }; // number of times the door has been opened
-    single_observable<uint8_t> paired_total { PAIRED_DEVICES_UNKNOWN };
-    single_observable<uint8_t> paired_remotes { PAIRED_DEVICES_UNKNOWN };
-    single_observable<uint8_t> paired_keypads { PAIRED_DEVICES_UNKNOWN };
-    single_observable<uint8_t> paired_wall_controls { PAIRED_DEVICES_UNKNOWN };
-    single_observable<uint8_t> paired_accessories { PAIRED_DEVICES_UNKNOWN };
 
     observable<DoorState, RATGDO_MAX_DOOR_STATE_SUBSCRIBERS> door_state { DoorState::UNKNOWN };
     observable<float, RATGDO_MAX_DOOR_STATE_SUBSCRIBERS> door_position { DOOR_POSITION_UNKNOWN };
@@ -122,11 +114,7 @@ public:
 
     single_observable<LightState> light_state { LightState::UNKNOWN };
     single_observable<LockState> lock_state { LockState::UNKNOWN };
-    single_observable<ObstructionState> obstruction_state { ObstructionState::UNKNOWN };
-    single_observable<MotorState> motor_state { MotorState::UNKNOWN };
     single_observable<ButtonState> button_state { ButtonState::UNKNOWN };
-    single_observable<MotionState> motion_state { MotionState::UNKNOWN };
-    single_observable<LearnState> learn_state { LearnState::UNKNOWN };
 #ifdef RATGDO_USE_VEHICLE_SENSORS
     observable<VehicleDetectedState, RATGDO_MAX_VEHICLE_DETECTED_SUBSCRIBERS> vehicle_detected_state { VehicleDetectedState::NO };
     observable<VehicleArrivingState, RATGDO_MAX_VEHICLE_ARRIVING_SUBSCRIBERS> vehicle_arriving_state { VehicleArrivingState::NO };
@@ -153,15 +141,10 @@ public:
     void received(const DoorState door_state);
     void received(const LightState light_state);
     void received(const LockState lock_state);
-    void received(const ObstructionState obstruction_state);
     void received(const LightAction light_action);
-    void received(const MotorState motor_state);
     void received(const ButtonState button_state);
-    void received(const MotionState motion_state);
-    void received(const LearnState light_state);
     void received(const Openings openings);
     void received(const TimeToClose ttc);
-    void received(const PairedDeviceCount pdc);
     void received(const BatteryState pdc);
 
     // door
@@ -201,37 +184,6 @@ public:
     void lock_toggle();
     void lock();
     void unlock();
-
-    // Learn & Paired
-    void activate_learn();
-    void inactivate_learn();
-    void query_paired_devices();
-    void query_paired_devices(PairedDevice kind);
-    void clear_paired_devices(PairedDevice kind);
-
-    // Uses length + first character instead of string comparisons to avoid
-    // string literals in RODATA which consume RAM on ESP8266.
-    // Valid values: "all" (3,a), "remote" (6,r), "keypad" (6,k), "wall" (4,w), "accessory" (9,a)
-    // Template so it works with std::string, StringRef, or any type with length() and operator[].
-    template <typename StringT>
-    void clear_paired_devices(const StringT& kind)
-    {
-        PairedDevice device;
-        if (kind.length() == 3 && kind[0] == 'a') {
-            device = PairedDevice::ALL;
-        } else if (kind.length() == 6 && kind[0] == 'r') {
-            device = PairedDevice::REMOTE;
-        } else if (kind.length() == 6 && kind[0] == 'k') {
-            device = PairedDevice::KEYPAD;
-        } else if (kind.length() == 4 && kind[0] == 'w') {
-            device = PairedDevice::WALL_CONTROL;
-        } else if (kind.length() == 9 && kind[0] == 'a') {
-            device = PairedDevice::ACCESSORY;
-        } else {
-            return;
-        }
-        this->clear_paired_devices(device);
-    }
 
     // button functionality
     void query_status();
@@ -296,33 +248,15 @@ public:
     template <typename F>
     void subscribe_openings(F&& f);
     template <typename F>
-    void subscribe_paired_devices_total(F&& f);
-    template <typename F>
-    void subscribe_paired_remotes(F&& f);
-    template <typename F>
-    void subscribe_paired_keypads(F&& f);
-    template <typename F>
-    void subscribe_paired_wall_controls(F&& f);
-    template <typename F>
-    void subscribe_paired_accessories(F&& f);
-    template <typename F>
     void subscribe_door_state(F&& f);
     template <typename F>
     void subscribe_light_state(F&& f);
     template <typename F>
     void subscribe_lock_state(F&& f);
     template <typename F>
-    void subscribe_obstruction_state(F&& f);
-    template <typename F>
-    void subscribe_motor_state(F&& f);
-    template <typename F>
     void subscribe_button_state(F&& f);
     template <typename F>
-    void subscribe_motion_state(F&& f);
-    template <typename F>
     void subscribe_sync_failed(F&& f);
-    template <typename F>
-    void subscribe_learn_state(F&& f);
     template <typename F>
     void subscribe_door_action_delayed(F&& f);
 #ifdef RATGDO_USE_DISTANCE_SENSOR
@@ -432,24 +366,14 @@ namespace scheduler_ids {
         DEFER_CLOSING_DURATION,
         DEFER_CLOSING_DELAY,
         DEFER_OPENINGS,
-        DEFER_PAIRED_TOTAL,
-        DEFER_PAIRED_REMOTES,
-        DEFER_PAIRED_KEYPADS,
-        DEFER_PAIRED_WALL_CONTROLS,
-        DEFER_PAIRED_ACCESSORIES,
         DEFER_LIGHT_STATE,
         DEFER_LOCK_STATE,
-        DEFER_OBSTRUCTION_STATE,
-        DEFER_MOTOR_STATE,
         DEFER_BUTTON_STATE,
-        DEFER_MOTION_STATE,
-        DEFER_LEARN_STATE,
 
         // Named timeout IDs (replacing string-based names)
         TIMEOUT_DOOR_QUERY_STATE,
         TIMEOUT_DOOR_ACTION,
         TIMEOUT_MOVE_TO_POSITION,
-        TIMEOUT_CLEAR_MOTION,
         // Shared by RATGDOComponent and Secplus1 — safe because only one
         // protocol is compiled at a time (#ifdef PROTOCOL_SECPLUSV1) and
         // both use ratgdo_ as the scheduler owner.
@@ -514,46 +438,6 @@ void RATGDOComponent::subscribe_openings(F&& f)
 }
 
 template <typename F>
-void RATGDOComponent::subscribe_paired_devices_total(F&& f)
-{
-    this->paired_total.subscribe([this, f](uint8_t state) {
-        defer(scheduler_ids::DEFER_PAIRED_TOTAL, [f, state] { f(state); });
-    });
-}
-
-template <typename F>
-void RATGDOComponent::subscribe_paired_remotes(F&& f)
-{
-    this->paired_remotes.subscribe([this, f](uint8_t state) {
-        defer(scheduler_ids::DEFER_PAIRED_REMOTES, [f, state] { f(state); });
-    });
-}
-
-template <typename F>
-void RATGDOComponent::subscribe_paired_keypads(F&& f)
-{
-    this->paired_keypads.subscribe([this, f](uint8_t state) {
-        defer(scheduler_ids::DEFER_PAIRED_KEYPADS, [f, state] { f(state); });
-    });
-}
-
-template <typename F>
-void RATGDOComponent::subscribe_paired_wall_controls(F&& f)
-{
-    this->paired_wall_controls.subscribe([this, f](uint8_t state) {
-        defer(scheduler_ids::DEFER_PAIRED_WALL_CONTROLS, [f, state] { f(state); });
-    });
-}
-
-template <typename F>
-void RATGDOComponent::subscribe_paired_accessories(F&& f)
-{
-    this->paired_accessories.subscribe([this, f](uint8_t state) {
-        defer(scheduler_ids::DEFER_PAIRED_ACCESSORIES, [f, state] { f(state); });
-    });
-}
-
-template <typename F>
 void RATGDOComponent::subscribe_door_state(F&& f)
 {
     uint32_t id = get_scheduler_id(scheduler_ids::DEFER_DOOR_STATE_BASE, scheduler_ids::DEFER_DOOR_STATE_COUNT,
@@ -583,22 +467,6 @@ void RATGDOComponent::subscribe_lock_state(F&& f)
 }
 
 template <typename F>
-void RATGDOComponent::subscribe_obstruction_state(F&& f)
-{
-    this->obstruction_state.subscribe([this, f](ObstructionState state) {
-        defer(scheduler_ids::DEFER_OBSTRUCTION_STATE, [f, state] { f(state); });
-    });
-}
-
-template <typename F>
-void RATGDOComponent::subscribe_motor_state(F&& f)
-{
-    this->motor_state.subscribe([this, f](MotorState state) {
-        defer(scheduler_ids::DEFER_MOTOR_STATE, [f, state] { f(state); });
-    });
-}
-
-template <typename F>
 void RATGDOComponent::subscribe_button_state(F&& f)
 {
     this->button_state.subscribe([this, f](ButtonState state) {
@@ -607,25 +475,9 @@ void RATGDOComponent::subscribe_button_state(F&& f)
 }
 
 template <typename F>
-void RATGDOComponent::subscribe_motion_state(F&& f)
-{
-    this->motion_state.subscribe([this, f](MotionState state) {
-        defer(scheduler_ids::DEFER_MOTION_STATE, [f, state] { f(state); });
-    });
-}
-
-template <typename F>
 void RATGDOComponent::subscribe_sync_failed(F&& f)
 {
     this->sync_failed.subscribe(std::forward<F>(f));
-}
-
-template <typename F>
-void RATGDOComponent::subscribe_learn_state(F&& f)
-{
-    this->learn_state.subscribe([this, f](LearnState state) {
-        defer(scheduler_ids::DEFER_LEARN_STATE, [f, state] { f(state); });
-    });
 }
 
 template <typename F>

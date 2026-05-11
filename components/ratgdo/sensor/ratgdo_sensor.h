@@ -16,12 +16,7 @@ namespace esphome::ratgdo {
 
 enum RATGDOSensorType : uint8_t {
     RATGDO_OPENINGS,
-    RATGDO_PAIRED_DEVICES_TOTAL,
-    RATGDO_PAIRED_REMOTES,
-    RATGDO_PAIRED_KEYPADS,
-    RATGDO_PAIRED_WALL_CONTROLS,
-    RATGDO_PAIRED_ACCESSORIES,
-    RATGDO_DISTANCE
+    RATGDO_DISTANCE = 6
 };
 
 class RATGDOSensor : public sensor::Sensor, public RATGDOClient, public Component {

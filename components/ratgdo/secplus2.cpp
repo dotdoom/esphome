@@ -81,26 +81,6 @@ namespace secplus2 {
             this->query_openings();
             synced = false;
         }
-        if (*this->ratgdo_->paired_total == PAIRED_DEVICES_UNKNOWN) {
-            this->query_paired_devices(PairedDevice::ALL);
-            synced = false;
-        }
-        if (*this->ratgdo_->paired_remotes == PAIRED_DEVICES_UNKNOWN) {
-            this->query_paired_devices(PairedDevice::REMOTE);
-            synced = false;
-        }
-        if (*this->ratgdo_->paired_keypads == PAIRED_DEVICES_UNKNOWN) {
-            this->query_paired_devices(PairedDevice::KEYPAD);
-            synced = false;
-        }
-        if (*this->ratgdo_->paired_wall_controls == PAIRED_DEVICES_UNKNOWN) {
-            this->query_paired_devices(PairedDevice::WALL_CONTROL);
-            synced = false;
-        }
-        if (*this->ratgdo_->paired_accessories == PAIRED_DEVICES_UNKNOWN) {
-            this->query_paired_devices(PairedDevice::ACCESSORY);
-            synced = false;
-        }
 
         if (synced) {
             return;
@@ -168,16 +148,6 @@ namespace secplus2 {
             this->set_rolling_code_counter(args.value.set_rolling_code_counter.counter);
         } else if (args.tag == Tag::set_client_id) {
             this->set_client_id(args.value.set_client_id.client_id);
-        } else if (args.tag == Tag::query_paired_devices) {
-            this->query_paired_devices(args.value.query_paired_devices.kind);
-        } else if (args.tag == Tag::query_paired_devices_all) {
-            this->query_paired_devices();
-        } else if (args.tag == Tag::clear_paired_devices) {
-            this->clear_paired_devices(args.value.clear_paired_devices.kind);
-        } else if (args.tag == Tag::activate_learn) {
-            this->activate_learn();
-        } else if (args.tag == Tag::inactivate_learn) {
-            this->inactivate_learn();
         }
         return { };
     }
@@ -199,67 +169,6 @@ namespace secplus2 {
     void Secplus2::query_openings()
     {
         this->send_command(CommandType::GET_OPENINGS);
-    }
-
-    void Secplus2::query_paired_devices()
-    {
-        const auto kinds = {
-            PairedDevice::ALL,
-            PairedDevice::REMOTE,
-            PairedDevice::KEYPAD,
-            PairedDevice::WALL_CONTROL,
-            PairedDevice::ACCESSORY
-        };
-        uint32_t timeout = 0;
-        for (auto kind : kinds) {
-            timeout += 200;
-            this->ratgdo_->set_timeout(timeout, [this, kind] { this->query_paired_devices(kind); });
-        }
-    }
-
-    void Secplus2::query_paired_devices(PairedDevice kind)
-    {
-        ESP_LOGD(TAG, "Query paired devices of type: %s", LOG_STR_ARG(PairedDevice_to_string(kind)));
-        this->send_command(Command { CommandType::GET_PAIRED_DEVICES, static_cast<uint8_t>(kind) });
-    }
-
-    // wipe devices from memory based on get paired devices nibble values
-    void Secplus2::clear_paired_devices(PairedDevice kind)
-    {
-        if (kind == PairedDevice::UNKNOWN) {
-            return;
-        }
-        ESP_LOGW(TAG, "Clear paired devices of type: %s", LOG_STR_ARG(PairedDevice_to_string(kind)));
-        if (kind == PairedDevice::ALL) {
-            this->ratgdo_->set_timeout(200, [this] { this->send_command(Command { CommandType::CLEAR_PAIRED_DEVICES, static_cast<uint8_t>(PairedDevice::REMOTE) - 1 }); }); // wireless
-            this->ratgdo_->set_timeout(400, [this] { this->send_command(Command { CommandType::CLEAR_PAIRED_DEVICES, static_cast<uint8_t>(PairedDevice::KEYPAD) - 1 }); }); // keypads
-            this->ratgdo_->set_timeout(600, [this] { this->send_command(Command { CommandType::CLEAR_PAIRED_DEVICES, static_cast<uint8_t>(PairedDevice::WALL_CONTROL) - 1 }); }); // wall controls
-            this->ratgdo_->set_timeout(800, [this] { this->send_command(Command { CommandType::CLEAR_PAIRED_DEVICES, static_cast<uint8_t>(PairedDevice::ACCESSORY) - 1 }); }); // accessories
-            this->ratgdo_->set_timeout(1000, [this] { this->query_status(); });
-            this->ratgdo_->set_timeout(1200, [this] { this->query_paired_devices(); });
-        } else {
-            uint8_t dev_kind = static_cast<uint8_t>(kind) - 1;
-            this->send_command(Command { CommandType::CLEAR_PAIRED_DEVICES, dev_kind }); // just requested device
-            this->ratgdo_->set_timeout(200, [this] { this->query_status(); });
-            this->ratgdo_->set_timeout(400, [this, kind] { this->query_paired_devices(kind); });
-        }
-    }
-
-    // Learn functions
-    void Secplus2::activate_learn()
-    {
-        // Send LEARN with nibble = 0 then nibble = 1 to mimic wall control learn button
-        this->send_command(Command { CommandType::LEARN, 0 });
-        this->ratgdo_->set_timeout(150, [this] { this->send_command(Command { CommandType::LEARN, 1 }); });
-        this->ratgdo_->set_timeout(500, [this] { this->query_status(); });
-    }
-
-    void Secplus2::inactivate_learn()
-    {
-        // Send LEARN twice with nibble = 0 to inactivate learn and get status to update switch state
-        this->send_command(Command { CommandType::LEARN, 0 });
-        this->ratgdo_->set_timeout(150, [this] { this->send_command(Command { CommandType::LEARN, 0 }); });
-        this->ratgdo_->set_timeout(500, [this] { this->query_status(); });
     }
 
     optional<Command> Secplus2::read_command()
@@ -370,37 +279,15 @@ namespace secplus2 {
             this->ratgdo_->received(to_DoorState(cmd.nibble, DoorState::UNKNOWN));
             this->ratgdo_->received(to_LightState((cmd.byte2 >> 1) & 1, LightState::UNKNOWN));
             this->ratgdo_->received(to_LockState((cmd.byte2 & 1), LockState::UNKNOWN));
-            // ESP_LOGD(TAG, "Obstruction: reading from byte2, bit2, status=%d", ((byte2 >> 2) & 1) == 1);
-            this->ratgdo_->received(to_ObstructionState((cmd.byte1 >> 6) & 1, ObstructionState::UNKNOWN));
-            this->ratgdo_->received(to_LearnState((cmd.byte2 >> 5) & 1, LearnState::UNKNOWN));
         } else if (cmd.type == CommandType::LIGHT) {
             this->ratgdo_->received(to_LightAction(cmd.nibble, LightAction::UNKNOWN));
-        } else if (cmd.type == CommandType::MOTOR_ON) {
-            this->ratgdo_->received(MotorState::ON);
         } else if (cmd.type == CommandType::DOOR_ACTION) {
             auto button_state = (cmd.byte1 & 1) == 1 ? ButtonState::PRESSED : ButtonState::RELEASED;
             this->ratgdo_->received(button_state);
-        } else if (cmd.type == CommandType::MOTION) {
-            this->ratgdo_->received(MotionState::DETECTED);
         } else if (cmd.type == CommandType::OPENINGS) {
             this->ratgdo_->received(Openings { static_cast<uint16_t>((cmd.byte1 << 8) | cmd.byte2), cmd.nibble });
         } else if (cmd.type == CommandType::SET_TTC) {
             this->ratgdo_->received(TimeToClose { static_cast<uint16_t>((cmd.byte1 << 8) | cmd.byte2) });
-        } else if (cmd.type == CommandType::PAIRED_DEVICES) {
-            PairedDeviceCount pdc;
-            pdc.kind = to_PairedDevice(cmd.nibble, PairedDevice::UNKNOWN);
-            if (pdc.kind == PairedDevice::ALL) {
-                pdc.count = cmd.byte2;
-            } else if (pdc.kind == PairedDevice::REMOTE) {
-                pdc.count = cmd.byte2;
-            } else if (pdc.kind == PairedDevice::KEYPAD) {
-                pdc.count = cmd.byte2;
-            } else if (pdc.kind == PairedDevice::WALL_CONTROL) {
-                pdc.count = cmd.byte2;
-            } else if (pdc.kind == PairedDevice::ACCESSORY) {
-                pdc.count = cmd.byte2;
-            }
-            this->ratgdo_->received(pdc);
         } else if (cmd.type == CommandType::BATTERY_STATUS) {
             this->ratgdo_->received(to_BatteryState(cmd.byte1, BatteryState::UNKNOWN));
         }

@@ -52,24 +52,6 @@ ratgdo:
   input_gdo_pin: ${uart_rx_pin}
   output_gdo_pin: ${uart_tx_pin}
   input_obst_pin: ${input_obst_pin}
-  #on_sync_failed:
-  #  then:
-  #    - homeassistant.service:
-  #        service: persistent_notification.create
-  #        data:
-  #          title: "${friendly_name} sync failed"
-  #          message: "Failed to communicate with garage opener on startup."
-  #          notification_id: "esphome_ratgdo_${id_prefix}_sync_failed"
-
-#api:
-#  id: api_server
-#  services:
-#  - service: wipe_devices_from_gdo_memory
-#    variables:
-#      devices_to_wipe: string
-#    then:
-#      - lambda: !lambda |-
-#          id($id_prefix).clear_paired_devices(devices_to_wipe);
 
 ota:
   - platform: web_server
@@ -99,29 +81,9 @@ logger:
 
 binary_sensor:
   - platform: ratgdo
-    type: motion
-    id: ${id_prefix}_motion
-    name: "Motion"
-    device_class: motion
-  - platform: ratgdo
-    type: obstruction
-    id: ${id_prefix}_obstruction
-    name: "Obstruction"
-    device_class: problem
-    on_press:
-      - switch.turn_on: ${id_prefix}_status_obstruction
-    on_release:
-      - switch.turn_off: ${id_prefix}_status_obstruction
-  - platform: ratgdo
     type: button
     id: ${id_prefix}_button
     name: "Button"
-    entity_category: diagnostic
-  - platform: ratgdo
-    type: motor
-    id: ${id_prefix}_motor
-    name: "Motor"
-    device_class: running
     entity_category: diagnostic
   - platform: gpio
     id: "${id_prefix}_dry_contact_open"
@@ -189,12 +151,6 @@ sensor:
     unit_of_measurement: "openings"
     icon: mdi:open-in-app
   - platform: ratgdo
-    id: ${id_prefix}_paired_devices_total
-    type: paired_devices_total
-    entity_category: diagnostic
-    name: "Paired Devices"
-    icon: mdi:remote
-  - platform: ratgdo
     id: ${id_prefix}_vehicle_distance_actual
     type: distance
     name: "Vehicle distance actual"
@@ -244,12 +200,6 @@ switch:
         output: true
     name: "Status obstruction"
     entity_category: diagnostic
-  - platform: ratgdo
-    id: "${id_prefix}_learn"
-    type: learn
-    name: "Learn"
-    icon: mdi:plus-box
-    entity_category: config
   - platform: ratgdo
     id: ${id_prefix}_led
     type: led
@@ -345,10 +295,6 @@ light:
     name: "Light"
 
 button:
-  - platform: safe_mode
-    id: ${id_prefix}_safe_mode
-    name: "Safe mode boot"
-    entity_category: diagnostic
   - platform: template
     id: ${id_prefix}_query_status
     entity_category: diagnostic

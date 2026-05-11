@@ -145,11 +145,6 @@ namespace secplus2 {
 
         void query_status();
         void query_openings();
-        void query_paired_devices();
-        void query_paired_devices(PairedDevice kind);
-        void clear_paired_devices(PairedDevice kind);
-        void activate_learn();
-        void inactivate_learn();
 
         void print_packet(const esphome::LogString* prefix, const WirePacket& packet) const;
         optional<Command> decode_packet(const WirePacket& packet) const;
@@ -182,7 +177,6 @@ namespace secplus2 {
 
         // Small members at the end
         uint16_t rx_byte_count_ { 0 };
-        LearnState learn_state_ { LearnState::UNKNOWN };
         struct {
             uint8_t transmit_pending : 1;
             uint8_t rx_reading_msg : 1;

@@ -70,16 +70,6 @@ void RATGDOComponent::setup()
     this->input_gdo_pin_->setup();
     this->input_gdo_pin_->pin_mode(gpio::FLAG_INPUT | gpio::FLAG_PULLUP);
 
-    this->input_obst_pin_->setup();
-#ifdef USE_ESP32
-    this->input_obst_pin_->pin_mode(gpio::FLAG_INPUT | gpio::FLAG_PULLUP);
-#else
-    this->input_obst_pin_->pin_mode(gpio::FLAG_INPUT);
-#endif
-    this->input_obst_pin_->attach_interrupt(RATGDOStore::isr_obstruction,
-        &this->isr_store_,
-        gpio::INTERRUPT_FALLING_EDGE);
-
     this->protocol_->setup(this, &App.scheduler, this->input_gdo_pin_,
         this->output_gdo_pin_);
 
@@ -128,11 +118,6 @@ void RATGDOComponent::init_protocol()
 
 void RATGDOComponent::loop()
 {
-    // obstruction_loop() must run before protocol_->loop() because it uses
-    // App.get_loop_component_start_time() and protocol_->loop() may block
-    // for up to 1.3ms (secplus2 transmit collision wait), which would make
-    // the cached timestamp stale.
-    this->obstruction_loop();
     this->protocol_->loop();
 }
 
@@ -141,7 +126,6 @@ void RATGDOComponent::dump_config()
     ESP_LOGCONFIG(TAG, "Setting up RATGDO...");
     LOG_PIN("  Output GDO Pin: ", this->output_gdo_pin_);
     LOG_PIN("  Input GDO Pin: ", this->input_gdo_pin_);
-    LOG_PIN("  Input Obstruction Pin: ", this->input_obst_pin_);
     this->protocol_->dump_config();
 }
 
@@ -234,32 +218,12 @@ void RATGDOComponent::received(const DoorState door_state)
         this->cancel_position_sync_callbacks();
     }
 
-    if (door_state == DoorState::OPEN || door_state == DoorState::CLOSED || door_state == DoorState::STOPPED) {
-        this->motor_state = MotorState::OFF;
-    }
-
     if (door_state == DoorState::CLOSED && door_state != prev_door_state) {
         this->query_openings();
     }
 
     this->door_state = door_state;
     this->on_door_state_.trigger(door_state);
-}
-
-void RATGDOComponent::received(const LearnState learn_state)
-{
-    ESP_LOGD(TAG, "Learn state=%s",
-        LOG_STR_ARG(LearnState_to_string(learn_state)));
-
-    if (*this->learn_state == learn_state) {
-        return;
-    }
-
-    if (learn_state == LearnState::INACTIVE) {
-        this->query_paired_devices();
-    }
-
-    this->learn_state = learn_state;
 }
 
 void RATGDOComponent::received(const LightState light_state)
@@ -275,45 +239,11 @@ void RATGDOComponent::received(const LockState lock_state)
     this->lock_state = lock_state;
 }
 
-void RATGDOComponent::received(const ObstructionState obstruction_state)
-{
-    if (!this->flags_.obstruction_sensor_detected) {
-        ESP_LOGD(TAG, "Obstruction: state=%s",
-            LOG_STR_ARG(ObstructionState_to_string(*this->obstruction_state)));
-
-        this->obstruction_state = obstruction_state;
-        // This isn't very fast to update, but its still better
-        // than nothing in the case the obstruction sensor is not
-        // wired up.
-    }
-}
-
-void RATGDOComponent::received(const MotorState motor_state)
-{
-    ESP_LOGD(TAG, "Motor: state=%s",
-        LOG_STR_ARG(MotorState_to_string(*this->motor_state)));
-    this->motor_state = motor_state;
-}
-
 void RATGDOComponent::received(const ButtonState button_state)
 {
     ESP_LOGD(TAG, "Button state=%s",
         LOG_STR_ARG(ButtonState_to_string(*this->button_state)));
     this->button_state = button_state;
-}
-
-void RATGDOComponent::received(const MotionState motion_state)
-{
-    ESP_LOGD(TAG, "Motion: %s",
-        LOG_STR_ARG(MotionState_to_string(*this->motion_state)));
-    this->motion_state = motion_state;
-    if (motion_state == MotionState::DETECTED) {
-        this->set_timeout(TIMEOUT_CLEAR_MOTION, 3000,
-            [this] { this->motion_state = MotionState::CLEAR; });
-        if (*this->light_state == LightState::OFF) {
-            this->query_status();
-        }
-    }
 }
 
 void RATGDOComponent::received(const LightAction light_action)
@@ -337,24 +267,6 @@ void RATGDOComponent::received(const Openings openings)
         ESP_LOGD(TAG, "Openings: %d", *this->openings);
     } else {
         ESP_LOGD(TAG, "Ignoring openings, not from our request");
-    }
-}
-
-void RATGDOComponent::received(const PairedDeviceCount pdc)
-{
-    ESP_LOGD(TAG, "Paired device count, kind=%s count=%d",
-        LOG_STR_ARG(PairedDevice_to_string(pdc.kind)), pdc.count);
-
-    if (pdc.kind == PairedDevice::ALL) {
-        this->paired_total = pdc.count;
-    } else if (pdc.kind == PairedDevice::REMOTE) {
-        this->paired_remotes = pdc.count;
-    } else if (pdc.kind == PairedDevice::KEYPAD) {
-        this->paired_keypads = pdc.count;
-    } else if (pdc.kind == PairedDevice::WALL_CONTROL) {
-        this->paired_wall_controls = pdc.count;
-    } else if (pdc.kind == PairedDevice::ACCESSORY) {
-        this->paired_accessories = pdc.count;
     }
 }
 
@@ -501,77 +413,11 @@ Result RATGDOComponent::call_protocol(Args args)
     return this->protocol_->call(args);
 }
 
-/*************************** OBSTRUCTION DETECTION ***************************/
-
-void RATGDOComponent::obstruction_loop()
-{
-    // Safe to use cached loop timestamp here because obstruction_loop()
-    // runs before protocol_->loop() which contains the 1.3ms blocking
-    // transmit in secplus2. The 50ms CHECK_PERIOD has ample margin.
-    const uint32_t current_millis = App.get_loop_component_start_time();
-    static uint32_t last_millis = 0;
-    static uint32_t last_asleep = 0;
-
-    // the obstruction sensor has 3 states: clear (HIGH with LOW pulse every 7ms),
-    // obstructed (HIGH), asleep (LOW) the transitions between awake and asleep
-    // are tricky because the voltage drops slowly when falling asleep and is high
-    // without pulses when waking up
-
-    // If at least 3 low pulses are counted within 50ms, the door is awake, not
-    // obstructed and we don't have to check anything else
-
-    constexpr uint32_t CHECK_PERIOD = 50;
-    constexpr uint32_t PULSES_LOWER_LIMIT = 3;
-
-    if (current_millis - last_millis > CHECK_PERIOD) {
-        // ESP_LOGD(TAG, "%ld: Obstruction count: %d, expected: %d, since asleep:
-        // %ld",
-        //     current_millis, this->isr_store_.obstruction_low_count,
-        //     PULSES_LOWER_LIMIT, current_millis - last_asleep
-        // );
-
-        // check to see if we got more then PULSES_LOWER_LIMIT pulses
-        if (this->isr_store_.obstruction_low_count > PULSES_LOWER_LIMIT) {
-            this->obstruction_state = ObstructionState::CLEAR;
-            this->flags_.obstruction_sensor_detected = true;
-        } else if (this->isr_store_.obstruction_low_count == 0) {
-            // if there have been no pulses the line is steady high or low
-            if (this->input_obst_pin_->digital_read() != this->flags_.obst_sleep_low) {
-                // asleep
-                last_asleep = current_millis;
-            } else {
-                // if the line is high and was last asleep more than 700ms ago, then
-                // there is an obstruction present
-                if (current_millis - last_asleep > 700) {
-                    this->obstruction_state = ObstructionState::OBSTRUCTED;
-                }
-            }
-        }
-        last_millis = current_millis;
-        this->isr_store_.obstruction_low_count = 0;
-    }
-}
-
 void RATGDOComponent::query_status() { this->protocol_->call(QueryStatus { }); }
 
 void RATGDOComponent::query_openings()
 {
     this->protocol_->call(QueryOpenings { });
-}
-
-void RATGDOComponent::query_paired_devices()
-{
-    this->protocol_->call(QueryPairedDevicesAll { });
-}
-
-void RATGDOComponent::query_paired_devices(PairedDevice kind)
-{
-    this->protocol_->call(QueryPairedDevices { kind });
-}
-
-void RATGDOComponent::clear_paired_devices(PairedDevice kind)
-{
-    this->protocol_->call(ClearPairedDevices { kind });
 }
 
 void RATGDOComponent::sync()
@@ -778,17 +624,6 @@ void RATGDOComponent::lock_toggle()
 {
     this->lock_state = lock_state_toggle(*this->lock_state);
     this->protocol_->lock_action(LockAction::TOGGLE);
-}
-
-// Learn functions
-void RATGDOComponent::activate_learn()
-{
-    this->protocol_->call(ActivateLearn { });
-}
-
-void RATGDOComponent::inactivate_learn()
-{
-    this->protocol_->call(InactivateLearn { });
 }
 
 // Subscribe implementations are now templates in ratgdo.h

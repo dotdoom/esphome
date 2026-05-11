@@ -24,9 +24,6 @@ SensorType = ratgdo_ns.enum("SensorType")
 
 CONF_TYPE = "type"
 TYPES = {
-    "motion": SensorType.RATGDO_SENSOR_MOTION,
-    "obstruction": SensorType.RATGDO_SENSOR_OBSTRUCTION,
-    "motor": SensorType.RATGDO_SENSOR_MOTOR,
     "button": SensorType.RATGDO_SENSOR_BUTTON,
     "vehicle_detected": SensorType.RATGDO_SENSOR_VEHICLE_DETECTED,
     "vehicle_arriving": SensorType.RATGDO_SENSOR_VEHICLE_ARRIVING,

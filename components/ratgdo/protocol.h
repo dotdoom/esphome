@@ -64,18 +64,6 @@ namespace protocol {
     };
     struct QueryOpenings {
     };
-    struct ActivateLearn {
-    };
-    struct InactivateLearn {
-    };
-    struct QueryPairedDevices {
-        PairedDevice kind;
-    };
-    struct QueryPairedDevicesAll {
-    };
-    struct ClearPairedDevices {
-        PairedDevice kind;
-    };
 
     // a poor man's sum-type, because C++
     SUM_TYPE(Args,
@@ -83,12 +71,7 @@ namespace protocol {
         (GetRollingCodeCounter, get_rolling_code_counter),
         (SetClientID, set_client_id),
         (QueryStatus, query_status),
-        (QueryOpenings, query_openings),
-        (ActivateLearn, activate_learn),
-        (InactivateLearn, inactivate_learn),
-        (QueryPairedDevices, query_paired_devices),
-        (QueryPairedDevicesAll, query_paired_devices_all),
-        (ClearPairedDevices, clear_paired_devices), )
+        (QueryOpenings, query_openings), )
 
     struct RollingCodeCounter {
         single_observable<uint32_t>* value;
