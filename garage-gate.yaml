@@ -17,7 +17,6 @@ web_server:
 esphome:
   name: garage-gate
   friendly_name: ${friendly_name}
-  name_add_mac_suffix: true
   min_version: 2026.2.0
   project:
     name: ratgdo.v32disco_secplus2
