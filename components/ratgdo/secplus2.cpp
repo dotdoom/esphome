@@ -1,6 +1,4 @@
 
-#ifdef PROTOCOL_SECPLUSV2
-
 #include "secplus2.h"
 #include "ratgdo.h"
 
@@ -281,15 +279,8 @@ namespace secplus2 {
             this->ratgdo_->received(to_LockState((cmd.byte2 & 1), LockState::UNKNOWN));
         } else if (cmd.type == CommandType::LIGHT) {
             this->ratgdo_->received(to_LightAction(cmd.nibble, LightAction::UNKNOWN));
-        } else if (cmd.type == CommandType::DOOR_ACTION) {
-            auto button_state = (cmd.byte1 & 1) == 1 ? ButtonState::PRESSED : ButtonState::RELEASED;
-            this->ratgdo_->received(button_state);
         } else if (cmd.type == CommandType::OPENINGS) {
             this->ratgdo_->received(Openings { static_cast<uint16_t>((cmd.byte1 << 8) | cmd.byte2), cmd.nibble });
-        } else if (cmd.type == CommandType::SET_TTC) {
-            this->ratgdo_->received(TimeToClose { static_cast<uint16_t>((cmd.byte1 << 8) | cmd.byte2) });
-        } else if (cmd.type == CommandType::BATTERY_STATUS) {
-            this->ratgdo_->received(to_BatteryState(cmd.byte1, BatteryState::UNKNOWN));
         }
 
         ESP_LOG1(TAG, "Done handle command: %s", LOG_STR_ARG(CommandType_to_string(cmd.type)));
@@ -377,5 +368,3 @@ namespace secplus2 {
 
 } // namespace secplus2
 } // namespace esphome::ratgdo
-
-#endif // PROTOCOL_SECPLUSV2

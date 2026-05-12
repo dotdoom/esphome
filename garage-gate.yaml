@@ -3,12 +3,7 @@ substitutions:
   friendly_name: "Garage Gate"
   uart_tx_pin: GPIO17
   uart_rx_pin: GPIO21
-  input_obst_pin: GPIO4
   status_door_pin: GPIO26
-  status_obstruction_pin: GPIO25
-  dry_contact_open_pin: GPIO13
-  dry_contact_close_pin: GPIO14
-  dry_contact_light_pin: GPIO27
 
 web_server:
   include_internal: true
@@ -17,6 +12,7 @@ web_server:
 esphome:
   name: garage-gate
   friendly_name: ${friendly_name}
+  name_add_mac_suffix: true
   min_version: 2026.2.0
   project:
     name: ratgdo.v32disco_secplus2
@@ -51,7 +47,6 @@ ratgdo:
   id: ${id_prefix}
   input_gdo_pin: ${uart_rx_pin}
   output_gdo_pin: ${uart_tx_pin}
-  input_obst_pin: ${input_obst_pin}
 
 ota:
   - platform: web_server
@@ -80,55 +75,6 @@ logger:
     sensor: NONE
 
 binary_sensor:
-  - platform: ratgdo
-    type: button
-    id: ${id_prefix}_button
-    name: "Button"
-    entity_category: diagnostic
-  - platform: gpio
-    id: "${id_prefix}_dry_contact_open"
-    pin:
-      number: ${dry_contact_open_pin}
-      inverted: true
-      mode:
-        input: true
-        pullup: true
-    name: "Dry contact open"
-    entity_category: diagnostic
-    filters:
-      - delayed_on_off: 500ms
-    on_press:
-      then:
-        script.execute: "${id_prefix}_dry_contact_door_control"
-  - platform: gpio
-    id: "${id_prefix}_dry_contact_close"
-    pin:
-      number: ${dry_contact_close_pin}
-      inverted: true
-      mode:
-        input: true
-        pullup: true
-    name: "Dry contact close"
-    entity_category: diagnostic
-    filters:
-      - delayed_on_off: 500ms
-    on_press:
-      then:
-        script.execute: "${id_prefix}_dry_contact_door_control"
-  - platform: gpio
-    id: "${id_prefix}_dry_contact_light"
-    pin:
-      number: ${dry_contact_light_pin}
-      inverted: true
-      mode:
-        input: true
-        pullup: true
-    name: "Dry contact light"
-    entity_category: diagnostic
-    filters:
-      - delayed_on_off: 500ms
-    on_press:
-      - light.toggle: ${id_prefix}_light
   - platform: ratgdo
     id: ${id_prefix}_vehicle_detected
     type: vehicle_detected
@@ -191,15 +137,6 @@ switch:
         output: true
     name: "Status door"
     entity_category: diagnostic
-  - platform: gpio
-    id: "${id_prefix}_status_obstruction"
-    internal: true
-    pin:
-      number: ${status_obstruction_pin}
-      mode:
-        output: true
-    name: "Status obstruction"
-    entity_category: diagnostic
   - platform: ratgdo
     id: ${id_prefix}_led
     type: led
@@ -212,32 +149,6 @@ switch:
     pin: GPIO23
     name: "LASER"
     entity_category: config
-
-script:
-  - id: "${id_prefix}_dry_contact_door_control"
-    then:
-      - delay: 0.1s
-      - if:
-          condition:
-            and:
-              - binary_sensor.is_on: ${id_prefix}_dry_contact_close
-              - binary_sensor.is_on: ${id_prefix}_dry_contact_open
-          then:
-            - cover.toggle: ${id_prefix}_garage_door
-      - if:
-          condition:
-            and:
-              - binary_sensor.is_off: ${id_prefix}_dry_contact_close
-              - binary_sensor.is_on: ${id_prefix}_dry_contact_open
-          then:
-            - cover.open: ${id_prefix}_garage_door
-      - if:
-          condition:
-            and:
-              - binary_sensor.is_on: ${id_prefix}_dry_contact_close
-              - binary_sensor.is_off: ${id_prefix}_dry_contact_open
-          then:
-            - cover.close: ${id_prefix}_garage_door
 
 number:
   - platform: ratgdo

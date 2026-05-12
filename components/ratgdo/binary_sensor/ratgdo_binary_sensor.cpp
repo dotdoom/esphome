@@ -12,11 +12,6 @@ void RATGDOBinarySensor::setup()
     this->publish_initial_state(false);
 
     switch (this->binary_sensor_type_) {
-    case SensorType::RATGDO_SENSOR_BUTTON:
-        this->parent_->subscribe_button_state([this](ButtonState state) {
-            this->publish_state(state == ButtonState::PRESSED);
-        });
-        break;
 #ifdef RATGDO_USE_VEHICLE_SENSORS
     case SensorType::RATGDO_SENSOR_VEHICLE_DETECTED:
         this->parent_->subscribe_vehicle_detected_state([this](VehicleDetectedState state) {
@@ -44,9 +39,6 @@ void RATGDOBinarySensor::dump_config()
 {
     LOG_BINARY_SENSOR("", "RATGDO BinarySensor", this);
     switch (this->binary_sensor_type_) {
-    case SensorType::RATGDO_SENSOR_BUTTON:
-        ESP_LOGCONFIG(TAG, "  Type: Button");
-        break;
 #ifdef RATGDO_USE_VEHICLE_SENSORS
     case SensorType::RATGDO_SENSOR_VEHICLE_DETECTED:
         ESP_LOGCONFIG(TAG, "  Type: VehicleDetected");

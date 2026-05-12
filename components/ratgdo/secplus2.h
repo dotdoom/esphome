@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef PROTOCOL_SECPLUSV2
-
 #include "esphome/core/optional.h"
 #include "ratgdo_uart.h"
 
@@ -32,32 +30,11 @@ namespace secplus2 {
         (UNKNOWN, 0x000),
         (GET_STATUS, 0x080),
         (STATUS, 0x081),
-        (OBST_1, 0x084), // sent when an obstruction happens?
-        (OBST_2, 0x085), // sent when an obstruction happens?
-        (BATTERY_STATUS, 0x09d),
-        (PAIR_3, 0x0a0),
-        (PAIR_3_RESP, 0x0a1),
 
-        (LEARN, 0x181),
         (LOCK, 0x18c),
         (DOOR_ACTION, 0x280),
         (LIGHT, 0x281),
-        (MOTOR_ON, 0x284),
-        (MOTION, 0x285),
 
-        (GET_PAIRED_DEVICES, 0x307), // nibble 0 for total, 1 wireless, 2 keypads, 3 wall, 4 accessories.
-        (PAIRED_DEVICES, 0x308), // byte2 holds number of paired devices
-        (CLEAR_PAIRED_DEVICES, 0x30D), // nibble 0 to clear remotes, 1 keypads, 2 wall, 3 accessories (offset from above)
-
-        (LEARN_1, 0x391),
-        (PING, 0x392),
-        (PING_RESP, 0x393),
-
-        (PAIR_2, 0x400),
-        (PAIR_2_RESP, 0x401),
-        (SET_TTC, 0x402), // ttc_in_seconds = (byte1<<8)+byte2
-        (CANCEL_TTC, 0x408), // ?
-        (TTC, 0x40a), // Time to close
         (GET_OPENINGS, 0x48b),
         (OPENINGS, 0x48c), // openings = (byte1<<8)+byte2
     )
@@ -105,12 +82,6 @@ namespace secplus2 {
         Result call(Args args);
 
         const Traits& traits() const { return this->traits_; }
-
-        // methods not used by secplus2
-        void set_open_limit(bool state) { }
-        void set_close_limit(bool state) { }
-        void set_discrete_open_pin(InternalGPIOPin* pin) { }
-        void set_discrete_close_pin(InternalGPIOPin* pin) { }
 
     protected:
         void increment_rolling_code_counter(int delta = 1);
@@ -185,5 +156,3 @@ namespace secplus2 {
     };
 } // namespace secplus2
 } // namespace esphome::ratgdo
-
-#endif // PROTOCOL_SECPLUSV2

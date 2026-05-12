@@ -62,15 +62,6 @@ typedef Parented<RATGDOComponent> RATGDOClient;
 const float DOOR_POSITION_UNKNOWN = -1.0;
 const float DOOR_DELTA_UNKNOWN = -2.0;
 
-struct RATGDOStore {
-    volatile uint32_t obstruction_low_count = 0; // count obstruction low pulses
-
-    static void IRAM_ATTR HOT isr_obstruction(RATGDOStore* arg)
-    {
-        arg->obstruction_low_count++;
-    }
-};
-
 using protocol::Args;
 using protocol::Result;
 
@@ -114,7 +105,6 @@ public:
 
     single_observable<LightState> light_state { LightState::UNKNOWN };
     single_observable<LockState> lock_state { LockState::UNKNOWN };
-    single_observable<ButtonState> button_state { ButtonState::UNKNOWN };
 #ifdef RATGDO_USE_VEHICLE_SENSORS
     observable<VehicleDetectedState, RATGDO_MAX_VEHICLE_DETECTED_SUBSCRIBERS> vehicle_detected_state { VehicleDetectedState::NO };
     observable<VehicleArrivingState, RATGDO_MAX_VEHICLE_ARRIVING_SUBSCRIBERS> vehicle_arriving_state { VehicleArrivingState::NO };
@@ -127,14 +117,6 @@ public:
 
     void set_output_gdo_pin(InternalGPIOPin* pin) { this->output_gdo_pin_ = pin; }
     void set_input_gdo_pin(InternalGPIOPin* pin) { this->input_gdo_pin_ = pin; }
-    void set_input_obst_pin(InternalGPIOPin* pin) { this->input_obst_pin_ = pin; }
-    void set_obst_sleep_low(bool low) { this->flags_.obst_sleep_low = low; }
-
-    // dry contact methods
-    void set_dry_contact_open_sensor(esphome::binary_sensor::BinarySensor* dry_contact_open_sensor_);
-    void set_dry_contact_close_sensor(esphome::binary_sensor::BinarySensor* dry_contact_close_sensor_);
-    void set_discrete_open_pin(InternalGPIOPin* pin) { this->protocol_->set_discrete_open_pin(pin); }
-    void set_discrete_close_pin(InternalGPIOPin* pin) { this->protocol_->set_discrete_close_pin(pin); }
 
     Result call_protocol(Args args);
 
@@ -142,10 +124,7 @@ public:
     void received(const LightState light_state);
     void received(const LockState lock_state);
     void received(const LightAction light_action);
-    void received(const ButtonState button_state);
     void received(const Openings openings);
-    void received(const TimeToClose ttc);
-    void received(const BatteryState pdc);
 
     // door
     void door_toggle();
@@ -154,7 +133,6 @@ public:
     void door_stop();
 
     void door_action(DoorAction action);
-    void ensure_door_action(DoorAction action, uint32_t delay = 1500);
     void door_move_to_position(float position);
     void set_door_position(float door_position) { this->door_position = door_position; }
     void set_opening_duration(float duration);
@@ -254,8 +232,6 @@ public:
     template <typename F>
     void subscribe_lock_state(F&& f);
     template <typename F>
-    void subscribe_button_state(F&& f);
-    template <typename F>
     void subscribe_sync_failed(F&& f);
     template <typename F>
     void subscribe_door_action_delayed(F&& f);
@@ -277,22 +253,14 @@ protected:
     protocol::Protocol* protocol_;
     InternalGPIOPin* output_gdo_pin_;
     InternalGPIOPin* input_gdo_pin_;
-    InternalGPIOPin* input_obst_pin_;
-    esphome::binary_sensor::BinarySensor* dry_contact_open_sensor_;
-    esphome::binary_sensor::BinarySensor* dry_contact_close_sensor_;
-
-    // 4-byte members
-    RATGDOStore isr_store_ { };
 
     // Bool members packed into bitfield
     struct {
-        uint8_t obstruction_sensor_detected : 1;
-        uint8_t obst_sleep_low : 1;
 #ifdef RATGDO_USE_VEHICLE_SENSORS
         uint8_t presence_detect_window_active : 1;
-        uint8_t reserved : 5; // Reserved for future use
+        uint8_t reserved : 7; // Reserved for future use
 #else
-        uint8_t reserved : 6; // Reserved for future use
+        uint8_t reserved : 8; // Reserved for future use
 #endif
     } flags_ { 0 };
 
@@ -368,19 +336,14 @@ namespace scheduler_ids {
         DEFER_OPENINGS,
         DEFER_LIGHT_STATE,
         DEFER_LOCK_STATE,
-        DEFER_BUTTON_STATE,
 
         // Named timeout IDs (replacing string-based names)
         TIMEOUT_DOOR_QUERY_STATE,
         TIMEOUT_DOOR_ACTION,
         TIMEOUT_MOVE_TO_POSITION,
-        // Shared by RATGDOComponent and Secplus1 — safe because only one
-        // protocol is compiled at a time (#ifdef PROTOCOL_SECPLUSV1) and
-        // both use ratgdo_ as the scheduler owner.
         TIMEOUT_DOOR_STATE_EXPIRY,
         TIMEOUT_PRESENCE_DETECT_WINDOW,
         TIMEOUT_CLEAR_PRESENCE,
-        TIMEOUT_WALL_PANEL_EMULATION,
         TIMEOUT_SYNC,
     };
 } // namespace scheduler_ids
@@ -463,14 +426,6 @@ void RATGDOComponent::subscribe_lock_state(F&& f)
 {
     this->lock_state.subscribe([this, f](LockState state) {
         defer(scheduler_ids::DEFER_LOCK_STATE, [f, state] { f(state); });
-    });
-}
-
-template <typename F>
-void RATGDOComponent::subscribe_button_state(F&& f)
-{
-    this->button_state.subscribe([this, f](ButtonState state) {
-        defer(scheduler_ids::DEFER_BUTTON_STATE, [f, state] { f(state); });
     });
 }
 

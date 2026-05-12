@@ -15,15 +15,7 @@
 #include "common.h"
 #include "ratgdo_state.h"
 
-#ifdef PROTOCOL_DRYCONTACT
-#include "dry_contact.h"
-#endif
-#ifdef PROTOCOL_SECPLUSV1
-#include "secplus1.h"
-#endif
-#ifdef PROTOCOL_SECPLUSV2
 #include "secplus2.h"
-#endif
 
 #include "esphome/core/application.h"
 #include "esphome/core/gpio.h"
@@ -80,40 +72,13 @@ void RATGDOComponent::setup()
     ESP_LOGD(TAG, "|    -|     | | | |  |  |  |  |  |  |");
     ESP_LOGD(TAG, "|__|__|__|__| |_| |_____|____/|_____|");
     ESP_LOGD(TAG, "https://paulwieland.github.io/ratgdo/");
-
-    this->subscribe_door_state([this](DoorState state, float position) {
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-        if (this->last_door_state_for_presence_ != DoorState::UNKNOWN && state != DoorState::CLOSED && !this->flags_.presence_detect_window_active) {
-            this->flags_.presence_detect_window_active = true;
-            this->set_timeout(
-                TIMEOUT_PRESENCE_DETECT_WINDOW, PRESENCE_DETECT_WINDOW,
-                [this] { this->flags_.presence_detect_window_active = false; });
-        }
-
-        if (state == DoorState::CLOSED) {
-            this->set_timeout(
-                TIMEOUT_PRESENCE_DETECT_WINDOW, PRESENCE_DETECT_WINDOW_AFTER_CLOSE,
-                [this] { this->flags_.presence_detect_window_active = false; });
-        }
-
-        this->last_door_state_for_presence_ = state;
-#endif
-    });
 }
 
 // initializing protocol, this gets called before setup() because
 // its children components might require that
 void RATGDOComponent::init_protocol()
 {
-#ifdef PROTOCOL_SECPLUSV2
     this->protocol_ = new secplus2::Secplus2();
-#endif
-#ifdef PROTOCOL_SECPLUSV1
-    this->protocol_ = new secplus1::Secplus1();
-#endif
-#ifdef PROTOCOL_DRYCONTACT
-    this->protocol_ = new dry_contact::DryContact();
-#endif
 }
 
 void RATGDOComponent::loop()
@@ -239,13 +204,6 @@ void RATGDOComponent::received(const LockState lock_state)
     this->lock_state = lock_state;
 }
 
-void RATGDOComponent::received(const ButtonState button_state)
-{
-    ESP_LOGD(TAG, "Button state=%s",
-        LOG_STR_ARG(ButtonState_to_string(*this->button_state)));
-    this->button_state = button_state;
-}
-
 void RATGDOComponent::received(const LightAction light_action)
 {
     ESP_LOGD(TAG, "Light cmd=%s state=%s",
@@ -268,17 +226,6 @@ void RATGDOComponent::received(const Openings openings)
     } else {
         ESP_LOGD(TAG, "Ignoring openings, not from our request");
     }
-}
-
-void RATGDOComponent::received(const TimeToClose ttc)
-{
-    ESP_LOGD(TAG, "Time to close (TTC): %ds", ttc.seconds);
-}
-
-void RATGDOComponent::received(const BatteryState battery_state)
-{
-    ESP_LOGD(TAG, "Battery state=%s",
-        LOG_STR_ARG(BatteryState_to_string(battery_state)));
 }
 
 void RATGDOComponent::schedule_door_position_sync(float update_period)
@@ -423,14 +370,6 @@ void RATGDOComponent::query_openings()
 void RATGDOComponent::sync()
 {
     this->protocol_->sync();
-
-    // dry contact protocol:
-    // needed to trigger the intial state of the limit switch sensors
-    // ideally this would be in drycontact::sync
-#ifdef PROTOCOL_DRYCONTACT
-    this->protocol_->set_open_limit(this->dry_contact_open_sensor_->state);
-    this->protocol_->set_close_limit(this->dry_contact_close_sensor_->state);
-#endif
 }
 
 void RATGDOComponent::set_door_state_expiry()
@@ -488,12 +427,7 @@ void RATGDOComponent::door_close()
         return;
     }
 
-    if (this->flags_.obstruction_sensor_detected) {
-        this->door_action(DoorAction::CLOSE);
-    } else if (*this->door_state == DoorState::OPEN) {
-        ESP_LOGD(TAG, "No obstruction sensors detected. Close using TOGGLE.");
-        this->door_action(DoorAction::TOGGLE);
-    }
+    this->door_action(DoorAction::CLOSE);
 
     if (*this->closing_duration > 0) {
         // query state in case we don't get a status message
@@ -627,26 +561,5 @@ void RATGDOComponent::lock_toggle()
 }
 
 // Subscribe implementations are now templates in ratgdo.h
-
-// dry contact methods
-void RATGDOComponent::set_dry_contact_open_sensor(
-    esphome::binary_sensor::BinarySensor* dry_contact_open_sensor)
-{
-    dry_contact_open_sensor_ = dry_contact_open_sensor;
-    dry_contact_open_sensor_->add_on_state_callback([this](bool sensor_value) {
-        this->protocol_->set_open_limit(sensor_value);
-        this->door_position = 1.0;
-    });
-}
-
-void RATGDOComponent::set_dry_contact_close_sensor(
-    esphome::binary_sensor::BinarySensor* dry_contact_close_sensor)
-{
-    dry_contact_close_sensor_ = dry_contact_close_sensor;
-    dry_contact_close_sensor_->add_on_state_callback([this](bool sensor_value) {
-        this->protocol_->set_close_limit(sensor_value);
-        this->door_position = 0.0;
-    });
-}
 
 } // namespace esphome::ratgdo

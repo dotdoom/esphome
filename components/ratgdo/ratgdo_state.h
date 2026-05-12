@@ -44,17 +44,6 @@ ENUM(LockState, uint8_t,
     (UNKNOWN, 2))
 LockState lock_state_toggle(LockState state);
 
-/// Enum for all states the button can be in.
-ENUM(ButtonState, uint8_t,
-    (PRESSED, 0),
-    (RELEASED, 1),
-    (UNKNOWN, 2))
-
-ENUM_SPARSE(BatteryState, uint8_t,
-    (UNKNOWN, 0),
-    (CHARGING, 0x6),
-    (FULL, 0x8))
-
 // actions
 ENUM(LightAction, uint8_t,
     (OFF, 0),
@@ -92,10 +81,6 @@ ENUM(VehicleLeavingState, uint8_t,
 struct Openings {
     uint16_t count;
     uint8_t flag;
-};
-
-struct TimeToClose {
-    uint16_t seconds;
 };
 
 } // namespace esphome::ratgdo
