@@ -1,17 +1,10 @@
-substitutions:
-  id_prefix: garage_gate
-  friendly_name: "Garage Gate"
-  uart_tx_pin: GPIO17
-  uart_rx_pin: GPIO21
-  status_door_pin: GPIO26
-
 web_server:
   include_internal: true
   local: true
 
 esphome:
   name: garage-gate
-  friendly_name: ${friendly_name}
+  friendly_name: "Garage Gate"
   name_add_mac_suffix: true
   min_version: 2026.2.0
   project:
@@ -44,9 +37,9 @@ preferences:
   flash_write_interval: 1min
 
 ratgdo:
-  id: ${id_prefix}
-  input_gdo_pin: ${uart_rx_pin}
-  output_gdo_pin: ${uart_tx_pin}
+  id: garage_gate
+  input_gdo_pin: GPIO21
+  output_gdo_pin: GPIO17
 
 time:
   - platform: sntp
@@ -56,28 +49,28 @@ time:
 
 binary_sensor:
   - platform: ratgdo
-    id: ${id_prefix}_vehicle_detected
+    id: garage_gate_vehicle_detected
     type: vehicle_detected
     name: "Vehicle detected"
   - platform: ratgdo
-    id: ${id_prefix}_vehicle_arriving
+    id: garage_gate_vehicle_arriving
     type: vehicle_arriving
     name: "Vehicle arriving"
   - platform: ratgdo
-    id: ${id_prefix}_vehicle_leaving
+    id: garage_gate_vehicle_leaving
     type: vehicle_leaving
     name: "Vehicle leaving"
 
 sensor:
   - platform: ratgdo
-    id: ${id_prefix}_openings
+    id: garage_gate_openings
     type: openings
     entity_category: diagnostic
     name: "Openings"
     unit_of_measurement: "openings"
     icon: mdi:open-in-app
   - platform: ratgdo
-    id: ${id_prefix}_vehicle_distance_actual
+    id: garage_gate_vehicle_distance_actual
     type: distance
     name: "Vehicle distance actual"
     unit_of_measurement: "mm"
@@ -86,7 +79,7 @@ sensor:
       - throttle: 1ms
       - heartbeat: 1ms
   - platform: copy
-    source_id: ${id_prefix}_vehicle_distance_actual
+    source_id: garage_gate_vehicle_distance_actual
     name: Vehicle distance actual filtered
     filters:
       - min:
@@ -104,27 +97,27 @@ sensor:
 
 lock:
   - platform: ratgdo
-    id: ${id_prefix}_lock_remotes
+    id: garage_gate_lock_remotes
     name: "Lock remotes"
 
 switch:
   - platform: gpio
-    id: "${id_prefix}_status_door"
+    id: "garage_gate_status_door"
     internal: true
     pin:
-      number: ${status_door_pin}
+      number: GPIO26
       mode:
         output: true
     name: "Status door"
     entity_category: diagnostic
   - platform: ratgdo
-    id: ${id_prefix}_led
+    id: garage_gate_led
     type: led
     pin: GPIO2
     name: "LED"
     entity_category: config
   - platform: ratgdo
-    id: ${id_prefix}_laser
+    id: garage_gate_laser
     type: led
     pin: GPIO23
     name: "LASER"
@@ -132,39 +125,39 @@ switch:
 
 number:
   - platform: ratgdo
-    id: ${id_prefix}_rolling_code_counter
+    id: garage_gate_rolling_code_counter
     type: rolling_code_counter
     entity_category: config
     name: "Rolling code counter"
     mode: box
     unit_of_measurement: "codes"
   - platform: ratgdo
-    id: ${id_prefix}_opening_duration
+    id: garage_gate_opening_duration
     type: opening_duration
     entity_category: config
     name: "Opening duration"
     unit_of_measurement: "s"
   - platform: ratgdo
-    id: ${id_prefix}_closing_duration
+    id: garage_gate_closing_duration
     type: closing_duration
     entity_category: config
     name: "Closing duration"
     unit_of_measurement: "s"
   - platform: ratgdo
-    id: ${id_prefix}_client_id
+    id: garage_gate_client_id
     type: client_id
     entity_category: config
     name: "Client ID"
     mode: box
   - platform: ratgdo
-    id: ${id_prefix}_target_distance_measurement
+    id: garage_gate_target_distance_measurement
     type: target_distance_measurement
     entity_category: config
     name: "Vehicle distance target"
     mode: box
     unit_of_measurement: "mm"
   - platform: ratgdo
-    id: ${id_prefix}_closing_delay
+    id: garage_gate_closing_delay
     type: closing_delay
     entity_category: config
     name: "Closing Delay"
@@ -172,62 +165,62 @@ number:
 
 cover:
   - platform: ratgdo
-    id: ${id_prefix}_garage_door
+    id: garage_gate_garage_door
     device_class: garage
     name: "Door"
     on_closed:
-      - switch.turn_off: ${id_prefix}_status_door
+      - switch.turn_off: garage_gate_status_door
     on_opened:
-      - switch.turn_on: ${id_prefix}_status_door
+      - switch.turn_on: garage_gate_status_door
 
 light:
   - platform: ratgdo
-    id: ${id_prefix}_light
+    id: garage_gate_light
     name: "Light"
 
 button:
   - platform: template
-    id: ${id_prefix}_query_status
+    id: garage_gate_query_status
     entity_category: diagnostic
     name: "Query status"
     on_press:
       then:
         lambda: !lambda |-
-          id($id_prefix).query_status();
+          id(garage_gate).query_status();
   - platform: template
-    id: ${id_prefix}_query_openings
+    id: garage_gate_query_openings
     name: "Query openings"
     entity_category: diagnostic
     on_press:
       then:
         lambda: !lambda |-
-          id($id_prefix).query_openings();
+          id(garage_gate).query_openings();
   - platform: template
-    id: ${id_prefix}_sync
+    id: garage_gate_sync
     name: "Sync"
     entity_category: diagnostic
     on_press:
       then:
         lambda: !lambda |-
-          id($id_prefix).sync();
+          id(garage_gate).sync();
   - platform: template
-    id: ${id_prefix}_toggle_door
+    id: garage_gate_toggle_door
     name: "Toggle door"
     on_press:
       then:
         lambda: !lambda |-
-          id($id_prefix).door_toggle();
+          id(garage_gate).door_toggle();
 
 output:
   - platform: ledc
     pin: GPIO33
-    id: ${id_prefix}_ledc
+    id: garage_gate_ledc
   - platform: ratgdo
-    id: ${id_prefix}_beeper
+    id: garage_gate_beeper
     type: beeper
-    rtttl: ${id_prefix}_rtttl
+    rtttl: garage_gate_rtttl
     song: "alert:d=8,o=5,b=120:a,p,a,p,a,p,4b,p"
 
 rtttl:
-  - id: ${id_prefix}_rtttl
-    output: ${id_prefix}_ledc
+  - id: garage_gate_rtttl
+    output: garage_gate_ledc
