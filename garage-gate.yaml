@@ -48,31 +48,11 @@ ratgdo:
   input_gdo_pin: ${uart_rx_pin}
   output_gdo_pin: ${uart_tx_pin}
 
-ota:
-  - platform: web_server
-    id: ${id_prefix}_ratgdo_ota_ws
-
 time:
   - platform: sntp
     id: sntp_time
     servers: !secret sntp_servers
     timezone: Europe/Zurich
-
-improv_serial:
-
-esp32_improv:
-  authorizer: none
-
-wifi:
-  ap:
-    ssid: "ratgdo"
-
-captive_portal:
-
-logger:
-  baud_rate: 115200
-  logs:
-    sensor: NONE
 
 binary_sensor:
   - platform: ratgdo
