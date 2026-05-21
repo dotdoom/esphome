@@ -28,15 +28,9 @@
 
 #define LPAREN (
 
-#ifdef USE_ESP8266
-#define TO_STRING_IF0(type, name, val) \
-    if (_e == type::name)              \
-        return LOG_STR(#name);
-#else
 #define TO_STRING_IF0(type, name, val) \
     if (_e == type::name)              \
         return #name;
-#endif
 #define TO_STRING_IF(type, tuple) TO_STRING_IF0 LPAREN type, TUPLE tuple)
 
 #define FROM_INT_CASE0(type, name, val) \
@@ -77,17 +71,10 @@ namespace detail {
 } // namespace esphome::ratgdo
 
 // Platform-specific helpers for enum string return types
-#ifdef USE_ESP8266
-#define ENUM_STR_RET const esphome::LogString*
-#define ENUM_STR_UNKNOWN LOG_STR("UNKNOWN")
-#define ENUM_BLOB_ATTR PROGMEM
-#define ENUM_BLOB_RETURN(blob, offset) reinterpret_cast<const esphome::LogString*>(&(blob)[offset])
-#else
 #define ENUM_STR_RET const char*
 #define ENUM_STR_UNKNOWN "UNKNOWN"
 #define ENUM_BLOB_ATTR
 #define ENUM_BLOB_RETURN(blob, offset) (&(blob)[offset])
-#endif
 
 // ENUM: packed string blob with O(1) offset lookup (for contiguous 0-based enums with uint8_t type)
 #define ENUM(name, type, ...)                                                                            \

@@ -142,12 +142,6 @@ async def to_code(config):
             repository="https://github.com/ratgdo/secplus#f98c3220356c27717a25102c0b35815ebbd26ccc",
             version=None,
         )
-    if CORE.is_esp8266:
-        cg.add_library(
-            name="espsoftwareserial",
-            repository="https://github.com/ratgdo/espsoftwareserial#autobaud",
-            version=None,
-        )
 
     cg.add_define("PROTOCOL_SECPLUSV2")
     cg.add(var.init_protocol())

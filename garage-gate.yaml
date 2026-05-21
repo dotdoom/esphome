@@ -5,7 +5,6 @@ web_server:
 esphome:
   name: garage-gate
   friendly_name: "Garage Gate"
-  name_add_mac_suffix: true
   min_version: 2026.2.0
   project:
     name: ratgdo.v32disco_secplus2
@@ -128,12 +127,6 @@ number:
     entity_category: config
     name: "Client ID"
     mode: box
-  - platform: ratgdo
-    id: garage_gate_closing_delay
-    type: closing_delay
-    entity_category: config
-    name: "Closing Delay"
-    unit_of_measurement: "s"
 
 cover:
   - platform: ratgdo

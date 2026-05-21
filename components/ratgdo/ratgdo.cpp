@@ -379,19 +379,7 @@ void RATGDOComponent::door_toggle() { this->door_action(DoorAction::TOGGLE); }
 
 void RATGDOComponent::door_action(DoorAction action)
 {
-#ifdef RATGDO_USE_CLOSING_DELAY
-    if (*this->closing_delay > 0 && (action == DoorAction::CLOSE || (action == DoorAction::TOGGLE && *this->door_state != DoorState::CLOSED))) {
-        this->door_action_delayed = DoorActionDelayed::YES;
-        this->set_timeout(TIMEOUT_DOOR_ACTION, *this->closing_delay * 1000, [this] {
-            this->door_action_delayed = DoorActionDelayed::NO;
-            this->protocol_->door_action(DoorAction::CLOSE);
-        });
-    } else {
-        this->protocol_->door_action(action);
-    }
-#else
     this->protocol_->door_action(action);
-#endif
 }
 
 void RATGDOComponent::door_move_to_position(float position)

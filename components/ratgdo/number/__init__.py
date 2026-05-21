@@ -19,7 +19,6 @@ TYPES = {
     "rolling_code_counter": NumberType.RATGDO_ROLLING_CODE_COUNTER,
     "opening_duration": NumberType.RATGDO_OPENING_DURATION,
     "closing_duration": NumberType.RATGDO_CLOSING_DURATION,
-    "closing_delay": NumberType.RATGDO_CLOSING_DELAY,
     "target_distance_measurement": NumberType.RATGDO_TARGET_DISTANCE_MEASUREMENT,
 }
 
@@ -51,8 +50,3 @@ async def to_code(config):
     await cg.register_component(var, config)
     cg.add(var.set_number_type(config[CONF_TYPE]))
     await register_ratgdo_child(var, config)
-
-    # Add defines for enabled features
-    # sensor will add the define for the distance sensor
-    if config[CONF_TYPE] == "closing_delay":
-        cg.add_define("RATGDO_USE_CLOSING_DELAY")

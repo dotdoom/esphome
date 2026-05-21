@@ -72,9 +72,6 @@ public:
     single_observable<float> opening_duration { 0 };
     float start_closing { -1 };
     single_observable<float> closing_duration { 0 };
-#ifdef RATGDO_USE_CLOSING_DELAY
-    single_observable<uint32_t> closing_delay { 0 };
-#endif
 
 #ifdef RATGDO_USE_DISTANCE_SENSOR
     single_observable<int16_t> target_distance_measurement { -1 };
@@ -122,9 +119,6 @@ public:
     void set_door_position(float door_position) { this->door_position = door_position; }
     void set_opening_duration(float duration);
     void set_closing_duration(float duration);
-#ifdef RATGDO_USE_CLOSING_DELAY
-    void set_closing_delay(uint32_t delay) { this->closing_delay = delay; }
-#endif
     void schedule_door_position_sync(float update_period = 500);
     void door_position_update();
     void cancel_position_sync_callbacks();
@@ -198,10 +192,6 @@ public:
     void subscribe_opening_duration(F&& f);
     template <typename F>
     void subscribe_closing_duration(F&& f);
-#ifdef RATGDO_USE_CLOSING_DELAY
-    template <typename F>
-    void subscribe_closing_delay(F&& f);
-#endif
     template <typename F>
     void subscribe_openings(F&& f);
     template <typename F>
@@ -278,7 +268,6 @@ namespace scheduler_ids {
         DEFER_ROLLING_CODE = DEFER_DISTANCE_END,
         DEFER_OPENING_DURATION,
         DEFER_CLOSING_DURATION,
-        DEFER_CLOSING_DELAY,
         DEFER_OPENINGS,
         DEFER_LIGHT_STATE,
         DEFER_LOCK_STATE,
@@ -325,16 +314,6 @@ void RATGDOComponent::subscribe_closing_duration(F&& f)
         defer(scheduler_ids::DEFER_CLOSING_DURATION, [f, state] { f(state); });
     });
 }
-
-#ifdef RATGDO_USE_CLOSING_DELAY
-template <typename F>
-void RATGDOComponent::subscribe_closing_delay(F&& f)
-{
-    this->closing_delay.subscribe([this, f](uint32_t state) {
-        defer(scheduler_ids::DEFER_CLOSING_DELAY, [f, state] { f(state); });
-    });
-}
-#endif
 
 template <typename F>
 void RATGDOComponent::subscribe_openings(F&& f)
