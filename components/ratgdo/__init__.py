@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 from esphome import automation, pins
 import esphome.codegen as cg
-from esphome.components import binary_sensor
 import esphome.config_validation as cv
 from esphome.const import CONF_ID, CONF_TRIGGER_ID
 from esphome.core import CORE
@@ -25,9 +24,6 @@ class RATGDOData:
     door_state: int = 0
     door_action_delayed: int = 0
     distance: int = 0
-    vehicle_detected: int = 0
-    vehicle_arriving: int = 0
-    vehicle_leaving: int = 0
 
 
 def _get_data() -> RATGDOData:
@@ -48,18 +44,6 @@ def subscribe_distance() -> None:
     _get_data().distance += 1
 
 
-def subscribe_vehicle_detected() -> None:
-    _get_data().vehicle_detected += 1
-
-
-def subscribe_vehicle_arriving() -> None:
-    _get_data().vehicle_arriving += 1
-
-
-def subscribe_vehicle_leaving() -> None:
-    _get_data().vehicle_leaving += 1
-
-
 @coroutine_with_priority(CoroPriority.FINAL)
 async def _emit_subscriber_defines():
     """Emit observable subscriber count defines after all children have registered."""
@@ -69,9 +53,6 @@ async def _emit_subscriber_defines():
         "RATGDO_MAX_DOOR_ACTION_DELAYED_SUBSCRIBERS", data.door_action_delayed
     )
     cg.add_define("RATGDO_MAX_DISTANCE_SUBSCRIBERS", data.distance)
-    cg.add_define("RATGDO_MAX_VEHICLE_DETECTED_SUBSCRIBERS", data.vehicle_detected)
-    cg.add_define("RATGDO_MAX_VEHICLE_ARRIVING_SUBSCRIBERS", data.vehicle_arriving)
-    cg.add_define("RATGDO_MAX_VEHICLE_LEAVING_SUBSCRIBERS", data.vehicle_leaving)
 
 
 SyncFailed = ratgdo_ns.class_("SyncFailed", automation.Trigger.template())

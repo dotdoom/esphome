@@ -38,8 +38,6 @@ namespace secplus2 {
         this->uart_.begin(9600, RATGDO_UART_8N1, rx_pin->get_pin(), tx_pin->get_pin(), true);
         this->uart_.enableIntTx(false);
         this->uart_.enableAutoBaud(true);
-
-        this->traits_.set_features(Traits::all());
     }
 
     void Secplus2::loop()

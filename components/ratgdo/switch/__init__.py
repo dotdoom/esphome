@@ -8,7 +8,6 @@ from .. import (
     RATGDO_CLIENT_SCHMEA,
     ratgdo_ns,
     register_ratgdo_child,
-    subscribe_vehicle_arriving,
 )
 
 DEPENDENCIES = ["ratgdo"]
@@ -41,8 +40,3 @@ async def to_code(config):
     if CONF_PIN in config:
         pin = await cg.gpio_pin_expression(config[CONF_PIN])
         cg.add(var.set_pin(pin))
-    # LED switch conditionally subscribes to vehicle_arriving in C++ (#ifdef RATGDO_USE_VEHICLE_SENSORS).
-    # Always register the subscription — the C++ guard ensures it's only active when vehicle sensors
-    # are enabled, and the codegen emits the define to size the observable accordingly.
-    if config[CONF_TYPE] == "led":
-        subscribe_vehicle_arriving()

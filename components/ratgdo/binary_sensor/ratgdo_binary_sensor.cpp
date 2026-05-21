@@ -16,7 +16,6 @@ void RATGDOBinarySensor::setup()
     case SensorType::RATGDO_SENSOR_VEHICLE_DETECTED:
         this->parent_->subscribe_vehicle_detected_state([this](VehicleDetectedState state) {
             this->publish_state(state == VehicleDetectedState::YES);
-            this->parent_->presence_change(state == VehicleDetectedState::YES);
         });
         break;
     case SensorType::RATGDO_SENSOR_VEHICLE_ARRIVING:

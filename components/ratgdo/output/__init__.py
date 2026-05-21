@@ -8,7 +8,6 @@ from .. import (
     ratgdo_ns,
     register_ratgdo_child,
     subscribe_door_action_delayed,
-    subscribe_vehicle_arriving,
 )
 
 CONF_RTTTL = "rtttl"
@@ -39,5 +38,4 @@ async def to_code(config):
     cg.add(var.set_rtttl(rtttl))
     cg.add(var.set_song(config[CONF_SONG]))
     await register_ratgdo_child(var, config)
-    subscribe_vehicle_arriving()
     subscribe_door_action_delayed()

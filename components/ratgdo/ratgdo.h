@@ -13,7 +13,6 @@
 
 #pragma once
 
-#include "esphome/components/binary_sensor/binary_sensor.h"
 #include "esphome/core/component.h"
 #include "esphome/core/defines.h"
 #include "esphome/core/hal.h"
@@ -39,15 +38,6 @@
 #endif
 #ifndef RATGDO_MAX_DISTANCE_SUBSCRIBERS
 #error "RATGDO_MAX_DISTANCE_SUBSCRIBERS must be defined by codegen"
-#endif
-#ifndef RATGDO_MAX_VEHICLE_DETECTED_SUBSCRIBERS
-#error "RATGDO_MAX_VEHICLE_DETECTED_SUBSCRIBERS must be defined by codegen"
-#endif
-#ifndef RATGDO_MAX_VEHICLE_ARRIVING_SUBSCRIBERS
-#error "RATGDO_MAX_VEHICLE_ARRIVING_SUBSCRIBERS must be defined by codegen"
-#endif
-#ifndef RATGDO_MAX_VEHICLE_LEAVING_SUBSCRIBERS
-#error "RATGDO_MAX_VEHICLE_LEAVING_SUBSCRIBERS must be defined by codegen"
 #endif
 
 namespace esphome {
@@ -105,11 +95,6 @@ public:
 
     single_observable<LightState> light_state { LightState::UNKNOWN };
     single_observable<LockState> lock_state { LockState::UNKNOWN };
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-    observable<VehicleDetectedState, RATGDO_MAX_VEHICLE_DETECTED_SUBSCRIBERS> vehicle_detected_state { VehicleDetectedState::NO };
-    observable<VehicleArrivingState, RATGDO_MAX_VEHICLE_ARRIVING_SUBSCRIBERS> vehicle_arriving_state { VehicleArrivingState::NO };
-    observable<VehicleLeavingState, RATGDO_MAX_VEHICLE_LEAVING_SUBSCRIBERS> vehicle_leaving_state { VehicleLeavingState::NO };
-#endif
 
     OnceCallbacks<void(DoorState)> on_door_state_;
 
@@ -147,19 +132,13 @@ public:
     void set_target_distance_measurement(int16_t distance);
     void set_distance_measurement(int16_t distance);
 #endif
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-    void calculate_presence();
-    void presence_change(bool sensor_value);
-#endif
 
     // light
-    void light_toggle();
     void light_on();
     void light_off();
     LightState get_light_state() const;
 
     // lock
-    void lock_toggle();
     void lock();
     void unlock();
 
@@ -239,14 +218,6 @@ public:
     template <typename F>
     void subscribe_distance_measurement(F&& f);
 #endif
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-    template <typename F>
-    void subscribe_vehicle_detected_state(F&& f);
-    template <typename F>
-    void subscribe_vehicle_arriving_state(F&& f);
-    template <typename F>
-    void subscribe_vehicle_leaving_state(F&& f);
-#endif
 
 protected:
     // Pointers first (4-byte aligned)
@@ -256,12 +227,7 @@ protected:
 
     // Bool members packed into bitfield
     struct {
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-        uint8_t presence_detect_window_active : 1;
-        uint8_t reserved : 7; // Reserved for future use
-#else
         uint8_t reserved : 8; // Reserved for future use
-#endif
     } flags_ { 0 };
 
     // Subscriber counters for defer name allocation
@@ -269,14 +235,6 @@ protected:
     uint8_t door_action_delayed_sub_num_ { 0 };
 #ifdef RATGDO_USE_DISTANCE_SENSOR
     uint8_t distance_sub_num_ { 0 };
-#endif
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-    uint8_t vehicle_detected_sub_num_ { 0 };
-    uint8_t vehicle_arriving_sub_num_ { 0 };
-    uint8_t vehicle_leaving_sub_num_ { 0 };
-    int last_presence_percent_ { -1 };
-    int presence_off_counter_ { 0 };
-    DoorState last_door_state_for_presence_ { DoorState::UNKNOWN };
 #endif
 }; // RATGDOComponent
 
@@ -315,21 +273,9 @@ namespace scheduler_ids {
     inline constexpr uint32_t DEFER_DISTANCE_END = DEFER_DOOR_ACTION_DELAYED_BASE + DEFER_DOOR_ACTION_DELAYED_COUNT;
 #endif
 
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-    inline constexpr uint32_t DEFER_VEHICLE_DETECTED_COUNT = RATGDO_MAX_VEHICLE_DETECTED_SUBSCRIBERS;
-    inline constexpr uint32_t DEFER_VEHICLE_DETECTED_BASE = DEFER_DISTANCE_END;
-    inline constexpr uint32_t DEFER_VEHICLE_ARRIVING_COUNT = RATGDO_MAX_VEHICLE_ARRIVING_SUBSCRIBERS;
-    inline constexpr uint32_t DEFER_VEHICLE_ARRIVING_BASE = DEFER_VEHICLE_DETECTED_BASE + DEFER_VEHICLE_DETECTED_COUNT;
-    inline constexpr uint32_t DEFER_VEHICLE_LEAVING_COUNT = RATGDO_MAX_VEHICLE_LEAVING_SUBSCRIBERS;
-    inline constexpr uint32_t DEFER_VEHICLE_LEAVING_BASE = DEFER_VEHICLE_ARRIVING_BASE + DEFER_VEHICLE_ARRIVING_COUNT;
-    inline constexpr uint32_t DEFER_VEHICLE_END = DEFER_VEHICLE_LEAVING_BASE + DEFER_VEHICLE_LEAVING_COUNT;
-#else
-    inline constexpr uint32_t DEFER_VEHICLE_END = DEFER_DISTANCE_END;
-#endif
-
     // Single-subscriber IDs
     enum : uint32_t {
-        DEFER_ROLLING_CODE = DEFER_VEHICLE_END,
+        DEFER_ROLLING_CODE = DEFER_DISTANCE_END,
         DEFER_OPENING_DURATION,
         DEFER_CLOSING_DURATION,
         DEFER_CLOSING_DELAY,
@@ -342,8 +288,6 @@ namespace scheduler_ids {
         TIMEOUT_DOOR_ACTION,
         TIMEOUT_MOVE_TO_POSITION,
         TIMEOUT_DOOR_STATE_EXPIRY,
-        TIMEOUT_PRESENCE_DETECT_WINDOW,
-        TIMEOUT_CLEAR_PRESENCE,
         TIMEOUT_SYNC,
     };
 } // namespace scheduler_ids
@@ -452,38 +396,6 @@ void RATGDOComponent::subscribe_distance_measurement(F&& f)
     uint32_t id = get_scheduler_id(scheduler_ids::DEFER_DISTANCE_BASE, scheduler_ids::DEFER_DISTANCE_COUNT,
         this->distance_sub_num_, LOG_STR("distance_measurement"));
     this->last_distance_measurement.subscribe([this, f, id](int16_t state) {
-        defer(id, [f, state] { f(state); });
-    });
-}
-#endif
-
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-template <typename F>
-void RATGDOComponent::subscribe_vehicle_detected_state(F&& f)
-{
-    uint32_t id = get_scheduler_id(scheduler_ids::DEFER_VEHICLE_DETECTED_BASE, scheduler_ids::DEFER_VEHICLE_DETECTED_COUNT,
-        this->vehicle_detected_sub_num_, LOG_STR("vehicle_detected"));
-    this->vehicle_detected_state.subscribe([this, f, id](VehicleDetectedState state) {
-        defer(id, [f, state] { f(state); });
-    });
-}
-
-template <typename F>
-void RATGDOComponent::subscribe_vehicle_arriving_state(F&& f)
-{
-    uint32_t id = get_scheduler_id(scheduler_ids::DEFER_VEHICLE_ARRIVING_BASE, scheduler_ids::DEFER_VEHICLE_ARRIVING_COUNT,
-        this->vehicle_arriving_sub_num_, LOG_STR("vehicle_arriving"));
-    this->vehicle_arriving_state.subscribe([this, f, id](VehicleArrivingState state) {
-        defer(id, [f, state] { f(state); });
-    });
-}
-
-template <typename F>
-void RATGDOComponent::subscribe_vehicle_leaving_state(F&& f)
-{
-    uint32_t id = get_scheduler_id(scheduler_ids::DEFER_VEHICLE_LEAVING_BASE, scheduler_ids::DEFER_VEHICLE_LEAVING_COUNT,
-        this->vehicle_leaving_sub_num_, LOG_STR("vehicle_leaving"));
-    this->vehicle_leaving_state.subscribe([this, f, id](VehicleLeavingState state) {
         defer(id, [f, state] { f(state); });
     });
 }

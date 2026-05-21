@@ -23,11 +23,6 @@ void RATGDOSwitch::setup()
     switch (this->switch_type_) {
     case SwitchType::RATGDO_LED:
         this->pin_->setup();
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-        this->parent_->subscribe_vehicle_arriving_state([this](VehicleArrivingState state) {
-            this->write_state(state == VehicleArrivingState::YES);
-        });
-#endif
         break;
     default:
         break;

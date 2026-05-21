@@ -81,8 +81,6 @@ namespace secplus2 {
 
         Result call(Args args);
 
-        const Traits& traits() const { return this->traits_; }
-
     protected:
         void increment_rolling_code_counter(int delta = 1);
         void set_rolling_code_counter(uint32_t counter);
@@ -139,7 +137,6 @@ namespace secplus2 {
         // Larger structures
         single_observable<uint32_t> rolling_code_counter_ { 0 };
         OnceCallbacks<void()> on_command_sent_;
-        Traits traits_;
         RatgdoUART uart_;
 
         // 19-byte arrays
@@ -151,7 +148,6 @@ namespace secplus2 {
         struct {
             uint8_t transmit_pending : 1;
             uint8_t rx_reading_msg : 1;
-            uint8_t reserved : 6; // Reserved for future use
         } flags_ { 0 };
     };
 } // namespace secplus2

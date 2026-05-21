@@ -41,19 +41,6 @@ void log_subscriber_overflow(const LogString* observable_name, uint32_t max)
         LOG_STR_ARG(observable_name), (int)max);
 }
 
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-static constexpr int CLEAR_PRESENCE = 60000; // how long to keep arriving/leaving active
-static constexpr int PRESENCE_DETECT_WINDOW = 300000; // how long to calculate presence after door state change
-static constexpr int PRESENCE_DETECT_WINDOW_AFTER_CLOSE = 15000; // how long to keep presence window active after door reaches closed
-
-// increasing these values increases reliability but also increases detection
-// time
-static constexpr int PRESENCE_DETECTION_ON_THRESHOLD = 5; // Minimum percentage of valid bitset::in_range samples required to
-                                                          // detect vehicle
-static constexpr int PRESENCE_DETECTION_OFF_DEBOUNCE = 2; // The number of consecutive bitset::in_range iterations that must be 0
-                                                          // before clearing vehicle detected state
-#endif
-
 void RATGDOComponent::setup()
 {
     this->output_gdo_pin_->setup();
@@ -288,70 +275,6 @@ void RATGDOComponent::set_target_distance_measurement(int16_t distance)
 void RATGDOComponent::set_distance_measurement(int16_t distance)
 {
     this->last_distance_measurement = distance;
-
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-    this->in_range <<= 1;
-    this->in_range.set(0, distance <= *this->target_distance_measurement);
-    this->calculate_presence();
-#endif
-}
-#endif
-
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-void RATGDOComponent::calculate_presence()
-{
-    int percent = this->in_range.count() * 100 / this->in_range.size();
-
-    if (percent >= PRESENCE_DETECTION_ON_THRESHOLD)
-        this->vehicle_detected_state = VehicleDetectedState::YES;
-
-    if (percent == 0 && *this->vehicle_detected_state == VehicleDetectedState::YES) {
-        this->presence_off_counter_++;
-        ESP_LOGD(TAG, "Off counter: %d", this->presence_off_counter_);
-
-        if (this->presence_off_counter_ / this->in_range.size() >= PRESENCE_DETECTION_OFF_DEBOUNCE) {
-            this->presence_off_counter_ = 0;
-            this->vehicle_detected_state = VehicleDetectedState::NO;
-        }
-    }
-
-    if (percent != this->last_presence_percent_) {
-        ESP_LOGD(TAG, "pct_in_range: %d", percent);
-        this->last_presence_percent_ = percent;
-        this->presence_off_counter_ = 0;
-    }
-    // ESP_LOGD(TAG, "in_range: %s", this->in_range.to_string().c_str());
-}
-#endif
-
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-void RATGDOComponent::presence_change(bool sensor_value)
-{
-    if (this->flags_.presence_detect_window_active) {
-        // Arriving and leaving are mutually exclusive — each branch clears the
-        // other state. Sharing TIMEOUT_CLEAR_PRESENCE ensures that switching from
-        // arriving to leaving (or vice versa) cancels the previous clear timeout,
-        // which is correct since the previous state was already cleared above.
-        if (sensor_value) {
-            this->vehicle_arriving_state = VehicleArrivingState::YES;
-            this->vehicle_leaving_state = VehicleLeavingState::NO;
-            this->set_timeout(TIMEOUT_CLEAR_PRESENCE, CLEAR_PRESENCE, [this] {
-                this->vehicle_arriving_state = VehicleArrivingState::NO;
-            });
-        } else {
-            this->vehicle_arriving_state = VehicleArrivingState::NO;
-            this->vehicle_leaving_state = VehicleLeavingState::YES;
-            this->set_timeout(TIMEOUT_CLEAR_PRESENCE, CLEAR_PRESENCE, [this] {
-                this->vehicle_leaving_state = VehicleLeavingState::NO;
-            });
-        }
-        // if the door is closed, clear the presence detect window since a vehicle
-        // can't be arriving or leaving with the door shut
-        if (*this->door_state == DoorState::CLOSED) {
-            this->flags_.presence_detect_window_active = false;
-            this->cancel_timeout(TIMEOUT_PRESENCE_DETECT_WINDOW);
-        }
-    }
 }
 #endif
 
@@ -530,12 +453,6 @@ void RATGDOComponent::light_off()
     this->protocol_->light_action(LightAction::OFF);
 }
 
-void RATGDOComponent::light_toggle()
-{
-    this->light_state = light_state_toggle(*this->light_state);
-    this->protocol_->light_action(LightAction::TOGGLE);
-}
-
 LightState RATGDOComponent::get_light_state() const
 {
     return *this->light_state;
@@ -552,12 +469,6 @@ void RATGDOComponent::unlock()
 {
     this->lock_state = LockState::UNLOCKED;
     this->protocol_->lock_action(LockAction::UNLOCK);
-}
-
-void RATGDOComponent::lock_toggle()
-{
-    this->lock_state = lock_state_toggle(*this->lock_state);
-    this->protocol_->lock_action(LockAction::TOGGLE);
 }
 
 // Subscribe implementations are now templates in ratgdo.h

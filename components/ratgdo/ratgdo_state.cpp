@@ -16,18 +16,4 @@ LightState light_state_toggle(LightState state)
     }
 }
 
-LockState lock_state_toggle(LockState state)
-{
-    switch (state) {
-    case LockState::UNLOCKED:
-        return LockState::LOCKED;
-    case LockState::LOCKED:
-        return LockState::UNLOCKED;
-        // 2 and 3 appears sometimes
-    case LockState::UNKNOWN:
-    default:
-        return LockState::UNKNOWN;
-    }
-}
-
 } // namespace esphome::ratgdo

@@ -42,7 +42,6 @@ ENUM(LockState, uint8_t,
     (UNLOCKED, 0),
     (LOCKED, 1),
     (UNKNOWN, 2))
-LockState lock_state_toggle(LockState state);
 
 // actions
 ENUM(LightAction, uint8_t,
@@ -54,7 +53,6 @@ ENUM(LightAction, uint8_t,
 ENUM(LockAction, uint8_t,
     (UNLOCK, 0),
     (LOCK, 1),
-    (TOGGLE, 2),
     (UNKNOWN, 3))
 
 ENUM(DoorAction, uint8_t,
@@ -63,20 +61,6 @@ ENUM(DoorAction, uint8_t,
     (TOGGLE, 2),
     (STOP, 3),
     (UNKNOWN, 4))
-
-#ifdef RATGDO_USE_VEHICLE_SENSORS
-ENUM(VehicleDetectedState, uint8_t,
-    (NO, 0),
-    (YES, 1))
-
-ENUM(VehicleArrivingState, uint8_t,
-    (NO, 0),
-    (YES, 1))
-
-ENUM(VehicleLeavingState, uint8_t,
-    (NO, 0),
-    (YES, 1))
-#endif
 
 struct Openings {
     uint16_t count;

@@ -47,20 +47,6 @@ time:
     servers: !secret sntp_servers
     timezone: Europe/Zurich
 
-binary_sensor:
-  - platform: ratgdo
-    id: garage_gate_vehicle_detected
-    type: vehicle_detected
-    name: "Vehicle detected"
-  - platform: ratgdo
-    id: garage_gate_vehicle_arriving
-    type: vehicle_arriving
-    name: "Vehicle arriving"
-  - platform: ratgdo
-    id: garage_gate_vehicle_leaving
-    type: vehicle_leaving
-    name: "Vehicle leaving"
-
 sensor:
   - platform: ratgdo
     id: garage_gate_openings
@@ -78,13 +64,6 @@ sensor:
     filters:
       - throttle: 1ms
       - heartbeat: 1ms
-  - platform: copy
-    source_id: garage_gate_vehicle_distance_actual
-    name: Vehicle distance actual filtered
-    filters:
-      - min:
-          window_size: 5000
-          send_every: 5000
   - platform: adc
     pin: GPIO34
     name: "Voltage"
@@ -149,13 +128,6 @@ number:
     entity_category: config
     name: "Client ID"
     mode: box
-  - platform: ratgdo
-    id: garage_gate_target_distance_measurement
-    type: target_distance_measurement
-    entity_category: config
-    name: "Vehicle distance target"
-    mode: box
-    unit_of_measurement: "mm"
   - platform: ratgdo
     id: garage_gate_closing_delay
     type: closing_delay
