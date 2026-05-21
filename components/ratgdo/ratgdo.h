@@ -73,11 +73,9 @@ public:
     float start_closing { -1 };
     single_observable<float> closing_duration { 0 };
 
-#ifdef RATGDO_USE_DISTANCE_SENSOR
     single_observable<int16_t> target_distance_measurement { -1 };
     std::bitset<256> in_range; // the length of this bitset determines how many out of range readings are required for presence detection to change states
     observable<int16_t, RATGDO_MAX_DISTANCE_SUBSCRIBERS> last_distance_measurement { 0 };
-#endif
 
     single_observable<uint16_t> openings { 0 }; // number of times the door has been opened
 
@@ -122,10 +120,8 @@ public:
     void schedule_door_position_sync(float update_period = 500);
     void door_position_update();
     void cancel_position_sync_callbacks();
-#ifdef RATGDO_USE_DISTANCE_SENSOR
     void set_target_distance_measurement(int16_t distance);
     void set_distance_measurement(int16_t distance);
-#endif
 
     // light
     void light_on();
@@ -204,10 +200,8 @@ public:
     void subscribe_sync_failed(F&& f);
     template <typename F>
     void subscribe_door_action_delayed(F&& f);
-#ifdef RATGDO_USE_DISTANCE_SENSOR
     template <typename F>
     void subscribe_distance_measurement(F&& f);
-#endif
 
 protected:
     // Pointers first (4-byte aligned)
@@ -223,9 +217,7 @@ protected:
     // Subscriber counters for defer name allocation
     uint8_t door_state_sub_num_ { 0 };
     uint8_t door_action_delayed_sub_num_ { 0 };
-#ifdef RATGDO_USE_DISTANCE_SENSOR
     uint8_t distance_sub_num_ { 0 };
-#endif
 }; // RATGDOComponent
 
 void log_subscriber_overflow(const LogString* observable_name, uint32_t max);
@@ -255,13 +247,9 @@ namespace scheduler_ids {
     inline constexpr uint32_t DEFER_DOOR_ACTION_DELAYED_COUNT = RATGDO_MAX_DOOR_ACTION_DELAYED_SUBSCRIBERS;
     inline constexpr uint32_t DEFER_DOOR_ACTION_DELAYED_BASE = DEFER_DOOR_STATE_BASE + DEFER_DOOR_STATE_COUNT;
 
-#ifdef RATGDO_USE_DISTANCE_SENSOR
     inline constexpr uint32_t DEFER_DISTANCE_COUNT = RATGDO_MAX_DISTANCE_SUBSCRIBERS;
     inline constexpr uint32_t DEFER_DISTANCE_BASE = DEFER_DOOR_ACTION_DELAYED_BASE + DEFER_DOOR_ACTION_DELAYED_COUNT;
     inline constexpr uint32_t DEFER_DISTANCE_END = DEFER_DISTANCE_BASE + DEFER_DISTANCE_COUNT;
-#else
-    inline constexpr uint32_t DEFER_DISTANCE_END = DEFER_DOOR_ACTION_DELAYED_BASE + DEFER_DOOR_ACTION_DELAYED_COUNT;
-#endif
 
     // Single-subscriber IDs
     enum : uint32_t {
@@ -368,7 +356,6 @@ void RATGDOComponent::subscribe_door_action_delayed(F&& f)
     });
 }
 
-#ifdef RATGDO_USE_DISTANCE_SENSOR
 template <typename F>
 void RATGDOComponent::subscribe_distance_measurement(F&& f)
 {
@@ -378,6 +365,5 @@ void RATGDOComponent::subscribe_distance_measurement(F&& f)
         defer(id, [f, state] { f(state); });
     });
 }
-#endif
 
 } // namespace esphome::ratgdo

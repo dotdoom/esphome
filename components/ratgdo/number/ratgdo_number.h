@@ -13,9 +13,7 @@ enum NumberType {
     RATGDO_ROLLING_CODE_COUNTER,
     RATGDO_OPENING_DURATION,
     RATGDO_CLOSING_DURATION,
-#ifdef RATGDO_USE_DISTANCE_SENSOR
     RATGDO_TARGET_DISTANCE_MEASUREMENT,
-#endif
 };
 
 class RATGDONumber : public number::Number, public RATGDOClient, public Component {

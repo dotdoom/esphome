@@ -34,11 +34,9 @@ void RATGDONumber::dump_config()
     case RATGDO_CLOSING_DURATION:
         ESP_LOGCONFIG(TAG, "  Type: Closing Duration");
         break;
-#ifdef RATGDO_USE_DISTANCE_SENSOR
     case RATGDO_TARGET_DISTANCE_MEASUREMENT:
         ESP_LOGCONFIG(TAG, " Type: Target Distance Measurement");
         break;
-#endif
     default:
         break;
     }
@@ -81,13 +79,11 @@ void RATGDONumber::setup()
             this->update_state(value);
         });
         break;
-#ifdef RATGDO_USE_DISTANCE_SENSOR
     case RATGDO_TARGET_DISTANCE_MEASUREMENT:
         // this->parent_->subscribe_target_distance_measurement([=](float value) {
         //     this->update_state(value);
         // });
         break;
-#endif
     default:
         break;
     }
@@ -111,13 +107,11 @@ void RATGDONumber::set_number_type(NumberType number_type_)
         this->traits.set_min_value(0x539);
         this->traits.set_max_value(0x7ff539);
         break;
-#ifdef RATGDO_USE_DISTANCE_SENSOR
     case RATGDO_TARGET_DISTANCE_MEASUREMENT:
         this->traits.set_step(1);
         this->traits.set_min_value(5);
         this->traits.set_max_value(3500);
         break;
-#endif
     default:
         break;
     }
@@ -148,11 +142,9 @@ void RATGDONumber::control(float value)
         value = normalize_client_id(value);
         this->parent_->call_protocol(SetClientID { static_cast<uint32_t>(value) });
         break;
-#ifdef RATGDO_USE_DISTANCE_SENSOR
     case RATGDO_TARGET_DISTANCE_MEASUREMENT:
         this->parent_->set_target_distance_measurement(value);
         break;
-#endif
     default:
         break;
     }

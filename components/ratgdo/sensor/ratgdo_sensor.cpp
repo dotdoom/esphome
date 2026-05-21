@@ -17,7 +17,6 @@ void RATGDOSensor::setup()
         });
         break;
     case RATGDOSensorType::RATGDO_DISTANCE:
-#ifdef RATGDO_USE_DISTANCE_SENSOR
         this->distance_sensor_.setI2cDevice(&I2C);
         this->distance_sensor_.setXShutPin(32);
         // I2C.begin(17,16);
@@ -27,12 +26,9 @@ void RATGDOSensor::setup()
         this->distance_sensor_.InitSensor(0x59);
         this->distance_sensor_.VL53L4CX_SetDistanceMode(VL53L4CX_DISTANCEMODE_LONG);
         this->distance_sensor_.VL53L4CX_StartMeasurement();
-#ifdef RATGDO_USE_DISTANCE_SENSOR
         this->parent_->subscribe_distance_measurement([this](int16_t value) {
             this->publish_state(value);
         });
-#endif
-#endif
         break;
     default:
         break;
@@ -54,7 +50,6 @@ void RATGDOSensor::dump_config()
     }
 }
 
-#ifdef RATGDO_USE_DISTANCE_SENSOR
 void RATGDOSensor::loop()
 {
     if (this->ratgdo_sensor_type_ == RATGDOSensorType::RATGDO_DISTANCE) {
@@ -97,6 +92,5 @@ void RATGDOSensor::loop()
         }
     }
 }
-#endif
 
 } // namespace esphome::ratgdo

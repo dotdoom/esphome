@@ -55,12 +55,10 @@ async def to_code(config):
     cg.add(var.set_ratgdo_sensor_type(config[CONF_TYPE]))
     await register_ratgdo_child(var, config)
 
-    if config["type"] == "distance":
-        cg.add_library(name="Wire", version=None)
-        cg.add_library(
-            name="vl53l4cx",
-            repository="https://github.com/stm32duino/VL53L4CX",
-            version=None,
-        )
-        cg.add_define("RATGDO_USE_DISTANCE_SENSOR")
-        subscribe_distance()
+    cg.add_library(name="Wire", version=None)
+    cg.add_library(
+        name="vl53l4cx",
+        repository="https://github.com/stm32duino/VL53L4CX",
+        version=None,
+    )
+    subscribe_distance()

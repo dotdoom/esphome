@@ -1,7 +1,5 @@
 #include "ratgdo_uart.h"
 
-#ifdef USE_ESP32
-
 #include "esphome/core/log.h"
 #include <driver/uart.h>
 
@@ -183,5 +181,3 @@ void RatgdoUART::on_shutdown()
 }
 
 } // namespace esphome::ratgdo
-
-#endif

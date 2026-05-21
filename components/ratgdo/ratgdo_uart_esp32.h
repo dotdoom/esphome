@@ -2,8 +2,6 @@
 
 #include "esphome/core/defines.h"
 
-#ifdef USE_ESP32
-
 #include <driver/rmt_tx.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -53,5 +51,3 @@ private:
 };
 
 } // namespace esphome::ratgdo
-
-#endif
