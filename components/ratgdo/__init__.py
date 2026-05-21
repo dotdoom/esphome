@@ -22,7 +22,6 @@ class RATGDOData:
     """Track observable subscriber counts for compile-time sizing."""
 
     door_state: int = 0
-    door_action_delayed: int = 0
     distance: int = 0
 
 
@@ -36,10 +35,6 @@ def subscribe_door_state() -> None:
     _get_data().door_state += 1
 
 
-def subscribe_door_action_delayed() -> None:
-    _get_data().door_action_delayed += 1
-
-
 def subscribe_distance() -> None:
     _get_data().distance += 1
 
@@ -49,9 +44,6 @@ async def _emit_subscriber_defines():
     """Emit observable subscriber count defines after all children have registered."""
     data = _get_data()
     cg.add_define("RATGDO_MAX_DOOR_STATE_SUBSCRIBERS", data.door_state)
-    cg.add_define(
-        "RATGDO_MAX_DOOR_ACTION_DELAYED_SUBSCRIBERS", data.door_action_delayed
-    )
     cg.add_define("RATGDO_MAX_DISTANCE_SUBSCRIBERS", data.distance)
 
 

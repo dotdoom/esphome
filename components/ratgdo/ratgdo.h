@@ -28,22 +28,6 @@
 #include "protocol.h"
 #include "ratgdo_state.h"
 
-// Observable subscriber counts — set by Python codegen via cg.add_define().
-// Missing defines are a build error to catch codegen issues early.
-#ifndef RATGDO_MAX_DOOR_STATE_SUBSCRIBERS
-#error "RATGDO_MAX_DOOR_STATE_SUBSCRIBERS must be defined by codegen"
-#endif
-#ifndef RATGDO_MAX_DOOR_ACTION_DELAYED_SUBSCRIBERS
-#error "RATGDO_MAX_DOOR_ACTION_DELAYED_SUBSCRIBERS must be defined by codegen"
-#endif
-#ifndef RATGDO_MAX_DISTANCE_SUBSCRIBERS
-#error "RATGDO_MAX_DISTANCE_SUBSCRIBERS must be defined by codegen"
-#endif
-
-namespace esphome {
-class InternalGPIOPin;
-} // namespace esphome
-
 namespace esphome::ratgdo {
 
 class RATGDOComponent;
@@ -73,7 +57,6 @@ public:
     float start_closing { -1 };
     single_observable<float> closing_duration { 0 };
 
-    single_observable<int16_t> target_distance_measurement { -1 };
     std::bitset<256> in_range; // the length of this bitset determines how many out of range readings are required for presence detection to change states
     observable<int16_t, RATGDO_MAX_DISTANCE_SUBSCRIBERS> last_distance_measurement { 0 };
 
@@ -81,7 +64,6 @@ public:
 
     observable<DoorState, RATGDO_MAX_DOOR_STATE_SUBSCRIBERS> door_state { DoorState::UNKNOWN };
     observable<float, RATGDO_MAX_DOOR_STATE_SUBSCRIBERS> door_position { DOOR_POSITION_UNKNOWN };
-    observable<DoorActionDelayed, RATGDO_MAX_DOOR_ACTION_DELAYED_SUBSCRIBERS> door_action_delayed { DoorActionDelayed::NO };
 
     unsigned long door_start_moving { 0 };
     float door_start_position { DOOR_POSITION_UNKNOWN };
@@ -120,7 +102,6 @@ public:
     void schedule_door_position_sync(float update_period = 500);
     void door_position_update();
     void cancel_position_sync_callbacks();
-    void set_target_distance_measurement(int16_t distance);
     void set_distance_measurement(int16_t distance);
 
     // light
@@ -199,8 +180,6 @@ public:
     template <typename F>
     void subscribe_sync_failed(F&& f);
     template <typename F>
-    void subscribe_door_action_delayed(F&& f);
-    template <typename F>
     void subscribe_distance_measurement(F&& f);
 
 protected:
@@ -216,7 +195,6 @@ protected:
 
     // Subscriber counters for defer name allocation
     uint8_t door_state_sub_num_ { 0 };
-    uint8_t door_action_delayed_sub_num_ { 0 };
     uint8_t distance_sub_num_ { 0 };
 }; // RATGDOComponent
 
@@ -244,11 +222,8 @@ namespace scheduler_ids {
     inline constexpr uint32_t DEFER_DOOR_STATE_COUNT = RATGDO_MAX_DOOR_STATE_SUBSCRIBERS;
     inline constexpr uint32_t DEFER_DOOR_STATE_BASE = INTERVAL_POSITION_SYNC + 1;
 
-    inline constexpr uint32_t DEFER_DOOR_ACTION_DELAYED_COUNT = RATGDO_MAX_DOOR_ACTION_DELAYED_SUBSCRIBERS;
-    inline constexpr uint32_t DEFER_DOOR_ACTION_DELAYED_BASE = DEFER_DOOR_STATE_BASE + DEFER_DOOR_STATE_COUNT;
-
     inline constexpr uint32_t DEFER_DISTANCE_COUNT = RATGDO_MAX_DISTANCE_SUBSCRIBERS;
-    inline constexpr uint32_t DEFER_DISTANCE_BASE = DEFER_DOOR_ACTION_DELAYED_BASE + DEFER_DOOR_ACTION_DELAYED_COUNT;
+    inline constexpr uint32_t DEFER_DISTANCE_BASE = DEFER_DOOR_STATE_BASE + DEFER_DOOR_STATE_COUNT;
     inline constexpr uint32_t DEFER_DISTANCE_END = DEFER_DISTANCE_BASE + DEFER_DISTANCE_COUNT;
 
     // Single-subscriber IDs
@@ -344,16 +319,6 @@ template <typename F>
 void RATGDOComponent::subscribe_sync_failed(F&& f)
 {
     this->sync_failed.subscribe(std::forward<F>(f));
-}
-
-template <typename F>
-void RATGDOComponent::subscribe_door_action_delayed(F&& f)
-{
-    uint32_t id = get_scheduler_id(scheduler_ids::DEFER_DOOR_ACTION_DELAYED_BASE, scheduler_ids::DEFER_DOOR_ACTION_DELAYED_COUNT,
-        this->door_action_delayed_sub_num_, LOG_STR("door_action_delayed"));
-    this->door_action_delayed.subscribe([this, f, id](DoorActionDelayed state) {
-        defer(id, [f, state] { f(state); });
-    });
 }
 
 template <typename F>

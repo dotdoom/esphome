@@ -266,11 +266,6 @@ void RATGDOComponent::set_closing_duration(float duration)
     this->closing_duration = duration;
 }
 
-void RATGDOComponent::set_target_distance_measurement(int16_t distance)
-{
-    this->target_distance_measurement = distance;
-}
-
 void RATGDOComponent::set_distance_measurement(int16_t distance)
 {
     this->last_distance_measurement = distance;
