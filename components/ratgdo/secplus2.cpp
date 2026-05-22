@@ -191,59 +191,47 @@ namespace secplus2 {
 
     optional<Command> Secplus2::read_command()
     {
-        if (!this->flags_.rx_reading_msg) {
-            while (this->uart_.available()) {
-                uint8_t ser_byte = this->uart_.read();
-                this->rx_last_read_ = millis();
+        while (this->uart_.available()) {
+            uint8_t ser_byte = this->uart_.read();
+            this->rx_last_read_ = millis();
 
-                if (ser_byte != 0x55 && ser_byte != 0x01 && ser_byte != 0x00) {
-                    {
-                        char hex[format_hex_pretty_size(1)];
-                        ESP_LOG2(TAG, "Ignoring byte (%d): %s, baud: %d", this->rx_byte_count_, format_hex_pretty_to(hex, &ser_byte, 1), this->uart_.baudRate());
-                    }
-                    this->rx_byte_count_ = 0;
-                    continue;
+            // Shift byte into preamble window
+            this->rx_msg_start_ = ((this->rx_msg_start_ << 8) | ser_byte) & 0xffffff;
+
+            if (this->rx_msg_start_ == 0x550100) {
+                // Found a preamble! Reset buffer and start fresh.
+                if (this->flags_.rx_reading_msg) {
+                    ESP_LOGV(TAG, "Preamble detected inside message, resetting...");
                 }
-                this->rx_msg_start_ = ((this->rx_msg_start_ << 8) | ser_byte) & 0xffffff;
-                this->rx_byte_count_++;
-
-                // if we are at the start of a message, capture the next 16 bytes
-                if (this->rx_msg_start_ == 0x550100) {
-                    ESP_LOG1(TAG, "Baud: %d", this->uart_.baudRate());
-                    this->rx_packet_[0] = 0x55;
-                    this->rx_packet_[1] = 0x01;
-                    this->rx_packet_[2] = 0x00;
-                    this->rx_byte_count_ = 3;
-
-                    this->flags_.rx_reading_msg = true;
-                    break;
-                }
+                this->rx_packet_[0] = 0x55;
+                this->rx_packet_[1] = 0x01;
+                this->rx_packet_[2] = 0x00;
+                this->rx_byte_count_ = 3;
+                this->flags_.rx_reading_msg = true;
+                continue;
             }
-        }
-        if (this->flags_.rx_reading_msg) {
-            while (this->uart_.available()) {
-                uint8_t ser_byte = this->uart_.read();
-                this->rx_last_read_ = millis();
+
+            if (this->flags_.rx_reading_msg) {
                 this->rx_packet_[this->rx_byte_count_] = ser_byte;
                 this->rx_byte_count_++;
-                // ESP_LOG2(TAG, "Received byte (%d): %02X, baud: %d", this->rx_byte_count_, ser_byte, this->uart_.baudRate());
 
                 if (this->rx_byte_count_ == PACKET_LENGTH) {
                     this->flags_.rx_reading_msg = false;
                     this->rx_byte_count_ = 0;
+                    this->rx_msg_start_ = 0; // clear window to prevent immediate re-trigger
                     this->print_packet(LOG_STR("Received packet"), this->rx_packet_);
                     return this->decode_packet(this->rx_packet_);
                 }
             }
+        }
 
-            if (millis() - this->rx_last_read_ > 100) {
-                // if we have a partial packet and it's been over 100ms since last byte was read,
-                // the rest is not coming (a full packet should be received in ~20ms),
-                // discard it so we can read the following packet correctly
-                ESP_LOGW(TAG, "Discard incomplete packet, length: %d", this->rx_byte_count_);
-                this->flags_.rx_reading_msg = false;
-                this->rx_byte_count_ = 0;
-            }
+        if (this->flags_.rx_reading_msg && (millis() - this->rx_last_read_ > 100)) {
+            // if we have a partial packet and it's been over 100ms since last byte was read,
+            // the rest is not coming, discard it.
+            ESP_LOGW(TAG, "Discard incomplete packet, length: %d", this->rx_byte_count_);
+            this->flags_.rx_reading_msg = false;
+            this->rx_byte_count_ = 0;
+            this->rx_msg_start_ = 0;
         }
 
         return { };
