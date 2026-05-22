@@ -10,7 +10,6 @@ namespace esphome::ratgdo {
 
 enum NumberType {
     RATGDO_CLIENT_ID,
-    RATGDO_ROLLING_CODE_COUNTER,
     RATGDO_OPENING_DURATION,
     RATGDO_CLOSING_DURATION,
 };

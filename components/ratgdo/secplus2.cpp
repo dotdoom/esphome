@@ -35,6 +35,17 @@ namespace secplus2 {
         this->tx_pin_ = tx_pin;
         this->rx_pin_ = rx_pin;
 
+        this->rolling_code_pref_ = global_preferences->make_preference<uint32_t>(1868352652U); // fnv1_hash("ratgdo_rolling_code")
+        uint32_t rolling_code;
+        if (this->rolling_code_pref_.load(&rolling_code)) {
+            this->rolling_code_counter_ = rolling_code;
+            ESP_LOGI(TAG, "Restored rolling code from flash: %u", rolling_code);
+        } else {
+            rolling_code = 1;
+            this->rolling_code_counter_ = rolling_code;
+            this->rolling_code_pref_.save(&rolling_code);
+        }
+
         this->uart_.begin(9600, RATGDO_UART_8N1, rx_pin->get_pin(), tx_pin->get_pin(), true);
         this->uart_.enableIntTx(false);
         this->uart_.enableAutoBaud(true);
@@ -138,10 +149,6 @@ namespace secplus2 {
             this->send_command(CommandType::GET_STATUS);
         } else if (args.tag == Tag::query_openings) {
             this->send_command(CommandType::GET_OPENINGS);
-        } else if (args.tag == Tag::get_rolling_code_counter) {
-            return Result(RollingCodeCounter { std::addressof(this->rolling_code_counter_) });
-        } else if (args.tag == Tag::set_rolling_code_counter) {
-            this->set_rolling_code_counter(args.value.set_rolling_code_counter.counter);
         } else if (args.tag == Tag::set_client_id) {
             this->set_client_id(args.value.set_client_id.client_id);
         }
@@ -348,13 +355,16 @@ namespace secplus2 {
 
     void Secplus2::increment_rolling_code_counter(int delta)
     {
-        this->rolling_code_counter_ = (*this->rolling_code_counter_ + delta) & 0xfffffff;
+        uint32_t counter = (*this->rolling_code_counter_ + delta) & 0xfffffff;
+        this->rolling_code_counter_ = counter;
+        this->rolling_code_pref_.save(&counter);
     }
 
     void Secplus2::set_rolling_code_counter(uint32_t counter)
     {
         ESP_LOGV(TAG, "Set rolling code counter to %d", counter);
         this->rolling_code_counter_ = counter;
+        this->rolling_code_pref_.save(&counter);
     }
 
     void Secplus2::set_client_id(uint64_t client_id)

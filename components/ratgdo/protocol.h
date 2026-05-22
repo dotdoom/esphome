@@ -16,11 +16,6 @@ class RATGDOComponent;
 
 namespace protocol {
 
-    struct SetRollingCodeCounter {
-        uint32_t counter;
-    };
-    struct GetRollingCodeCounter {
-    };
     struct SetClientID {
         uint64_t client_id;
     };
@@ -31,18 +26,11 @@ namespace protocol {
 
     // a poor man's sum-type, because C++
     SUM_TYPE(Args,
-        (SetRollingCodeCounter, set_rolling_code_counter),
-        (GetRollingCodeCounter, get_rolling_code_counter),
         (SetClientID, set_client_id),
         (QueryStatus, query_status),
         (QueryOpenings, query_openings), )
 
-    struct RollingCodeCounter {
-        single_observable<uint32_t>* value;
-    };
-
-    SUM_TYPE(Result,
-        (RollingCodeCounter, rolling_code_counter), )
+    SUM_TYPE(Result, )
 
     class Protocol {
     public:

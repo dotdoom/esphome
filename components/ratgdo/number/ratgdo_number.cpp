@@ -5,7 +5,6 @@
 namespace esphome::ratgdo {
 
 using protocol::SetClientID;
-using protocol::SetRollingCodeCounter;
 
 float normalize_client_id(float client_id)
 {
@@ -24,9 +23,6 @@ void RATGDONumber::dump_config()
     switch (this->number_type_) {
     case RATGDO_CLIENT_ID:
         ESP_LOGCONFIG(TAG, " Type: Client ID");
-        break;
-    case RATGDO_ROLLING_CODE_COUNTER:
-        ESP_LOGCONFIG(TAG, "  Type: Rolling Code Counter");
         break;
     case RATGDO_OPENING_DURATION:
         ESP_LOGCONFIG(TAG, "  Type: Opening Duration");
@@ -61,11 +57,6 @@ void RATGDONumber::setup()
     this->control(value);
 
     switch (this->number_type_) {
-    case RATGDO_ROLLING_CODE_COUNTER:
-        this->parent_->subscribe_rolling_code_counter([this](uint32_t value) {
-            this->update_state(value);
-        });
-        break;
     case RATGDO_OPENING_DURATION:
         this->parent_->subscribe_opening_duration([this](float value) {
             this->update_state(value);
@@ -91,9 +82,6 @@ void RATGDONumber::set_number_type(NumberType number_type_)
         this->traits.set_min_value(0.0);
         this->traits.set_max_value(180.0);
         break;
-    case RATGDO_ROLLING_CODE_COUNTER:
-        this->traits.set_max_value(0xfffffff);
-        break;
     case RATGDO_CLIENT_ID:
         this->traits.set_step(0x1000);
         this->traits.set_min_value(0x539);
@@ -116,9 +104,6 @@ void RATGDONumber::update_state(float value)
 void RATGDONumber::control(float value)
 {
     switch (this->number_type_) {
-    case RATGDO_ROLLING_CODE_COUNTER:
-        this->parent_->call_protocol(SetRollingCodeCounter { static_cast<uint32_t>(value) });
-        break;
     case RATGDO_OPENING_DURATION:
         this->parent_->set_opening_duration(value);
         break;

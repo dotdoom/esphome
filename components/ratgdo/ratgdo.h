@@ -166,8 +166,6 @@ public:
     // (3 * sizeof(void*)), e.g. [this] or [this, f] lambdas.
     // Enforced at compile time by Callback::create().
     template <typename F>
-    void subscribe_rolling_code_counter(F&& f);
-    template <typename F>
     void subscribe_opening_duration(F&& f);
     template <typename F>
     void subscribe_closing_duration(F&& f);
@@ -230,8 +228,7 @@ namespace scheduler_ids {
 
     // Single-subscriber IDs
     enum : uint32_t {
-        DEFER_ROLLING_CODE = DEFER_DISTANCE_END,
-        DEFER_OPENING_DURATION,
+        DEFER_OPENING_DURATION = DEFER_DISTANCE_END,
         DEFER_CLOSING_DURATION,
         DEFER_OPENINGS,
         DEFER_LIGHT_STATE,
@@ -250,19 +247,6 @@ namespace scheduler_ids {
 // Each wraps the callback in a deferred call so that if the observable
 // fires multiple times during one loop iteration, only the last value
 // is dispatched to the child component.
-
-template <typename F>
-void RATGDOComponent::subscribe_rolling_code_counter(F&& f)
-{
-    // change update to children is defered until after component loop
-    // if multiple changes occur during component loop, only the last one is notified
-    auto counter = this->protocol_->call(protocol::GetRollingCodeCounter { });
-    if (counter.tag == protocol::Result::Tag::rolling_code_counter) {
-        counter.value.rolling_code_counter.value->subscribe([this, f](uint32_t state) {
-            defer(scheduler_ids::DEFER_ROLLING_CODE, [f, state] { f(state); });
-        });
-    }
-}
 
 template <typename F>
 void RATGDOComponent::subscribe_opening_duration(F&& f)

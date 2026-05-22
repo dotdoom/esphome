@@ -1,6 +1,7 @@
 #pragma once
 
 #include "esphome/core/optional.h"
+#include "esphome/core/preferences.h"
 #include "ratgdo_uart.h"
 
 #include "callbacks.h"
@@ -136,6 +137,7 @@ namespace secplus2 {
 
         // Larger structures
         single_observable<uint32_t> rolling_code_counter_ { 0 };
+        ESPPreferenceObject rolling_code_pref_;
         OnceCallbacks<void()> on_command_sent_;
         RatgdoUART uart_;
 
