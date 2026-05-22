@@ -98,6 +98,7 @@ public:
     void door_stop();
 
     void door_action(DoorAction action);
+    void smart_door_action(DoorAction target_direction);
     void door_move_to_position(float position);
     void set_door_position(float door_position) { this->door_position = door_position; }
     void set_opening_duration(float duration);

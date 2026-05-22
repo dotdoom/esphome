@@ -302,18 +302,65 @@ void RATGDOComponent::cancel_door_state_expiry()
     this->cancel_timeout(TIMEOUT_DOOR_STATE_EXPIRY);
 }
 
+void RATGDOComponent::smart_door_action(DoorAction target_direction)
+{
+    // target_direction must be OPEN or CLOSE
+    if (target_direction != DoorAction::OPEN && target_direction != DoorAction::CLOSE) {
+        return;
+    }
+
+    DoorState expected_state = (target_direction == DoorAction::OPEN) ? DoorState::OPENING : DoorState::CLOSING;
+    DoorState opposite_state = (target_direction == DoorAction::OPEN) ? DoorState::CLOSING : DoorState::OPENING;
+
+    // 1. Try the discrete command first
+    this->door_action(target_direction);
+
+    // 2. Set a timeout to check if it worked
+    this->set_timeout(2000, [this, target_direction, expected_state, opposite_state]() {
+        if (*this->door_state == expected_state || 
+            (*this->door_state == DoorState::OPEN && target_direction == DoorAction::OPEN) ||
+            (*this->door_state == DoorState::CLOSED && target_direction == DoorAction::CLOSE)) {
+            // It worked (or is already at destination)
+            return;
+        }
+
+        ESP_LOGW(TAG, "Discrete %s command ignored. Falling back to TOGGLE...", 
+            target_direction == DoorAction::OPEN ? "OPEN" : "CLOSE");
+
+        // 3. Fallback: Send a TOGGLE
+        this->door_action(DoorAction::TOGGLE);
+
+        // 4. Check what the toggle did
+        this->on_door_state([this, target_direction, expected_state, opposite_state](DoorState s) {
+            if (s == opposite_state) {
+                // Wrong direction! Stop it.
+                ESP_LOGW(TAG, "Toggle went the wrong way. Stopping...");
+                this->door_action(DoorAction::STOP);
+                
+                // Once stopped, toggle again to go the right way
+                this->on_door_state([this](DoorState s2) {
+                    if (s2 == DoorState::STOPPED) {
+                        ESP_LOGD(TAG, "Stopped. Toggling again for correct direction.");
+                        this->door_action(DoorAction::TOGGLE);
+                    }
+                });
+            }
+        });
+    });
+}
+
 void RATGDOComponent::door_open()
 {
     if (*this->door_state == DoorState::OPENING) {
         return; // gets ignored by opener
     }
 
-    this->door_action(DoorAction::OPEN);
+    this->smart_door_action(DoorAction::OPEN);
 
     if (*this->opening_duration > 0) {
         // query state in case we don't get a status message
         this->set_timeout(
-            TIMEOUT_DOOR_QUERY_STATE, (*this->opening_duration + 2) * 1000,
+            TIMEOUT_DOOR_QUERY_STATE, (*this->opening_duration + 5) * 1000,
             [this]() {
                 if (*this->door_state != DoorState::OPEN && *this->door_state != DoorState::STOPPED) {
                     this->received(DoorState::OPEN); // probably missed a status mesage,
@@ -335,7 +382,7 @@ void RATGDOComponent::door_close()
         this->door_action(DoorAction::STOP);
         this->on_door_state([this](DoorState s) {
             if (s == DoorState::STOPPED) {
-                this->door_action(DoorAction::CLOSE);
+                this->smart_door_action(DoorAction::CLOSE);
             } else {
                 ESP_LOGW(TAG, "Door did not stop, ignoring close command");
             }
@@ -343,12 +390,12 @@ void RATGDOComponent::door_close()
         return;
     }
 
-    this->door_action(DoorAction::CLOSE);
+    this->smart_door_action(DoorAction::CLOSE);
 
     if (*this->closing_duration > 0) {
         // query state in case we don't get a status message
         this->set_timeout(
-            TIMEOUT_DOOR_QUERY_STATE, (*this->closing_duration + 2) * 1000,
+            TIMEOUT_DOOR_QUERY_STATE, (*this->closing_duration + 5) * 1000,
             [this]() {
                 if (*this->door_state != DoorState::CLOSED && *this->door_state != DoorState::STOPPED) {
                     this->received(DoorState::CLOSED); // probably missed a status
@@ -362,7 +409,6 @@ void RATGDOComponent::door_close()
 void RATGDOComponent::door_stop()
 {
     if (*this->door_state != DoorState::OPENING && *this->door_state != DoorState::CLOSING) {
-        ESP_LOGW(TAG, "The door is not moving.");
         return;
     }
     this->door_action(DoorAction::STOP);
@@ -401,12 +447,20 @@ void RATGDOComponent::door_move_to_position(float position)
 
     auto operation_time = 1000 * duration * delta;
     this->door_move_delta = delta;
-    ESP_LOGD(TAG, "Moving to position %.2f in %.1fs", position,
+
+    ESP_LOGD(TAG, "Moving to position %.2f (target duration %.1fs)", position,
         operation_time / 1000.0);
 
-    this->door_action(delta > 0 ? DoorAction::OPEN : DoorAction::CLOSE);
-    this->set_timeout(TIMEOUT_MOVE_TO_POSITION, operation_time,
-        [this] { this->door_action(DoorAction::STOP); });
+    // Wait for the door to actually start moving before starting the stop timer.
+    // This makes the timing independent of any smart fallback delays.
+    this->on_door_state([this, operation_time](DoorState s) {
+        if (s == DoorState::OPENING || s == DoorState::CLOSING) {
+            this->set_timeout(TIMEOUT_MOVE_TO_POSITION, operation_time,
+                [this] { this->door_action(DoorAction::STOP); });
+        }
+    });
+
+    this->smart_door_action(delta > 0 ? DoorAction::OPEN : DoorAction::CLOSE);
 }
 
 void RATGDOComponent::cancel_position_sync_callbacks()

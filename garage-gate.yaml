@@ -169,13 +169,6 @@ button:
         lambda: !lambda |-
           id(garage_gate).sync();
   - platform: template
-    id: garage_gate_toggle_door
-    name: "Toggle door"
-    on_press:
-      then:
-        lambda: !lambda |-
-          id(garage_gate).door_toggle();
-  - platform: template
     id: garage_gate_play_alert
     name: "Play Alert"
     on_press:
