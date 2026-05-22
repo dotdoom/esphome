@@ -50,6 +50,8 @@ public:
     void dump_config() override;
     void on_shutdown() override;
 
+    float get_setup_priority() const override { return setup_priority::AFTER_WIFI; }
+
     void init_protocol();
 
     float start_opening { -1 };

@@ -68,22 +68,21 @@ namespace secplus2 {
 
     void Secplus2::sync_helper(uint32_t start, uint32_t delay, uint8_t tries)
     {
-        bool synced = true;
         if (*this->ratgdo_->door_state == DoorState::UNKNOWN) {
+            ESP_LOGD(TAG, "Sync: querying status (attempt %d)...", tries);
             this->query_status();
-            synced = false;
-        }
-        if (*this->ratgdo_->openings == 0) {
+        } else if (*this->ratgdo_->openings == 0) {
+            ESP_LOGD(TAG, "Sync: querying openings (attempt %d)...", tries);
             this->query_openings();
-            synced = false;
-        }
-
-        if (synced) {
+        } else {
+            ESP_LOGD(TAG, "Sync successful!");
             return;
         }
 
-        if (tries == 2 && *this->ratgdo_->door_state == DoorState::UNKNOWN) { // made a few attempts and no progress (door state is the first sync request)
-            // increment rolling code counter by some amount in case we crashed without writing to flash the latest value
+        if (tries == 10 && *this->ratgdo_->door_state == DoorState::UNKNOWN) {
+            // After 10 failed attempts to even get status, try jumping the rolling code.
+            // This handles cases where the device rolling code is way behind the GDO.
+            ESP_LOGW(TAG, "Sync: jumping rolling code counter...");
             this->increment_rolling_code_counter(MAX_CODES_WITHOUT_FLASH_WRITE);
         }
 
@@ -92,17 +91,18 @@ namespace secplus2 {
             ESP_LOGW(TAG, "Triggering sync failed actions.");
             this->ratgdo_->sync_failed = true;
         } else {
-            if (tries % 3 == 0) {
-                delay *= 1.5;
-            }
-            this->scheduler_->set_timeout(this->ratgdo_, TIMEOUT_SYNC, delay, [this, start, delay, tries]() {
-                this->sync_helper(start, delay, tries + 1);
+            // Use a slightly longer delay between queries during sync to avoid bus saturation
+            uint32_t next_delay = (tries < 5) ? 1000 : 2000;
+            this->scheduler_->set_timeout(this->ratgdo_, TIMEOUT_SYNC, next_delay, [this, start, next_delay, tries]() {
+                this->sync_helper(start, next_delay, tries + 1);
             });
         };
     }
 
     void Secplus2::sync()
     {
+        ESP_LOGD(TAG, "Starting sync...");
+        this->ratgdo_->sync_failed = false;
         this->scheduler_->cancel_timeout(this->ratgdo_, TIMEOUT_SYNC);
         this->sync_helper(millis(), 500, 0);
     }
@@ -268,6 +268,8 @@ namespace secplus2 {
 
     void Secplus2::handle_command(const Command& cmd)
     {
+        ESP_LOGD(TAG, "Handle command: %s (nibble=%01x byte1=%02x byte2=%02x)", LOG_STR_ARG(CommandType_to_string(cmd.type)), cmd.nibble, cmd.byte1, cmd.byte2);
+
         if (cmd.type == CommandType::STATUS) {
 
             this->ratgdo_->received(to_DoorState(cmd.nibble, DoorState::UNKNOWN));

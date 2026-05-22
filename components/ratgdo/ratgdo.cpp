@@ -26,7 +26,7 @@ namespace esphome::ratgdo {
 using namespace protocol;
 
 static const char* const TAG = "ratgdo";
-static constexpr int SYNC_DELAY = 1000;
+static constexpr int SYNC_DELAY = 5000;
 // Door state updates arrive over UART every ~200-400ms during movement.
 // 2 seconds gives ample margin for slow openers while still expiring
 // stale callbacks before a user could reasonably trigger an unrelated
