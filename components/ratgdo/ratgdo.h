@@ -77,6 +77,7 @@ public:
 
     OnceCallbacks<void(DoorState)> on_door_state_;
 
+    single_observable<bool> synced { false };
     single_observable<bool> sync_failed { false };
 
     void set_output_gdo_pin(InternalGPIOPin* pin) { this->output_gdo_pin_ = pin; }

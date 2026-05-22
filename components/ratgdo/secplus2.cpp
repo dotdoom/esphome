@@ -35,11 +35,29 @@ namespace secplus2 {
         this->tx_pin_ = tx_pin;
         this->rx_pin_ = rx_pin;
 
+        if (mqtt::global_mqtt_client != nullptr) {
+            this->mqtt_topic_ = mqtt::global_mqtt_client->get_topic_prefix() + "/rolling_code";
+        }
+
         this->rolling_code_pref_ = global_preferences->make_preference<uint32_t>(1868352652U); // fnv1_hash("ratgdo_rolling_code")
         uint32_t rolling_code;
         if (this->rolling_code_pref_.load(&rolling_code)) {
             this->rolling_code_counter_ = rolling_code;
             ESP_LOGI(TAG, "Restored rolling code from flash: %u", rolling_code);
+        } else if (mqtt::global_mqtt_client != nullptr) {
+            ESP_LOGI(TAG, "No rolling code in flash, waiting for MQTT: %s", this->mqtt_topic_.c_str());
+            mqtt::global_mqtt_client->subscribe(
+                this->mqtt_topic_,
+                [this](const std::string& topic, const std::string& payload) {
+                    if (*this->rolling_code_counter_ == 0) {
+                        uint32_t rc = strtoul(payload.c_str(), nullptr, 10);
+                        if (rc > 0) {
+                            ESP_LOGI(TAG, "Received rolling code from MQTT: %u", rc);
+                            this->set_rolling_code_counter(rc);
+                        }
+                    }
+                },
+                1);
         } else {
             rolling_code = 1;
             this->rolling_code_counter_ = rolling_code;
@@ -79,27 +97,23 @@ namespace secplus2 {
 
     void Secplus2::sync_helper(uint32_t start, uint32_t delay, uint8_t tries)
     {
-        if (*this->ratgdo_->door_state == DoorState::UNKNOWN) {
+        if (tries == 0 || *this->ratgdo_->door_state == DoorState::UNKNOWN) {
             ESP_LOGD(TAG, "Sync: querying status (attempt %d)...", tries);
             this->query_status();
-        } else if (*this->ratgdo_->openings == 0) {
+        } else if (tries == 1 || *this->ratgdo_->openings == 0) {
             ESP_LOGD(TAG, "Sync: querying openings (attempt %d)...", tries);
             this->query_openings();
         } else {
             ESP_LOGD(TAG, "Sync successful!");
+            this->ratgdo_->synced = true;
+            this->ratgdo_->sync_failed = false;
             return;
-        }
-
-        if (tries == 10 && *this->ratgdo_->door_state == DoorState::UNKNOWN) {
-            // After 10 failed attempts to even get status, try jumping the rolling code.
-            // This handles cases where the device rolling code is way behind the GDO.
-            ESP_LOGW(TAG, "Sync: jumping rolling code counter...");
-            this->increment_rolling_code_counter(MAX_CODES_WITHOUT_FLASH_WRITE);
         }
 
         // not sync-ed after 30s, notify failure
         if (millis() - start > 30000) {
             ESP_LOGW(TAG, "Triggering sync failed actions.");
+            this->ratgdo_->synced = false;
             this->ratgdo_->sync_failed = true;
         } else {
             // Use a slightly longer delay between queries during sync to avoid bus saturation
@@ -113,6 +127,7 @@ namespace secplus2 {
     void Secplus2::sync()
     {
         ESP_LOGD(TAG, "Starting sync...");
+        this->ratgdo_->synced = false;
         this->ratgdo_->sync_failed = false;
         this->scheduler_->cancel_timeout(this->ratgdo_, TIMEOUT_SYNC);
         this->sync_helper(millis(), 500, 0);
@@ -358,6 +373,9 @@ namespace secplus2 {
         uint32_t counter = (*this->rolling_code_counter_ + delta) & 0xfffffff;
         this->rolling_code_counter_ = counter;
         this->rolling_code_pref_.save(&counter);
+        if (mqtt::global_mqtt_client != nullptr) {
+            mqtt::global_mqtt_client->publish(this->mqtt_topic_, std::to_string(counter), 0, true);
+        }
     }
 
     void Secplus2::set_rolling_code_counter(uint32_t counter)
@@ -365,6 +383,9 @@ namespace secplus2 {
         ESP_LOGV(TAG, "Set rolling code counter to %d", counter);
         this->rolling_code_counter_ = counter;
         this->rolling_code_pref_.save(&counter);
+        if (mqtt::global_mqtt_client != nullptr) {
+            mqtt::global_mqtt_client->publish(this->mqtt_topic_, std::to_string(counter), 0, true);
+        }
     }
 
     void Secplus2::set_client_id(uint64_t client_id)

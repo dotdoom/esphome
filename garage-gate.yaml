@@ -46,6 +46,13 @@ time:
     servers: !secret sntp_servers
     timezone: Europe/Zurich
 
+binary_sensor:
+  - platform: template
+    name: "Sync failed"
+    lambda: 'return !*id(garage_gate).synced;'
+    device_class: problem
+    entity_category: diagnostic
+
 sensor:
   - platform: ratgdo
     id: garage_gate_openings
