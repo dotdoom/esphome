@@ -162,12 +162,18 @@ void RATGDOComponent::received(const DoorState door_state)
         }
         this->cancel_position_sync_callbacks();
         this->cancel_timeout(TIMEOUT_DOOR_QUERY_STATE);
+        this->target_position_ = DOOR_POSITION_UNKNOWN;
+        this->target_direction_ = DoorAction::UNKNOWN;
     } else if (door_state == DoorState::OPEN) {
         this->door_position = 1.0;
         this->cancel_position_sync_callbacks();
+        this->target_position_ = DOOR_POSITION_UNKNOWN;
+        this->target_direction_ = DoorAction::UNKNOWN;
     } else if (door_state == DoorState::CLOSED) {
         this->door_position = 0.0;
         this->cancel_position_sync_callbacks();
+        this->target_position_ = DOOR_POSITION_UNKNOWN;
+        this->target_direction_ = DoorAction::UNKNOWN;
     }
 
     if (door_state == DoorState::CLOSED && door_state != prev_door_state) {
@@ -250,8 +256,26 @@ void RATGDOComponent::door_position_update()
         return;
     }
     auto position = this->door_start_position + (now - this->door_start_moving) / (1000 * duration);
+    position = clamp(position, 0.0f, 1.0f);
     ESP_LOG2(TAG, "[%d] Position update: %f", now, position);
-    this->door_position = clamp(position, 0.0f, 1.0f);
+    this->door_position = position;
+
+    // Check if we reached our move-to-position target
+    if (this->target_position_ != DOOR_POSITION_UNKNOWN && this->target_direction_ != DoorAction::UNKNOWN) {
+        bool reached = false;
+        if (this->target_direction_ == DoorAction::OPEN && position >= this->target_position_) {
+            reached = true;
+        } else if (this->target_direction_ == DoorAction::CLOSE && position <= this->target_position_) {
+            reached = true;
+        }
+
+        if (reached) {
+            ESP_LOGD(TAG, "Reached target position %.2f, stopping door", this->target_position_);
+            this->door_stop();
+            this->target_position_ = DOOR_POSITION_UNKNOWN;
+            this->target_direction_ = DoorAction::UNKNOWN;
+        }
+    }
 }
 
 void RATGDOComponent::set_opening_duration(float duration)
@@ -451,16 +475,10 @@ void RATGDOComponent::door_move_to_position(float position)
     ESP_LOGD(TAG, "Moving to position %.2f (target duration %.1fs)", position,
         operation_time / 1000.0);
 
-    // Wait for the door to actually start moving before starting the stop timer.
-    // This makes the timing independent of any smart fallback delays.
-    this->on_door_state([this, operation_time](DoorState s) {
-        if (s == DoorState::OPENING || s == DoorState::CLOSING) {
-            this->set_timeout(TIMEOUT_MOVE_TO_POSITION, operation_time,
-                [this] { this->door_action(DoorAction::STOP); });
-        }
-    });
+    this->target_position_ = position;
+    this->target_direction_ = (delta > 0 ? DoorAction::OPEN : DoorAction::CLOSE);
 
-    this->smart_door_action(delta > 0 ? DoorAction::OPEN : DoorAction::CLOSE);
+    this->smart_door_action(this->target_direction_);
 }
 
 void RATGDOComponent::cancel_position_sync_callbacks()

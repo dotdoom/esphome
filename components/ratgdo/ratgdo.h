@@ -71,6 +71,8 @@ public:
     float door_start_position { DOOR_POSITION_UNKNOWN };
     float door_move_delta { DOOR_DELTA_UNKNOWN };
     uint16_t position_sync_remaining_ { 0 };
+    float target_position_ { DOOR_POSITION_UNKNOWN };
+    DoorAction target_direction_ { DoorAction::UNKNOWN };
 
     single_observable<LightState> light_state { LightState::UNKNOWN };
     single_observable<LockState> lock_state { LockState::UNKNOWN };
