@@ -15,7 +15,6 @@ NumberType = ratgdo_ns.enum("NumberType")
 
 CONF_TYPE = "type"
 TYPES = {
-    "client_id": NumberType.RATGDO_CLIENT_ID,
     "opening_duration": NumberType.RATGDO_OPENING_DURATION,
     "closing_duration": NumberType.RATGDO_CLOSING_DURATION,
 }

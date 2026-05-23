@@ -16,9 +16,6 @@ class RATGDOComponent;
 
 namespace protocol {
 
-    struct SetClientID {
-        uint64_t client_id;
-    };
     struct QueryStatus {
     };
     struct QueryOpenings {
@@ -26,7 +23,6 @@ namespace protocol {
 
     // a poor man's sum-type, because C++
     SUM_TYPE(Args,
-        (SetClientID, set_client_id),
         (QueryStatus, query_status),
         (QueryOpenings, query_openings), )
 

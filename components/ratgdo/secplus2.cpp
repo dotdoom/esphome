@@ -36,7 +36,39 @@ namespace secplus2 {
         this->rx_pin_ = rx_pin;
 
         if (mqtt::global_mqtt_client != nullptr) {
-            this->mqtt_topic_ = mqtt::global_mqtt_client->get_topic_prefix() + "/rolling_code";
+            this->mqtt_rolling_code_topic_ = mqtt::global_mqtt_client->get_topic_prefix() + "/gdo/rolling_code";
+            this->mqtt_client_id_topic_ = mqtt::global_mqtt_client->get_topic_prefix() + "/gdo/client_id";
+        }
+
+        this->client_id_pref_ = global_preferences->make_preference<uint32_t>(3497851610U); // fnv1_hash("ratgdo_client_id")
+        uint32_t stored_client_id;
+        if (this->client_id_pref_.load(&stored_client_id)) {
+            this->client_id_ = stored_client_id;
+            ESP_LOGI(TAG, "Restored Client ID from flash: 0x%04X", (unsigned)this->client_id_);
+            if (mqtt::global_mqtt_client != nullptr) {
+                mqtt::global_mqtt_client->publish(this->mqtt_client_id_topic_, std::to_string(this->client_id_), 0, true);
+            }
+        } else if (mqtt::global_mqtt_client != nullptr) {
+            ESP_LOGI(TAG, "No Client ID in flash, waiting for MQTT: %s", this->mqtt_client_id_topic_.c_str());
+            mqtt::global_mqtt_client->subscribe(
+                this->mqtt_client_id_topic_,
+                [this](const std::string& topic, const std::string& payload) {
+                    if (this->client_id_ == 0x539) {
+                        uint32_t cid = strtoul(payload.c_str(), nullptr, 10);
+                        if (cid != 0) {
+                            ESP_LOGI(TAG, "Received Client ID from MQTT: 0x%04X", (unsigned)cid);
+                            this->set_client_id(cid);
+                        }
+                    }
+                },
+                1);
+        } else {
+            // Generate a unique ID on first boot.
+            // We use a range that avoids common reserved IDs.
+            uint32_t new_id = (random_uint32() & 0xFFFFF) | 0x539;
+            this->client_id_ = new_id;
+            this->client_id_pref_.save(&new_id);
+            ESP_LOGI(TAG, "Generated new unique Client ID: 0x%04X", (unsigned)new_id);
         }
 
         this->rolling_code_pref_ = global_preferences->make_preference<uint32_t>(1868352652U); // fnv1_hash("ratgdo_rolling_code")
@@ -44,10 +76,13 @@ namespace secplus2 {
         if (this->rolling_code_pref_.load(&rolling_code)) {
             this->rolling_code_counter_ = rolling_code;
             ESP_LOGI(TAG, "Restored rolling code from flash: %u", rolling_code);
+            if (mqtt::global_mqtt_client != nullptr) {
+                mqtt::global_mqtt_client->publish(this->mqtt_rolling_code_topic_, std::to_string(rolling_code), 0, true);
+            }
         } else if (mqtt::global_mqtt_client != nullptr) {
-            ESP_LOGI(TAG, "No rolling code in flash, waiting for MQTT: %s", this->mqtt_topic_.c_str());
+            ESP_LOGI(TAG, "No rolling code in flash, waiting for MQTT: %s", this->mqtt_rolling_code_topic_.c_str());
             mqtt::global_mqtt_client->subscribe(
-                this->mqtt_topic_,
+                this->mqtt_rolling_code_topic_,
                 [this](const std::string& topic, const std::string& payload) {
                     if (*this->rolling_code_counter_ == 0) {
                         uint32_t rc = strtoul(payload.c_str(), nullptr, 10);
@@ -164,8 +199,6 @@ namespace secplus2 {
             this->send_command(CommandType::GET_STATUS);
         } else if (args.tag == Tag::query_openings) {
             this->send_command(CommandType::GET_OPENINGS);
-        } else if (args.tag == Tag::set_client_id) {
-            this->set_client_id(args.value.set_client_id.client_id);
         }
         return { };
     }
@@ -362,7 +395,7 @@ namespace secplus2 {
         this->rolling_code_counter_ = counter;
         this->rolling_code_pref_.save(&counter);
         if (mqtt::global_mqtt_client != nullptr) {
-            mqtt::global_mqtt_client->publish(this->mqtt_topic_, std::to_string(counter), 0, true);
+            mqtt::global_mqtt_client->publish(this->mqtt_rolling_code_topic_, std::to_string(counter), 0, true);
         }
     }
 
@@ -372,13 +405,18 @@ namespace secplus2 {
         this->rolling_code_counter_ = counter;
         this->rolling_code_pref_.save(&counter);
         if (mqtt::global_mqtt_client != nullptr) {
-            mqtt::global_mqtt_client->publish(this->mqtt_topic_, std::to_string(counter), 0, true);
+            mqtt::global_mqtt_client->publish(this->mqtt_rolling_code_topic_, std::to_string(counter), 0, true);
         }
     }
 
     void Secplus2::set_client_id(uint64_t client_id)
     {
-        this->client_id_ = client_id & 0xFFFFFFFF;
+        uint32_t cid = client_id & 0xFFFFFFFF;
+        this->client_id_ = cid;
+        this->client_id_pref_.save(&cid);
+        if (mqtt::global_mqtt_client != nullptr) {
+            mqtt::global_mqtt_client->publish(this->mqtt_client_id_topic_, std::to_string(cid), 0, true);
+        }
     }
 
 } // namespace secplus2

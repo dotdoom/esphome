@@ -4,26 +4,12 @@
 
 namespace esphome::ratgdo {
 
-using protocol::SetClientID;
-
-float normalize_client_id(float client_id)
-{
-    uint32_t int_value = static_cast<uint32_t>(client_id);
-    if ((int_value & 0xFFF) != 0x539) {
-        client_id = ceil((client_id - 0x539) / 0x1000) * 0x1000 + 0x539;
-    }
-    return client_id;
-}
-
 static const char* const TAG = "ratgdo.number";
 
 void RATGDONumber::dump_config()
 {
     LOG_NUMBER("", "RATGDO Number", this);
     switch (this->number_type_) {
-    case RATGDO_CLIENT_ID:
-        ESP_LOGCONFIG(TAG, " Type: Client ID");
-        break;
     case RATGDO_OPENING_DURATION:
         ESP_LOGCONFIG(TAG, "  Type: Opening Duration");
         break;
@@ -40,19 +26,7 @@ void RATGDONumber::setup()
     float value;
     this->pref_ = this->make_entity_preference<float>();
     if (!this->pref_.load(&value)) {
-        if (this->number_type_ == RATGDO_CLIENT_ID) {
-            value = ((random_uint32() + 1) % 0x7FF) << 12 | 0x539; // max size limited to be precisely convertible to float
-        } else {
-            value = 0;
-        }
-    } else {
-        if (this->number_type_ == RATGDO_CLIENT_ID) {
-            uint32_t int_value = static_cast<uint32_t>(value);
-            if ((int_value & 0xFFF) != 0x539) {
-                value = ((random_uint32() + 1) % 0x7FF) << 12 | 0x539; // max size limited to be precisely convertible to float
-                this->pref_.save(&value);
-            }
-        }
+        value = 0;
     }
     this->control(value);
 
@@ -82,11 +56,6 @@ void RATGDONumber::set_number_type(NumberType number_type_)
         this->traits.set_min_value(0.0);
         this->traits.set_max_value(180.0);
         break;
-    case RATGDO_CLIENT_ID:
-        this->traits.set_step(0x1000);
-        this->traits.set_min_value(0x539);
-        this->traits.set_max_value(0x7ff539);
-        break;
     default:
         break;
     }
@@ -109,10 +78,6 @@ void RATGDONumber::control(float value)
         break;
     case RATGDO_CLOSING_DURATION:
         this->parent_->set_closing_duration(value);
-        break;
-    case RATGDO_CLIENT_ID:
-        value = normalize_client_id(value);
-        this->parent_->call_protocol(SetClientID { static_cast<uint32_t>(value) });
         break;
     default:
         break;

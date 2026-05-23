@@ -105,11 +105,6 @@ number:
     entity_category: config
     name: "Closing duration"
     unit_of_measurement: "s"
-  - platform: ratgdo
-    type: client_id
-    entity_category: config
-    name: "Client ID"
-    mode: box
 
 cover:
   - platform: ratgdo

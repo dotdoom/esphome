@@ -139,7 +139,9 @@ namespace secplus2 {
         // Larger structures
         single_observable<uint32_t> rolling_code_counter_ { 0 };
         ESPPreferenceObject rolling_code_pref_;
-        std::string mqtt_topic_;
+        ESPPreferenceObject client_id_pref_;
+        std::string mqtt_rolling_code_topic_;
+        std::string mqtt_client_id_topic_;
         OnceCallbacks<void()> on_command_sent_;
         RatgdoUART uart_;
 
