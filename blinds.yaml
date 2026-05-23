@@ -22,12 +22,9 @@ esp32:
 
 packages:
   device_base: !include templates/esp32-poe.yaml
-
-  # Also act as a BT proxy due to convenient location.
-  btproxy: !include templates/btproxy.yaml
+  api: !include templates/api.yaml # for multi-device
 
 external_components:
-  # Path is relative to the main YAML file, not this device_base template!
   - source: components
 
 spi:
@@ -131,10 +128,6 @@ switch:
     id: wintergarten_retract
     restore_mode: ALWAYS_OFF
     inverted: true
-
-bluetooth_proxy:
-  # Of total 4 esp32_ble.max_connections, 1 is reserved for Meater.
-  connection_slots: 3
 
 ble_client:
   - mac_address: "B8:1F:5E:0F:BB:2F"
