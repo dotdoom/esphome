@@ -1,0 +1,75 @@
+esp8266:
+  board: esp8285
+  # Sonoff 4CH Pro R3
+
+esphome:
+  name: irrigation-controller
+  friendly_name: "Irrigation controller"
+  area: "Living room"
+
+logger:
+
+packages:
+  mqtt: !include templates/mqtt.yaml
+  ota: !include templates/ota.yaml
+  wifi: !include templates/wifi.yaml
+  uptime: !include templates/uptime.yaml
+  restart: !include templates/restart.yaml
+  syslog: !include templates/syslog.yaml
+
+binary_sensor:
+  - platform: gpio
+    name: "Button 1"
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: True
+    on_press:
+      - switch.toggle: "relay_1"
+  - platform: gpio
+    name: "Button 2"
+    pin:
+      number: GPIO9
+      mode: INPUT_PULLUP
+      inverted: True
+    on_press:
+      - switch.toggle: "relay_2"
+  - platform: gpio
+    name: "Button 3"
+    pin:
+      number: GPIO10
+      mode: INPUT_PULLUP
+      inverted: True
+    on_press:
+      - switch.toggle: "relay_3"
+  - platform: gpio
+    name: "Button 4"
+    pin:
+      number: GPIO14
+      mode: INPUT_PULLUP
+      inverted: True
+    on_press:
+      - switch.toggle: "relay_4"
+
+switch:
+  - platform: gpio
+    name: "Relay 1"
+    pin: GPIO12
+    id: "relay_1"
+  - platform: gpio
+    name: "Relay 2"
+    pin: GPIO5
+    id: "relay_2"
+  - platform: gpio
+    name: "Relay 3"
+    pin: GPIO4
+    id: "relay_3"
+  - platform: gpio
+    name: "Relay 4"
+    pin: GPIO15
+    id: "relay_4"
+
+status_led:
+  pin:
+    number: GPIO13
+    inverted: True

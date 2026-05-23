@@ -48,6 +48,7 @@ for config in \
 		cat-feeder-cam.yaml \
 		btproxy-laundry.yaml \
 		garage-gate.yaml \
+		irrigation-controller.yaml \
 		tools-power.yaml; do
 	flash+=("${command?} ${config?}")
 done
