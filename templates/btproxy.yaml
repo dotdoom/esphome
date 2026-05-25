@@ -26,6 +26,7 @@ esp32_ble_tracker:
       - sensor.template.publish:
           id: ble_scans_finished
           state: !lambda 'return ++id(ble_scans);'
+      - script.execute: restart_after_delay
 
 bluetooth_proxy:
   id: btproxy
@@ -34,6 +35,16 @@ bluetooth_proxy:
 
 esp32_ble:
   max_connections: 4
+
+script:
+  - id: restart_after_delay
+    mode: restart
+    then:
+      - delay: 15min
+      - logger.log:
+          level: ERROR
+          format: "No recent successful Bluetooth scan, restarting ESP chip"
+      - button.press: restart_button
 
 sensor:
   - platform: template
