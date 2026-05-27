@@ -192,16 +192,7 @@ namespace secplus2 {
         this->door_command(action);
     }
 
-    Result Secplus2::call(Args args)
-    {
-        using Tag = Args::Tag;
-        if (args.tag == Tag::query_status) {
-            this->send_command(CommandType::GET_STATUS);
-        } else if (args.tag == Tag::query_openings) {
-            this->send_command(CommandType::GET_OPENINGS);
-        }
-        return { };
-    }
+
 
     void Secplus2::door_command(DoorAction action)
     {

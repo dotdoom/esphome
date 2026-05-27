@@ -295,16 +295,11 @@ void RATGDOComponent::set_distance_measurement(int16_t distance)
     this->last_distance_measurement = distance;
 }
 
-Result RATGDOComponent::call_protocol(Args args)
-{
-    return this->protocol_->call(args);
-}
-
-void RATGDOComponent::query_status() { this->protocol_->call(QueryStatus { }); }
+void RATGDOComponent::query_status() { this->protocol_->query_status(); }
 
 void RATGDOComponent::query_openings()
 {
-    this->protocol_->call(QueryOpenings { });
+    this->protocol_->query_openings();
 }
 
 void RATGDOComponent::sync()

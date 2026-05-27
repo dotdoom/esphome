@@ -16,18 +16,6 @@ class RATGDOComponent;
 
 namespace protocol {
 
-    struct QueryStatus {
-    };
-    struct QueryOpenings {
-    };
-
-    // a poor man's sum-type, because C++
-    SUM_TYPE(Args,
-        (QueryStatus, query_status),
-        (QueryOpenings, query_openings), )
-
-    SUM_TYPE(Result, )
-
     class Protocol {
     public:
         virtual void setup(RATGDOComponent* ratgdo, Scheduler* scheduler, InternalGPIOPin* rx_pin, InternalGPIOPin* tx_pin);
@@ -42,7 +30,8 @@ namespace protocol {
         virtual void lock_action(LockAction action);
         virtual void door_action(DoorAction action);
 
-        virtual protocol::Result call(protocol::Args args);
+        virtual void query_status() {}
+        virtual void query_openings() {}
     };
 
 }

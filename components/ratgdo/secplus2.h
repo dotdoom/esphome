@@ -81,7 +81,8 @@ namespace secplus2 {
         void lock_action(LockAction action);
         void door_action(DoorAction action);
 
-        Result call(Args args);
+        void query_status() override;
+        void query_openings() override;
 
     protected:
         void increment_rolling_code_counter(int delta = 1);
@@ -114,8 +115,7 @@ namespace secplus2 {
 
         void door_command(DoorAction action);
 
-        void query_status();
-        void query_openings();
+
 
         void print_packet(const esphome::LogString* prefix, const WirePacket& packet) const;
         optional<Command> decode_packet(const WirePacket& packet) const;

@@ -35,8 +35,7 @@ typedef Parented<RATGDOComponent> RATGDOClient;
 const float DOOR_POSITION_UNKNOWN = -1.0;
 const float DOOR_DELTA_UNKNOWN = -2.0;
 
-using protocol::Args;
-using protocol::Result;
+
 
 class RATGDOComponent : public Component {
 public:
@@ -83,7 +82,7 @@ public:
     void set_output_gdo_pin(InternalGPIOPin* pin) { this->output_gdo_pin_ = pin; }
     void set_input_gdo_pin(InternalGPIOPin* pin) { this->input_gdo_pin_ = pin; }
 
-    Result call_protocol(Args args);
+
 
     void received(const DoorState door_state);
     void received(const LightState light_state);
