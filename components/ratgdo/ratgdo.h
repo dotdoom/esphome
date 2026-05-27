@@ -18,7 +18,6 @@
 #include "esphome/core/hal.h"
 #include "esphome/core/preferences.h"
 
-#include <bitset>
 #include <type_traits>
 #include <utility>
 
@@ -59,7 +58,6 @@ public:
     float start_closing { -1 };
     single_observable<float> closing_duration { 0 };
 
-    std::bitset<256> in_range; // the length of this bitset determines how many out of range readings are required for presence detection to change states
     observable<int16_t, RATGDO_MAX_DISTANCE_SUBSCRIBERS> last_distance_measurement { 0 };
 
     single_observable<uint16_t> openings { 0 }; // number of times the door has been opened
