@@ -22,7 +22,7 @@
 #include <utility>
 
 #include "callbacks.h"
-#include "macros.h"
+
 #include "observable.h"
 #include "protocol.h"
 #include "ratgdo_state.h"

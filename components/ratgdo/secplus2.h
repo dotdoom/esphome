@@ -28,18 +28,44 @@ namespace secplus2 {
     static const uint8_t PACKET_LENGTH = 19;
     typedef uint8_t WirePacket[PACKET_LENGTH];
 
-    ENUM_SPARSE(CommandType, uint16_t,
-        (UNKNOWN, 0x000),
-        (GET_STATUS, 0x080),
-        (STATUS, 0x081),
+    enum class CommandType : uint16_t {
+        UNKNOWN = 0x000,
+        GET_STATUS = 0x080,
+        STATUS = 0x081,
+        LOCK = 0x18c,
+        DOOR_ACTION = 0x280,
+        LIGHT = 0x281,
+        GET_OPENINGS = 0x48b,
+        OPENINGS = 0x48c // openings = (byte1<<8)+byte2
+    };
 
-        (LOCK, 0x18c),
-        (DOOR_ACTION, 0x280),
-        (LIGHT, 0x281),
+    inline const char* CommandType_to_string(CommandType e) {
+        switch (e) {
+            case CommandType::UNKNOWN: return "UNKNOWN";
+            case CommandType::GET_STATUS: return "GET_STATUS";
+            case CommandType::STATUS: return "STATUS";
+            case CommandType::LOCK: return "LOCK";
+            case CommandType::DOOR_ACTION: return "DOOR_ACTION";
+            case CommandType::LIGHT: return "LIGHT";
+            case CommandType::GET_OPENINGS: return "GET_OPENINGS";
+            case CommandType::OPENINGS: return "OPENINGS";
+            default: return "UNKNOWN";
+        }
+    }
 
-        (GET_OPENINGS, 0x48b),
-        (OPENINGS, 0x48c), // openings = (byte1<<8)+byte2
-    )
+    inline CommandType to_CommandType(uint16_t t, CommandType unknown) {
+        switch (t) {
+            case static_cast<uint16_t>(CommandType::UNKNOWN): return CommandType::UNKNOWN;
+            case static_cast<uint16_t>(CommandType::GET_STATUS): return CommandType::GET_STATUS;
+            case static_cast<uint16_t>(CommandType::STATUS): return CommandType::STATUS;
+            case static_cast<uint16_t>(CommandType::LOCK): return CommandType::LOCK;
+            case static_cast<uint16_t>(CommandType::DOOR_ACTION): return CommandType::DOOR_ACTION;
+            case static_cast<uint16_t>(CommandType::LIGHT): return CommandType::LIGHT;
+            case static_cast<uint16_t>(CommandType::GET_OPENINGS): return CommandType::GET_OPENINGS;
+            case static_cast<uint16_t>(CommandType::OPENINGS): return CommandType::OPENINGS;
+            default: return unknown;
+        }
+    }
 
     inline bool operator==(const uint16_t cmd_i, const CommandType& cmd_e) { return cmd_i == static_cast<uint16_t>(cmd_e); }
     inline bool operator==(const CommandType& cmd_e, const uint16_t cmd_i) { return cmd_i == static_cast<uint16_t>(cmd_e); }
