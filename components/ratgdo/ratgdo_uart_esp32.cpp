@@ -1,4 +1,4 @@
-#include "ratgdo_uart.h"
+#include "ratgdo_uart_esp32.h"
 
 #include "esphome/core/log.h"
 #include <driver/uart.h>

@@ -3,12 +3,11 @@
 #include "esphome/core/optional.h"
 #include "esphome/core/preferences.h"
 #include "esphome/components/mqtt/mqtt_client.h"
-#include "ratgdo_uart.h"
+#include "ratgdo_uart_esp32.h"
 
 #include "callbacks.h"
 #include "common.h"
 #include "observable.h"
-#include "protocol.h"
 #include "ratgdo_state.h"
 
 namespace esphome {
@@ -22,8 +21,6 @@ namespace esphome::ratgdo {
 class RATGDOComponent;
 
 namespace secplus2 {
-
-    using namespace esphome::ratgdo::protocol;
 
     static const uint8_t PACKET_LENGTH = 19;
     typedef uint8_t WirePacket[PACKET_LENGTH];
@@ -94,12 +91,12 @@ namespace secplus2 {
         }
     };
 
-    class Secplus2 : public Protocol {
+    class Secplus2 {
     public:
         void setup(RATGDOComponent* ratgdo, Scheduler* scheduler, InternalGPIOPin* rx_pin, InternalGPIOPin* tx_pin);
         void loop();
         void dump_config();
-        void on_shutdown() override;
+        void on_shutdown();
 
         void sync();
 
@@ -107,8 +104,8 @@ namespace secplus2 {
         void lock_action(LockAction action);
         void door_action(DoorAction action);
 
-        void query_status() override;
-        void query_openings() override;
+        void query_status();
+        void query_openings();
 
     protected:
         void increment_rolling_code_counter(int delta = 1);

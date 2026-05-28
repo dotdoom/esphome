@@ -23,7 +23,7 @@
 
 namespace esphome::ratgdo {
 
-using namespace protocol;
+
 
 static const char* const TAG = "ratgdo";
 static constexpr int SYNC_DELAY = 5000;

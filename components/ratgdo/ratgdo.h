@@ -24,10 +24,11 @@
 #include "callbacks.h"
 
 #include "observable.h"
-#include "protocol.h"
 #include "ratgdo_state.h"
 
 namespace esphome::ratgdo {
+
+namespace secplus2 { class Secplus2; }
 
 class RATGDOComponent;
 typedef Parented<RATGDOComponent> RATGDOClient;
@@ -185,7 +186,7 @@ public:
 
 protected:
     // Pointers first (4-byte aligned)
-    protocol::Protocol* protocol_;
+    secplus2::Secplus2* protocol_;
     InternalGPIOPin* output_gdo_pin_;
     InternalGPIOPin* input_gdo_pin_;
 
