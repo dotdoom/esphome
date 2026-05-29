@@ -1,11 +1,5 @@
+
 /************************************
- * Rage
- * Against
- * The
- * Garage
- * Door
- * Opener
- *
  * Copyright (C) 2022  Paul Wieland
  *
  * GNU GENERAL PUBLIC LICENSE

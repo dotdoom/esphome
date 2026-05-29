@@ -1,11 +1,4 @@
 /************************************
- * Rage
- * Against
- * The
- * Garage
- * Door
- * Opener
- *
  * Copyright (C) 2022  Paul Wieland
  *
  * GNU GENERAL PUBLIC LICENSE
@@ -63,11 +56,7 @@ void RATGDOComponent::setup()
         }
     });
 
-    ESP_LOGD(TAG, " _____ _____ _____ _____ ____  _____ ");
-    ESP_LOGD(TAG, "| __  |  _  |_   _|   __|    \\|     |");
-    ESP_LOGD(TAG, "|    -|     | | | |  |  |  |  |  |  |");
-    ESP_LOGD(TAG, "|__|__|__|__| |_| |_____|____/|_____|");
-    ESP_LOGD(TAG, "https://paulwieland.github.io/ratgdo/");
+
 }
 
 // initializing protocol, this gets called before setup() because

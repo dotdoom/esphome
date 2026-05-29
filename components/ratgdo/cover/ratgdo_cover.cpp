@@ -29,7 +29,6 @@ void RATGDOCover::on_door_state(DoorState state, float position)
     if (!*this->parent_->synced || state == DoorState::UNKNOWN) {
         return;
     }
-    // ESP_LOGD("ON_DOOR_STATE", "%s %f", LOG_STR_ARG(DoorState_to_string(state)), position);
     bool save_to_flash = true;
     switch (state) {
     case DoorState::OPEN:

@@ -19,7 +19,6 @@ void RATGDOSensor::setup()
     case RATGDOSensorType::RATGDO_DISTANCE:
         this->distance_sensor_.setI2cDevice(&I2C);
         this->distance_sensor_.setXShutPin(32);
-        // I2C.begin(17,16);
         I2C.begin(19, 18);
         this->distance_sensor_.begin();
         this->distance_sensor_.VL53L4CX_Off();
@@ -75,7 +74,6 @@ void RATGDOSensor::loop()
             if (maxDistance < 0)
                 maxDistance = MAX_DISTANCE;
 
-            // maxDistance = objCount == 0 ? -1 : pDistanceData->RangeData[objCount - 1].RangeMilliMeter;
             /*
              * if the sensor is pointed at glass, there are many error -1 readings which will fill the
              * vector with out of range data. The sensor should be sensitive enough to detect the floor
