@@ -54,6 +54,15 @@ void RATGDOComponent::setup()
 
     // many things happening at startup, use some delay for sync
     this->set_timeout(SYNC_DELAY, [this] { this->sync(); });
+
+    this->synced.subscribe([this](bool is_synced) {
+        if (is_synced) {
+            this->door_state.notify();
+            this->light_state.notify();
+            this->lock_state.notify();
+        }
+    });
+
     ESP_LOGD(TAG, " _____ _____ _____ _____ ____  _____ ");
     ESP_LOGD(TAG, "| __  |  _  |_   _|   __|    \\|     |");
     ESP_LOGD(TAG, "|    -|     | | | |  |  |  |  |  |  |");

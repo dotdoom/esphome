@@ -26,7 +26,7 @@ void RATGDOCover::setup()
 
 void RATGDOCover::on_door_state(DoorState state, float position)
 {
-    if (state == DoorState::UNKNOWN) {
+    if (!*this->parent_->synced || state == DoorState::UNKNOWN) {
         return;
     }
     // ESP_LOGD("ON_DOOR_STATE", "%s %f", LOG_STR_ARG(DoorState_to_string(state)), position);

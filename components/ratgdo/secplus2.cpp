@@ -163,7 +163,6 @@ namespace secplus2 {
     {
         ESP_LOGD(TAG, "Starting sync...");
         this->ratgdo_->synced = false;
-        this->ratgdo_->sync_failed = false;
         this->scheduler_->cancel_timeout(this->ratgdo_, TIMEOUT_SYNC);
         this->sync_helper(millis(), 500, 0);
     }

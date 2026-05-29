@@ -11,8 +11,8 @@ class SyncFailed : public Trigger<> {
 public:
     explicit SyncFailed(RATGDOComponent* parent)
     {
-        parent->subscribe_sync_failed([this](bool state) {
-            if (state)
+        parent->subscribe_sync_failed([this](optional<bool> state) {
+            if (state.value_or(false))
                 this->trigger();
         });
     }
