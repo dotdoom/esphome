@@ -21,6 +21,7 @@ packages:
 binary_sensor:
   - platform: gpio
     name: "Garden Peach button"
+    entity_category: diagnostic
     pin:
       number: GPIO0
       mode: INPUT_PULLUP
@@ -29,6 +30,7 @@ binary_sensor:
       - switch.toggle: "relay_1"
   - platform: gpio
     name: "Garden Berries button"
+    entity_category: diagnostic
     pin:
       number: GPIO9
       mode: INPUT_PULLUP
@@ -37,6 +39,7 @@ binary_sensor:
       - switch.toggle: "relay_2"
   - platform: gpio
     name: "Shower button"
+    entity_category: diagnostic
     pin:
       number: GPIO10
       mode: INPUT_PULLUP
@@ -45,6 +48,7 @@ binary_sensor:
       - switch.toggle: "relay_3"
   - platform: gpio
     name: "Button 4"
+    entity_category: diagnostic
     pin:
       number: GPIO14
       mode: INPUT_PULLUP
