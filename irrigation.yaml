@@ -56,23 +56,87 @@ binary_sensor:
     on_press:
       - switch.toggle: "relay_4"
 
+  - platform: template
+    name: "Garden Peach relay"
+    entity_category: diagnostic
+    lambda: 'return id(relay_1).state;'
+  - platform: template
+    name: "Garden Berries relay"
+    entity_category: diagnostic
+    lambda: 'return id(relay_2).state;'
+  - platform: template
+    name: "Shower relay"
+    entity_category: diagnostic
+    lambda: 'return id(relay_3).state;'
+  - platform: template
+    name: "Relay 4"
+    entity_category: diagnostic
+    lambda: 'return id(relay_4).state;'
+
 switch:
   - platform: gpio
-    name: "Garden Peach"
     pin: GPIO12
     id: "relay_1"
+    internal: true
+    restore_mode: ALWAYS_OFF
   - platform: gpio
-    name: "Garden Berries"
     pin: GPIO5
     id: "relay_2"
+    internal: true
+    restore_mode: ALWAYS_OFF
   - platform: gpio
     name: "Shower"
     pin: GPIO4
     id: "relay_3"
+    restore_mode: ALWAYS_OFF
   - platform: gpio
-    name: "Relay 4"
+    internal: true
     pin: GPIO15
     id: "relay_4"
+    restore_mode: ALWAYS_OFF
+
+sprinkler:
+  - id: garden
+    main_switch:
+      name: "Garden"
+      id: garden_main
+    auto_advance_switch: "Garden Auto Advance"
+    valve_open_delay: 10s
+    valves:
+      - valve_switch: "Garden Peach"
+        valve_switch_id: relay_1
+        run_duration: 2h
+      - valve_switch: "Garden Berries"
+        valve_switch_id: relay_2
+        run_duration: 2h
+
+button:
+  - platform: template
+    name: "Nightly cycle"
+    on_press:
+      - sprinkler.shutdown: garden
+      - sprinkler.clear_queued_valves: garden
+
+      # Pre-moisturizing
+      - sprinkler.queue_valve:
+          id: garden
+          valve_number: 0
+          run_duration: 10min
+      - sprinkler.queue_valve:
+          id: garden
+          valve_number: 1
+          run_duration: 10min
+
+      # Main watering (uses default 2h duration)
+      - sprinkler.queue_valve:
+          id: garden
+          valve_number: 0
+      - sprinkler.queue_valve:
+          id: garden
+          valve_number: 1
+
+      - switch.turn_on: garden_main
+      - sprinkler.start_from_queue: garden
 
 status_led:
   pin:
