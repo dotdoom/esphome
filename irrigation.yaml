@@ -3,9 +3,10 @@ esp8266:
   # Sonoff 4CH Pro R3
 
 esphome:
-  name: irrigation-controller
-  friendly_name: "Irrigation controller"
-  area: "Living room"
+  name: irrigation
+  friendly_name: "Irrigation"
+  # Adding area prepends it to entity IDs. Ridiculous.
+  #area: "Living room"
 
 logger:
 
@@ -19,7 +20,7 @@ packages:
 
 binary_sensor:
   - platform: gpio
-    name: "Button 1"
+    name: "Garden Peach button"
     pin:
       number: GPIO0
       mode: INPUT_PULLUP
@@ -27,7 +28,7 @@ binary_sensor:
     on_press:
       - switch.toggle: "relay_1"
   - platform: gpio
-    name: "Button 2"
+    name: "Garden Berries button"
     pin:
       number: GPIO9
       mode: INPUT_PULLUP
@@ -35,7 +36,7 @@ binary_sensor:
     on_press:
       - switch.toggle: "relay_2"
   - platform: gpio
-    name: "Button 3"
+    name: "Shower button"
     pin:
       number: GPIO10
       mode: INPUT_PULLUP
@@ -53,15 +54,15 @@ binary_sensor:
 
 switch:
   - platform: gpio
-    name: "Relay 1"
+    name: "Garden Peach"
     pin: GPIO12
     id: "relay_1"
   - platform: gpio
-    name: "Relay 2"
+    name: "Garden Berries"
     pin: GPIO5
     id: "relay_2"
   - platform: gpio
-    name: "Relay 3"
+    name: "Shower"
     pin: GPIO4
     id: "relay_3"
   - platform: gpio
