@@ -36,7 +36,7 @@ preferences:
   flash_write_interval: 1min
 
 ratgdo:
-  id: garage_gate
+  id: garage_gate_controller
   input_gdo_pin: GPIO21
   output_gdo_pin: GPIO17
 
@@ -49,7 +49,7 @@ time:
 binary_sensor:
   - platform: template
     name: "Sync failed"
-    lambda: 'return *id(garage_gate).sync_failed;'
+    lambda: 'return *id(garage_gate_controller).sync_failed;'
     device_class: problem
     entity_category: diagnostic
 
@@ -108,8 +108,18 @@ number:
 
 cover:
   - platform: ratgdo
+    id: garage_gate
     device_class: garage
     name: None
+    on_state_change:
+      - if:
+          condition:
+            lambda: 'return id(garage_gate).current_operation == COVER_OPERATION_CLOSING;'
+          then:
+            - script.execute: play_siren
+          else:
+            - script.stop: play_siren
+            - rtttl.stop:
 
 light:
   - platform: ratgdo
@@ -122,21 +132,21 @@ button:
     on_press:
       then:
         lambda: !lambda |-
-          id(garage_gate).query_status();
+          id(garage_gate_controller).query_status();
   - platform: template
     name: "Query openings"
     entity_category: diagnostic
     on_press:
       then:
         lambda: !lambda |-
-          id(garage_gate).query_openings();
+          id(garage_gate_controller).query_openings();
   - platform: template
     name: "Sync"
     entity_category: diagnostic
     on_press:
       then:
         lambda: !lambda |-
-          id(garage_gate).sync();
+          id(garage_gate_controller).sync();
   - platform: template
     name: "Play Alert"
     on_press:
@@ -150,3 +160,17 @@ output:
 
 rtttl:
   - output: garage_gate_ledc
+
+script:
+  - id: play_siren
+    mode: restart
+    then:
+      - while:
+          condition:
+            lambda: 'return id(garage_gate).current_operation == COVER_OPERATION_CLOSING;'
+          then:
+            - rtttl.play: "siren:d=8,o=6,b=100:e,d#,e,d#,e,d#,e,d#"
+            - wait_until:
+                condition:
+                  not:
+                    rtttl.is_playing:
