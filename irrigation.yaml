@@ -105,10 +105,10 @@ sprinkler:
     valves:
       - valve_switch: "Garden Peach"
         valve_switch_id: relay_1
-        run_duration: 2h
+        run_duration: 2h # also update in spreadsheet and below
       - valve_switch: "Garden Berries"
         valve_switch_id: relay_2
-        run_duration: 2h
+        run_duration: 2h # also update in spreadsheet and below
 
 button:
   - platform: template
@@ -131,9 +131,11 @@ button:
       - sprinkler.queue_valve:
           id: garden
           valve_number: 0
+          run_duration: 110min # 2h-above, also update in spreadsheet
       - sprinkler.queue_valve:
           id: garden
           valve_number: 1
+          run_duration: 110min # 2h-above, also update in spreadsheet
 
       - switch.turn_on: garden_main
       - sprinkler.start_from_queue: garden
