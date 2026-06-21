@@ -114,7 +114,6 @@ button:
   - platform: template
     name: "Nightly cycle"
     on_press:
-      - sprinkler.shutdown: garden
       - sprinkler.clear_queued_valves: garden
 
       # Pre-moisturizing
@@ -137,7 +136,6 @@ button:
           valve_number: 1
           run_duration: 110min # 2h-above, also update in spreadsheet
 
-      - switch.turn_on: garden_main
       - sprinkler.start_from_queue: garden
 
 status_led:
