@@ -18,6 +18,19 @@ packages:
   restart: !include templates/restart.yaml
   syslog: !include templates/syslog.yaml
 
+number:
+  - platform: template
+    name: "Nightly cycle valve runtime"
+    id: nightly_cycle_valve_runtime
+    optimistic: true
+    min_value: 20
+    max_value: 240
+    step: 1
+    initial_value: 120
+    unit_of_measurement: "min"
+    restore_value: true
+    entity_category: config
+
 binary_sensor:
   - platform: gpio
     name: "Garden Peach button"
@@ -105,10 +118,10 @@ sprinkler:
     valves:
       - valve_switch: "Garden Peach"
         valve_switch_id: relay_1
-        run_duration: 2h # also update in spreadsheet and below
+        run_duration: 2h
       - valve_switch: "Garden Berries"
         valve_switch_id: relay_2
-        run_duration: 2h # also update in spreadsheet and below
+        run_duration: 2h
 
 button:
   - platform: template
@@ -130,11 +143,11 @@ button:
       - sprinkler.queue_valve:
           id: garden
           valve_number: 0
-          run_duration: 110min # 2h-above, also update in spreadsheet
+          run_duration: !lambda "return (id(nightly_cycle_valve_runtime).state - 10) * 60;"
       - sprinkler.queue_valve:
           id: garden
           valve_number: 1
-          run_duration: 110min # 2h-above, also update in spreadsheet
+          run_duration: !lambda "return (id(nightly_cycle_valve_runtime).state - 10) * 60;"
 
       - sprinkler.start_from_queue: garden
 
