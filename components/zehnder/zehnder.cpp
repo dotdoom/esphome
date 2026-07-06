@@ -85,7 +85,7 @@ climate::ClimateTraits ZehnderComponent::traits() {
   traits.set_visual_target_temperature_step(1);
 
   if (has_temperature_sensor_) {
-    traits.set_supports_current_temperature(true);
+    traits.add_feature_flags(climate::CLIMATE_SUPPORTS_CURRENT_TEMPERATURE);
     traits.set_visual_current_temperature_step(0.1);
   }
 
