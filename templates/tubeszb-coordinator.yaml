@@ -75,7 +75,7 @@ stream_server:
   uart_id: uart_bus
   id: ss
   port: 6638
-  buffer_size: 1024
+  buffer_size: 4096
 
 binary_sensor:
 - platform: stream_server

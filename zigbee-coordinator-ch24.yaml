@@ -30,7 +30,7 @@ uart:
   rx_pin: GPIO5
   tx_pin: GPIO16
   baud_rate: 115200
-  rx_buffer_size: 1024
+  rx_buffer_size: 4096
 
 ethernet:
   manual_ip:
