@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 # Build a full list of known esphome devices and
 #   - reflash them
 #   - reflash those that match $1
@@ -7,9 +7,6 @@
 # Ex.: ./reflash.sh logs car
 
 set -e
-
-# Make $variable expand into multiple argv when unquoted.
-set -o shwordsplit
 
 if [ $# -gt 1 ]; then
 	command=$1
@@ -68,7 +65,7 @@ print_results_table() {
 	printf "\n%-70sSTATUS\n\n" "COMMAND"
 	for result_cmdline in "${flash[@]}"; do
 		printf "%-70s" "$result_cmdline "
-		if [ "${flash_result["$result_cmdline"]+placeholder}" ]; then
+		if [[ -v flash_result["$result_cmdline"] ]]; then
 			echo "${flash_result["$result_cmdline"]}"
 		else
 			echo "N/A"
@@ -82,7 +79,7 @@ print_results_table() {
 
 for cmdline in "${flash[@]}"; do
 	if [ $# -gt 0 ]; then
-		if [[ "$cmdline" =~ "$1" ]]; then
+		if [[ "$cmdline" =~ $1 ]]; then
 			:;
 		else
 			flash_result["$cmdline"]=SKIPPED

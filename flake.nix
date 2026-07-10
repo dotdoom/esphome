@@ -18,7 +18,7 @@
             esphome
             esptool
             cc2538-bsl
-            zsh # for ./reflash.sh
+            bash # for ./reflash.sh
           ];
 
           shellHook = ''
