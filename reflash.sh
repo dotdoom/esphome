@@ -50,13 +50,17 @@ for config in \
 	flash+=("${command?} ${config?}")
 done
 
-for btproxy_replica in \
-	c25bac \
-	c2577c \
-	c25b74
-do
-	flash+=("${command?} btproxy.yaml --device btproxy-${btproxy_replica?}")
-done
+if [[ "$command" == run* ]] || [[ "$command" == upload* ]] || [[ "$command" == logs* ]] || [[ "$command" == log* ]]; then
+	for btproxy_replica in \
+		c25bac \
+		c2577c \
+		c25b74
+	do
+		flash+=("${command?} btproxy.yaml --device btproxy-${btproxy_replica?}")
+	done
+else
+	flash+=("${command?} btproxy.yaml")
+fi
 
 declare -A flash_result
 
