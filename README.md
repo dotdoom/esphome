@@ -16,8 +16,8 @@ $ cp -i templates/secrets.yaml{.sample,}
 
 # Edit both secrets.yaml files.
 
-# Compile all devices in parallel (up to 4 jobs)
-$ nix develop --command make compile-all -j4
+# Compile all devices
+$ nix develop --command make compile-all
 
 # Or compile a single device
 $ nix develop --command make compile-bathroomheater
@@ -28,7 +28,7 @@ $ nix develop --command make compile-bathroomheater
 To flash all devices (automatically prioritizes OTA and skips prompts):
 
 ```bash
-$ nix develop --command make flash-all -j4
+$ nix develop --command make flash-all
 ```
 
 To flash a single device:

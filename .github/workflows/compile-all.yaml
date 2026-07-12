@@ -24,4 +24,4 @@ jobs:
       # pinned in Nix. The ci shell avoids nixpkgs wrapping platformio in bwrap,
       # which fails on CI runners that disallow unprivileged user namespaces.
       - name: Compile All
-        run: nix develop .#ci --command make compile-all -j4
+        run: nix develop .#ci --command make compile-all
