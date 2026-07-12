@@ -20,6 +20,21 @@ jobs:
           cp secrets.yaml.sample secrets.yaml
           cp templates/secrets.yaml.sample templates/secrets.yaml
 
+      - name: Cache PlatformIO packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          # Keyed on ESPHome version + YAML configs; bust when deps change
+          key: platformio-${{ hashFiles('flake.lock', '*.yaml', 'templates/*.yaml') }}
+          restore-keys: platformio-
+
+      - name: Cache ESPHome build artifacts
+        uses: actions/cache@v4
+        with:
+          path: .esphome
+          key: esphome-${{ hashFiles('*.yaml', 'templates/*.yaml') }}
+          restore-keys: esphome-
+
       # Uses the ci shell, which installs esphome via pipx at the exact version
       # pinned in Nix. The ci shell avoids nixpkgs wrapping platformio in bwrap,
       # which fails on CI runners that disallow unprivileged user namespaces.
