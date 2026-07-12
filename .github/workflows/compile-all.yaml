@@ -32,7 +32,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .esphome
-          key: esphome-${{ hashFiles('*.yaml', 'templates/*.yaml') }}
+          key: esphome-${{ hashFiles('*.yaml', 'templates/*.yaml', 'components/**') }}
           restore-keys: esphome-
 
       # Uses the ci shell, which installs esphome via pipx at the exact version
