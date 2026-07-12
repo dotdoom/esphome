@@ -45,12 +45,6 @@
           default = pkgs.mkShell {
             buildInputs = with pkgs; [
               esphome
-              platformio
-              python3
-              libusb1
-              udev
-              ncurses5
-              zlib
               esptool
               cc2538-bsl
               gnumake
