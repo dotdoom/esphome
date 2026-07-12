@@ -22,4 +22,4 @@ jobs:
 
       - name: Compile All
         run: |
-          nix develop --command make compile-all
+          nix develop --command make compile-all -j4

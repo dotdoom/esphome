@@ -41,22 +41,16 @@
 
       devShells = forAllSystems (
         { system, pkgs, ... }:
-        let
-          esphome-fhs = pkgs.buildFHSEnv {
-            name = "esphome";
-            targetPkgs =
-              pkgs: with pkgs; [
-                esphome
-                zlib
-              ];
-            multiPkgs = pkgs: with pkgs; [ zlib ];
-            runScript = "esphome";
-          };
-        in
         {
           default = pkgs.mkShell {
             buildInputs = with pkgs; [
-              esphome-fhs
+              esphome
+              platformio
+              python3
+              libusb1
+              udev
+              ncurses5
+              zlib
               esptool
               cc2538-bsl
               gnumake
