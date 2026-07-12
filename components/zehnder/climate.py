@@ -9,12 +9,23 @@ CONF_TRANSMITTER_ID = "transmitter_id"
 CONF_TEMPERATURE_SENSOR_ID = "temperature_sensor_id"
 
 zehnder_ns = cg.esphome_ns.namespace("zehnder")
-ZehnderComponent = zehnder_ns.class_("ZehnderComponent", climate.Climate, cg.PollingComponent)
+ZehnderComponent = zehnder_ns.class_(
+    "ZehnderComponent", climate.Climate, cg.PollingComponent
+)
 
-CONFIG_SCHEMA = climate.climate_schema(ZehnderComponent).extend({
-    cv.Required(CONF_TRANSMITTER_ID): cv.use_id(remote_transmitter.RemoteTransmitterComponent),
-    cv.Optional(CONF_TEMPERATURE_SENSOR_ID): cv.use_id(sensor.Sensor),
-}).extend(cv.polling_component_schema("1min"))
+CONFIG_SCHEMA = (
+    climate.climate_schema(ZehnderComponent)
+    .extend(
+        {
+            cv.Required(CONF_TRANSMITTER_ID): cv.use_id(
+                remote_transmitter.RemoteTransmitterComponent
+            ),
+            cv.Optional(CONF_TEMPERATURE_SENSOR_ID): cv.use_id(sensor.Sensor),
+        }
+    )
+    .extend(cv.polling_component_schema("1min"))
+)
+
 
 async def to_code(config):
     var = cg.new_Pvariable(config[c.CONF_ID])
