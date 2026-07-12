@@ -10,28 +10,41 @@ timezone when syncing the clock (NTP).
 
 ## Compiling
 
-```
+```bash
 $ cp -i secrets.yaml{.sample,}
 $ cp -i templates/secrets.yaml{.sample,}
 
 # Edit both secrets.yaml files.
 
-$ ./reflash.sh compile ''
+# Compile all devices in parallel (up to 4 jobs)
+$ nix develop --command make compile-all -j4
+
+# Or compile a single device
+$ nix develop --command make compile-bathroomheater
 ```
 
-## Running
+## Flashing
 
-```
-$ ./reflash.sh
-```
+To flash all devices (automatically prioritizes OTA and skips prompts):
 
-or
-
-```
-$ esphome run file.yaml
+```bash
+$ nix develop --command make flash-all -j4
 ```
 
-Look up list of runnable configurations inside `reflash.sh` script.
+To flash a single device:
+
+```bash
+$ nix develop --command make flash-bathroomheater
+```
+
+Alternatively, you can drop into the development shell and run `esphome` directly:
+
+```bash
+$ nix develop
+$ esphome run bathroomheater.yaml
+```
+
+**Note:** The Makefile automatically tracks dependencies (including `!include` files and local `external_components` directories). It will natively evaluate changes and only recompile what has actually changed since the last run.
 
 ## Running remotely
 

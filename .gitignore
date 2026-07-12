@@ -15,3 +15,13 @@ secrets.yaml
 
 # direnv cache
 /.direnv
+
+# Make dependencies
+.Makefile.deps
+
+# Nix build outputs
+result
+result-*
+
+# Pre-commit
+.pre-commit-config.yaml

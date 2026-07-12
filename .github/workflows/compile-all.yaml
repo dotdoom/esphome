@@ -1,0 +1,25 @@
+name: Compile All
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Setup secrets
+        run: |
+          cp secrets.yaml.sample secrets.yaml
+          cp templates/secrets.yaml.sample templates/secrets.yaml
+
+      - name: Compile All
+        run: |
+          nix develop --command make compile-all

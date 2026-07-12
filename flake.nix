@@ -3,29 +3,72 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    fw_nix = {
+      url = "github:futureware-tech/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      fw_nix,
+    }:
     let
-      forAllSystems = f: nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed (system: f {
-        pkgs = import nixpkgs { inherit system; };
-      });
+      forAllSystems =
+        f:
+        nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed (
+          system:
+          f {
+            inherit system;
+            pkgs = import nixpkgs { inherit system; };
+          }
+        );
     in
     {
-      devShells = forAllSystems ({ pkgs }: {
-        default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            esphome
-            esptool
-            cc2538-bsl
-            bash # for ./reflash.sh
-          ];
+      checks = forAllSystems (
+        { system, ... }: {
+          pre-commit-check = fw_nix.inputs.git-hooks.lib.${system}.run {
+            src = ./.;
+            hooks = fw_nix.lib.pre-commit.hooks // {
+              # Disable check-yaml because it fails on ESPHome's custom YAML tags (like !include, !secret)
+              check-yaml.enable = false;
+            };
+          };
+        }
+      );
 
-          shellHook = ''
-            echo -n "ESPHome "
-            esphome --version
-          '';
-        };
-      });
+      devShells = forAllSystems (
+        { system, pkgs, ... }:
+        let
+          esphome-fhs = pkgs.buildFHSEnv {
+            name = "esphome";
+            targetPkgs =
+              pkgs: with pkgs; [
+                esphome
+                zlib
+              ];
+            multiPkgs = pkgs: with pkgs; [ zlib ];
+            runScript = "esphome";
+          };
+        in
+        {
+          default = pkgs.mkShell {
+            buildInputs = with pkgs; [
+              esphome-fhs
+              esptool
+              cc2538-bsl
+              gnumake
+            ];
+
+            shellHook = ''
+              ${self.checks.${system}.pre-commit-check.shellHook}
+              echo -n "ESPHome "
+              esphome --version
+            '';
+          };
+        }
+      );
     };
 }
