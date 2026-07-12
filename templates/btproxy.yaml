@@ -13,7 +13,7 @@ globals:
   - id: ble_scans
     type: int
     restore_value: no
-    initial_value: '0'
+    initial_value: "0"
 
 esp32_ble_tracker:
   scan_parameters:
@@ -23,10 +23,10 @@ esp32_ble_tracker:
     active: true
   on_scan_end:
     - then:
-      - sensor.template.publish:
-          id: ble_scans_finished
-          state: !lambda 'return ++id(ble_scans);'
-      - script.execute: restart_after_delay
+        - sensor.template.publish:
+            id: ble_scans_finished
+            state: !lambda "return ++id(ble_scans);"
+        - script.execute: restart_after_delay
 
 bluetooth_proxy:
   id: btproxy

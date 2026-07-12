@@ -8,22 +8,24 @@
 
 namespace esphome::ratgdo {
 
-enum SwitchType {
-    RATGDO_LED = 1
+enum SwitchType { RATGDO_LED = 1 };
+
+class RATGDOSwitch : public switch_::Switch,
+                     public RATGDOClient,
+                     public Component {
+ public:
+  void dump_config() override;
+  void setup() override;
+  void set_switch_type(SwitchType switch_type_) {
+    this->switch_type_ = switch_type_;
+  }
+
+  void write_state(bool state) override;
+  void set_pin(GPIOPin* pin) { pin_ = pin; }
+
+ protected:
+  SwitchType switch_type_;
+  GPIOPin* pin_;
 };
 
-class RATGDOSwitch : public switch_::Switch, public RATGDOClient, public Component {
-public:
-    void dump_config() override;
-    void setup() override;
-    void set_switch_type(SwitchType switch_type_) { this->switch_type_ = switch_type_; }
-
-    void write_state(bool state) override;
-    void set_pin(GPIOPin* pin) { pin_ = pin; }
-
-protected:
-    SwitchType switch_type_;
-    GPIOPin* pin_;
-};
-
-} // namespace esphome::ratgdo
+}  // namespace esphome::ratgdo

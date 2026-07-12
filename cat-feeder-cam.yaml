@@ -14,9 +14,9 @@ packages:
 psram:
 
 i2c:
-- id: camera_i2c
-  sda: GPIO26
-  scl: GPIO27
+  - id: camera_i2c
+    sda: GPIO26
+    scl: GPIO27
 
 esp32_camera: # Ai-Thinker
   external_clock:
@@ -30,16 +30,16 @@ esp32_camera: # Ai-Thinker
   power_down_pin: GPIO32
 
   name: Camera
-  resolution: 800x600  # Max 1600x1200.
+  resolution: 800x600 # Max 1600x1200.
   idle_framerate: 0.1fps
 
 output:
-- platform: ledc
-  pin: GPIO4
-  channel: 2  # PWM channel 1 is used for esp32_camera.
-  id: led
+  - platform: ledc
+    pin: GPIO4
+    channel: 2 # PWM channel 1 is used for esp32_camera.
+    id: led
 
 light:
-- platform: monochromatic
-  output: led
-  name: Flash
+  - platform: monochromatic
+    output: led
+    name: Flash

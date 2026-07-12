@@ -8,15 +8,15 @@
 namespace esphome::ratgdo {
 
 class RATGDOCover : public cover::Cover, public RATGDOClient, public Component {
-public:
-    void dump_config() override;
-    void setup() override;
+ public:
+  void dump_config() override;
+  void setup() override;
 
-    cover::CoverTraits get_traits() override;
-    void on_door_state(DoorState state, float position);
+  cover::CoverTraits get_traits() override;
+  void on_door_state(DoorState state, float position);
 
-protected:
-    void control(const cover::CoverCall& call) override;
+ protected:
+  void control(const cover::CoverCall& call) override;
 };
 
-} // namespace esphome::ratgdo
+}  // namespace esphome::ratgdo

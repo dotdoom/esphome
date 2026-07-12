@@ -28,24 +28,24 @@ output:
     id: mic_power
 
 sensor:
-- platform: pulse_meter
-  internal_filter: 50ms
+  - platform: pulse_meter
+    internal_filter: 50ms
 
-  pin:
-    number: GPIO15
-    inverted: true
-    mode:
-      input: true
+    pin:
+      number: GPIO15
+      inverted: true
+      mode:
+        input: true
 
-  name: "Level"
-  unit_of_measurement: "mR/h"
-  state_class: "measurement"
+    name: "Level"
+    unit_of_measurement: "mR/h"
+    state_class: "measurement"
 
-  accuracy_decimals: 3
+    accuracy_decimals: 3
 
-  filters:
-    - multiply: 0.0000833333 # particles/minute -> milliRad/hour (assuming calibration factor 1200 CPM = 1milliRad)
-    - sliding_window_moving_average:
-        window_size: 20
-        send_every: 2
-    - throttle_average: 5s
+    filters:
+      - multiply: 0.0000833333 # particles/minute -> milliRad/hour (assuming calibration factor 1200 CPM = 1milliRad)
+      - sliding_window_moving_average:
+          window_size: 20
+          send_every: 2
+      - throttle_average: 5s

@@ -8,25 +8,25 @@ esphome:
     version: "1.0"
 
 external_components:
-- source: components
+  - source: components
 
 packages:
   device_base: !include templates/esp8266.yaml
   sensor: !include templates/esp8266-vcc.yaml
 
 one_wire:
-- platform: gpio
-  pin: D1
+  - platform: gpio
+    pin: D1
 
 sensor:
-- platform: dallas_temp
-  address: 0x0401212E565C7428
-  id: bathroom_heater_temperature
+  - platform: dallas_temp
+    address: 0x0401212E565C7428
+    id: bathroom_heater_temperature
 
-- platform: duty_time
-  id: continuous_on_time
-  name: Continuous on time
-  accuracy_decimals: 0
+  - platform: duty_time
+    id: continuous_on_time
+    name: Continuous on time
+    accuracy_decimals: 0
 
 remote_transmitter:
   pin: D2
@@ -34,30 +34,30 @@ remote_transmitter:
   id: heater_ir_transmitter
 
 climate:
-- platform: zehnder
-  name: None
-  id: bathroom_heater
-  transmitter_id: heater_ir_transmitter
-  temperature_sensor_id: bathroom_heater_temperature
-  on_state:
-  - if:
-      condition:
-        lambda: 'return x.mode == climate::CLIMATE_MODE_HEAT;'
-      then:
-      - sensor.duty_time.start: continuous_on_time
-      else:
-      - sensor.duty_time.stop: continuous_on_time
-      - sensor.duty_time.reset: continuous_on_time
+  - platform: zehnder
+    name: None
+    id: bathroom_heater
+    transmitter_id: heater_ir_transmitter
+    temperature_sensor_id: bathroom_heater_temperature
+    on_state:
+      - if:
+          condition:
+            lambda: "return x.mode == climate::CLIMATE_MODE_HEAT;"
+          then:
+            - sensor.duty_time.start: continuous_on_time
+          else:
+            - sensor.duty_time.stop: continuous_on_time
+            - sensor.duty_time.reset: continuous_on_time
 
 interval:
-- interval: 1min
-  then:
-  - if:
-      condition:
-        sensor.in_range:
-          id: continuous_on_time
-          above: 43200 # 12h
-      then:
-      - climate.control:
-          id: bathroom_heater
-          mode: "OFF"
+  - interval: 1min
+    then:
+      - if:
+          condition:
+            sensor.in_range:
+              id: continuous_on_time
+              above: 43200 # 12h
+          then:
+            - climate.control:
+                id: bathroom_heater
+                mode: "OFF"

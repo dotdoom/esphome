@@ -17,21 +17,21 @@ switch:
     optimistic: true
 
 time:
-- platform: sntp
-  id: sntp_time
-  servers: !secret sntp_servers
-  timezone: Europe/Zurich
-  on_time:
-    - seconds: 0
-      minutes: 1
-      hours: 0-6,19-23
-      then:
-        - if:
-            condition:
-              - switch.is_on: failsafe_schedule
-              - switch.is_off: mystrom_relay
-            then:
-              - logger.log: >-
-                  Power relay is off during T2, assuming automation failure and
-                  correcting
-              - switch.turn_on: mystrom_relay
+  - platform: sntp
+    id: sntp_time
+    servers: !secret sntp_servers
+    timezone: Europe/Zurich
+    on_time:
+      - seconds: 0
+        minutes: 1
+        hours: 0-6,19-23
+        then:
+          - if:
+              condition:
+                - switch.is_on: failsafe_schedule
+                - switch.is_off: mystrom_relay
+              then:
+                - logger.log: >-
+                    Power relay is off during T2, assuming automation failure and
+                    correcting
+                - switch.turn_on: mystrom_relay

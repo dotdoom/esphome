@@ -41,39 +41,39 @@ status_led:
   pin: GPIO16
 
 binary_sensor:
-- platform: gpio
-  id: mystrom_side
-  name: "Side button (plus) pressed"
-  pin:
-    number: GPIO23
-    mode:
-      input: true
-      pullup: true
-    inverted: true
-- platform: gpio
-  id: mystrom_bottom
-  name: "Bottom button (power) pressed"
-  pin:
-    number: GPIO18
-    mode:
-      input: true
-      pullup: true
-    inverted: true
-  on_press:
-    then:
-    - switch.toggle: mystrom_relay
+  - platform: gpio
+    id: mystrom_side
+    name: "Side button (plus) pressed"
+    pin:
+      number: GPIO23
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+  - platform: gpio
+    id: mystrom_bottom
+    name: "Bottom button (power) pressed"
+    pin:
+      number: GPIO18
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    on_press:
+      then:
+        - switch.toggle: mystrom_relay
 
 script:
-- id: power_cycle_relay
-  mode: single
-  then:
-    - if:
-        condition:
-          switch.is_on: mystrom_relay
-        then:
-        - switch.turn_off: mystrom_relay
-        - delay: 7s
-    - switch.turn_on: mystrom_relay
+  - id: power_cycle_relay
+    mode: single
+    then:
+      - if:
+          condition:
+            switch.is_on: mystrom_relay
+          then:
+            - switch.turn_off: mystrom_relay
+            - delay: 7s
+      - switch.turn_on: mystrom_relay
 
 button:
   - platform: template
@@ -83,60 +83,60 @@ button:
       - script.execute: power_cycle_relay
 
 sensor:
-- platform: pulse_counter
-  pin: 4
-  update_interval: 10s
-  id: mystrom_power_consumption
-  name: "Power relay consumption"
-  device_class: "power"
-  state_class: "measurement"
-  unit_of_measurement: "W"
-  accuracy_decimals: 0
-  filters:
-  - multiply: 3.29E-02  # pulse/min -> W
-
-  total:
-    name: "Energy consumption"
-    unit_of_measurement: "kWh"
-    device_class: "energy"
-    state_class: "total_increasing"
-    accuracy_decimals: 3
+  - platform: pulse_counter
+    pin: 4
+    update_interval: 10s
+    id: mystrom_power_consumption
+    name: "Power relay consumption"
+    device_class: "power"
+    state_class: "measurement"
+    unit_of_measurement: "W"
+    accuracy_decimals: 0
     filters:
-    - multiply: 5.48E-07  # pulses -> kWh
+      - multiply: 3.29E-02 # pulse/min -> W
 
-- platform: tmp102
-  id: mystrom_temperature
-  name: "Internal temperature"
-  update_interval: 60s
-  entity_category: diagnostic
-  address: 0x48
-  on_value_range:
-    above: 80
-    then:
-    - switch.turn_off: mystrom_relay
+    total:
+      name: "Energy consumption"
+      unit_of_measurement: "kWh"
+      device_class: "energy"
+      state_class: "total_increasing"
+      accuracy_decimals: 3
+      filters:
+        - multiply: 5.48E-07 # pulses -> kWh
 
-- platform: duty_time
-  id: continuous_on_time
-  name: Continuous on time
-  lambda: "return id(mystrom_relay).state;"
-  accuracy_decimals: 0
+  - platform: tmp102
+    id: mystrom_temperature
+    name: "Internal temperature"
+    update_interval: 60s
+    entity_category: diagnostic
+    address: 0x48
+    on_value_range:
+      above: 80
+      then:
+        - switch.turn_off: mystrom_relay
+
+  - platform: duty_time
+    id: continuous_on_time
+    name: Continuous on time
+    lambda: "return id(mystrom_relay).state;"
+    accuracy_decimals: 0
 
 switch:
-- platform: gpio
-  name: None  # Main entity for the device.
-  pin: GPIO27
-  id: mystrom_relay
-  restore_mode: RESTORE_DEFAULT_ON
-  device_class: outlet
-  on_turn_off:
-  - sensor.duty_time.reset: continuous_on_time
+  - platform: gpio
+    name: None # Main entity for the device.
+    pin: GPIO27
+    id: mystrom_relay
+    restore_mode: RESTORE_DEFAULT_ON
+    device_class: outlet
+    on_turn_off:
+      - sensor.duty_time.reset: continuous_on_time
 
-- platform: gpio
-  # Exposing this as a switch rather than light to avoid
-  # automations and dashboard picking it up as illuminance
-  # source.
-  name: "Identify LED (white)"
-  restore_mode: ALWAYS_OFF
-  pin:
-    number: GPIO17
-    inverted: true
+  - platform: gpio
+    # Exposing this as a switch rather than light to avoid
+    # automations and dashboard picking it up as illuminance
+    # source.
+    name: "Identify LED (white)"
+    restore_mode: ALWAYS_OFF
+    pin:
+      number: GPIO17
+      inverted: true

@@ -19,7 +19,7 @@ external_components:
   - source:
       type: local
       path: components
-    components: [ ratgdo ]
+    components: [ratgdo]
 
 packages:
   wifi: !include templates/wifi.yaml
@@ -49,7 +49,7 @@ time:
 binary_sensor:
   - platform: template
     name: "Sync failed"
-    lambda: 'return *id(garage_gate_controller).sync_failed;'
+    lambda: "return *id(garage_gate_controller).sync_failed;"
     device_class: problem
     entity_category: diagnostic
 
@@ -74,9 +74,9 @@ sensor:
     attenuation: auto
     update_interval: 60s
     filters:
-    - calibrate_linear:
-        - 1.16 -> 5
-        - 2.783 -> 12
+      - calibrate_linear:
+          - 1.16 -> 5
+          - 2.783 -> 12
 
 lock:
   - platform: ratgdo
@@ -114,7 +114,7 @@ cover:
     on_state_change:
       - if:
           condition:
-            lambda: 'return id(garage_gate).current_operation == COVER_OPERATION_CLOSING;'
+            lambda: "return id(garage_gate).current_operation == COVER_OPERATION_CLOSING;"
           then:
             - script.execute: play_siren
           else:
@@ -167,7 +167,7 @@ script:
     then:
       - while:
           condition:
-            lambda: 'return id(garage_gate).current_operation == COVER_OPERATION_CLOSING;'
+            lambda: "return id(garage_gate).current_operation == COVER_OPERATION_CLOSING;"
           then:
             - rtttl.play: "siren:d=8,o=6,b=100:e,d#,e,d#,e,d#,e,d#"
             - wait_until:

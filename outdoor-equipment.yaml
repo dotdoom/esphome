@@ -10,25 +10,24 @@ packages:
   time: !include templates/time.yaml
 
 time:
-- platform: sntp
-  id: sntp_time
-  servers: !secret sntp_servers
-  timezone: Europe/Zurich
-  on_time:
-
-  #
-  # Pool pump: must run during saltwater system cycle, and an additional hour.
-  #            Saltwater 16:30 - 19:30, so we stop at 20:35 (Pool instructions).
-  #
-  - hours: 16
-    minutes: 25
-    seconds: 0
-    months: APR-OCT
-    then:
-    - switch.turn_on: mystrom_relay
-  - hours: 20
-    minutes: 35
-    seconds: 0
-    months: APR-OCT
-    then:
-    - switch.turn_off: mystrom_relay
+  - platform: sntp
+    id: sntp_time
+    servers: !secret sntp_servers
+    timezone: Europe/Zurich
+    on_time:
+      #
+      # Pool pump: must run during saltwater system cycle, and an additional hour.
+      #            Saltwater 16:30 - 19:30, so we stop at 20:35 (Pool instructions).
+      #
+      - hours: 16
+        minutes: 25
+        seconds: 0
+        months: APR-OCT
+        then:
+          - switch.turn_on: mystrom_relay
+      - hours: 20
+        minutes: 35
+        seconds: 0
+        months: APR-OCT
+        then:
+          - switch.turn_off: mystrom_relay

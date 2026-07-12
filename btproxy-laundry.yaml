@@ -61,8 +61,8 @@ sensor:
     device_id: laundry_air_quality
     filters:
       - calibrate_linear:
-        - 2.7 -> 0
-        - 4.5 -> 100
+          - 2.7 -> 0
+          - 4.5 -> 100
 
   - platform: airthings_wave_mini
     ble_client_id: airthings_wave_mini_workshop
@@ -89,5 +89,5 @@ sensor:
     device_id: workshop_air_quality
     filters:
       - calibrate_linear:
-        - 2.7 -> 0
-        - 4.5 -> 100
+          - 2.7 -> 0
+          - 4.5 -> 100

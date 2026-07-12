@@ -1,5 +1,5 @@
 button:
-- platform: restart
-  name: "ESP chip restart"
-  entity_category: diagnostic
-  id: restart_button
+  - platform: restart
+    name: "ESP chip restart"
+    entity_category: diagnostic
+    id: restart_button

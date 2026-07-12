@@ -8,14 +8,13 @@ esphome:
 packages:
   device_base: !include templates/mystrom.yaml
 
-
 interval:
-- interval: 1min
-  then:
-  - if:
-      condition:
-        sensor.in_range:
-          id: continuous_on_time
-          above: 18000 # 5h
-      then:
-      - switch.turn_off: mystrom_relay
+  - interval: 1min
+    then:
+      - if:
+          condition:
+            sensor.in_range:
+              id: continuous_on_time
+              above: 18000 # 5h
+          then:
+            - switch.turn_off: mystrom_relay

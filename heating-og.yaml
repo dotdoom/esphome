@@ -40,17 +40,16 @@ ethernet:
   domain: ""
 
 text_sensor:
-- platform: ethernet_info
-  ip_address:
-    name: "ESP chip IP (Ethernet)"
-    icon: mdi:ip-network
-  mac_address:
-    name: "ESP chip MAC (Ethernet)"
-    icon: mdi:expansion-card
-
+  - platform: ethernet_info
+    ip_address:
+      name: "ESP chip IP (Ethernet)"
+      icon: mdi:ip-network
+    mac_address:
+      name: "ESP chip MAC (Ethernet)"
+      icon: mdi:expansion-card
 
 sn74hc595: # write
-  - id: 'sn74hc595_hub'
+  - id: "sn74hc595_hub"
     clock_pin: GPIO14 # SRCLK (serial clock)
     data_pin: GPIO13 # SER (serial input)
     latch_pin: GPIO15 # RCLK (latch for outputs)

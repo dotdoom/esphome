@@ -7,7 +7,7 @@
 
 namespace esphome {
 namespace somfy {
-static const char *const TAG = "somfy";
+static const char* const TAG = "somfy";
 
 static const uint8_t CMD_STOP = 0x01;
 static const uint8_t CMD_UP = 0x02;
@@ -34,8 +34,8 @@ struct SomfyRTSProtocolData {
 class SomfyRTSProtocol
     : public remote_base::RemoteProtocol<SomfyRTSProtocolData> {
  public:
-  virtual void encode(remote_base::RemoteTransmitData *dst,
-                      const ProtocolData &data) override {
+  virtual void encode(remote_base::RemoteTransmitData* dst,
+                      const ProtocolData& data) override {
     /*
      * 1. Build a frame.
      */
@@ -101,7 +101,7 @@ class SomfyRTSProtocol
     }
   }
 
-  virtual void dump(const ProtocolData &data) override { data.dump(); }
+  virtual void dump(const ProtocolData& data) override { data.dump(); }
 
   virtual optional<ProtocolData> decode(
       remote_base::RemoteReceiveData src) override {
@@ -155,7 +155,7 @@ void SomfyRTSCover::setup() {
     // MQTT.
     mqtt::global_mqtt_client->subscribe(
         mqtt_topic_prefix_ + std::to_string(remote_id_),
-        [this](const std::string &topic, const std::string &payload) {
+        [this](const std::string& topic, const std::string& payload) {
           if (rolling_code_ == 0) {
             ESP_LOGI(TAG, "Received rolling code for remote #%d from MQTT: %s",
                      remote_id_, payload.c_str());
@@ -171,7 +171,7 @@ void SomfyRTSCover::setup() {
   }
 }
 
-void SomfyRTSCover::control(const cover::CoverCall &call) {
+void SomfyRTSCover::control(const cover::CoverCall& call) {
   if (call.get_position().has_value()) {
     float position = *call.get_position();
     send(position > 0.5 ? CMD_UP : CMD_DOWN);

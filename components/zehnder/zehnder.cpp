@@ -3,16 +3,16 @@
 #include "esphome/components/remote_base/remote_base.h"
 
 namespace {
-static const char *const TAG = __FILE__;
+static const char* const TAG = __FILE__;
 static const uint8_t MIN_TEMPERATURE = 35;
 static const uint8_t MAX_TEMPERATURE = 70;
 static const uint8_t TEMPERATURE_LEVELS = 8;
 
-static void add_header_(esphome::remote_base::RemoteTransmitData *data) {
+static void add_header_(esphome::remote_base::RemoteTransmitData* data) {
   data->item(30, 1000);
 }
 
-static void add_byte_(esphome::remote_base::RemoteTransmitData *data,
+static void add_byte_(esphome::remote_base::RemoteTransmitData* data,
                       uint8_t value) {
   for (int i = 0; i < 8; ++i) {
     data->item(30, value & 0b10000000 ? 830 : 650);
@@ -20,7 +20,7 @@ static void add_byte_(esphome::remote_base::RemoteTransmitData *data,
   }
 }
 
-static void add_post_(esphome::remote_base::RemoteTransmitData *data) {
+static void add_post_(esphome::remote_base::RemoteTransmitData* data) {
   data->item(30, 460);
   data->item(30, 650);
 }
@@ -29,7 +29,7 @@ static void add_post_(esphome::remote_base::RemoteTransmitData *data) {
 namespace esphome {
 namespace zehnder {
 
-void ZehnderComponent::control(const climate::ClimateCall &call) {
+void ZehnderComponent::control(const climate::ClimateCall& call) {
   float target_temp = this->target_temperature;
   climate::ClimateMode mode = this->mode;
 
@@ -101,7 +101,7 @@ void ZehnderComponent::dump_config() {
                 this->has_temperature_sensor_ ? "yes" : "no");
 }
 
-bool ZehnderComponent::transmit_temperature_(float *temp) {
+bool ZehnderComponent::transmit_temperature_(float* temp) {
   uint8_t level;
   if (*temp == 0) {
     level = 0;

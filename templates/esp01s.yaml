@@ -12,8 +12,8 @@ packages:
 logger:
 
 switch:
-- platform: gpio
-  pin: GPIO0
-  name: None
-  inverted: true
-  id: relay
+  - platform: gpio
+    pin: GPIO0
+    name: None
+    inverted: true
+    id: relay

@@ -42,98 +42,98 @@ i2c:
   scl: GPIO18
 
 font:
-- file: "fonts/DejaVuSans.ttf"
-  id: font_sans
-  size: 20
+  - file: "fonts/DejaVuSans.ttf"
+    id: font_sans
+    size: 20
 
 display:
-- platform: ssd1306_i2c
-  model: "SSD1306 128x32"
-  id: oled_display
-  lambda: |-
-    it.printf(
-      4, 6,
-      id(font_sans),
-      "%.2f C",
-      id(boiler_temperature).state);
+  - platform: ssd1306_i2c
+    model: "SSD1306 128x32"
+    id: oled_display
+    lambda: |-
+      it.printf(
+        4, 6,
+        id(font_sans),
+        "%.2f C",
+        id(boiler_temperature).state);
 
-    if (id(furnace_burning).state) {
-      it.filled_circle(112, 16, 12);
-    } else {
-      it.circle(112, 16, 12);
-    }
+      if (id(furnace_burning).state) {
+        it.filled_circle(112, 16, 12);
+      } else {
+        it.circle(112, 16, 12);
+      }
 
 one_wire:
-- platform: gpio
-  pin: GPIO27
+  - platform: gpio
+    pin: GPIO27
 
 sensor:
-- platform: dallas_temp
-  address: 0x133c2cf648f40728
-  id: boiler_temperature
-  name: "Boiler temperature"
-  filters:
-  - offset: 0.5
+  - platform: dallas_temp
+    address: 0x133c2cf648f40728
+    id: boiler_temperature
+    name: "Boiler temperature"
+    filters:
+      - offset: 0.5
 
-- platform: dallas_temp
-  address: 0x4845b7211864ff28
-  id: hot_water_temperature
-  name: "Hot water temperature"
+  - platform: dallas_temp
+    address: 0x4845b7211864ff28
+    id: hot_water_temperature
+    name: "Hot water temperature"
 
-- platform: dallas_temp
-  address: 0x6a0316643959ff28
-  id: floor_temperature
-  name: "Floor temperature"
+  - platform: dallas_temp
+    address: 0x6a0316643959ff28
+    id: floor_temperature
+    name: "Floor temperature"
 
-- platform: adc
-  pin: GPIO32
-  update_interval: 1s
-  id: furnace_burning_led_brightness
-  attenuation: auto
-  # Make voltage value available in UI for debugging and history.
-  name: "Furnace burning - LED brightness"
-  entity_category: diagnostic
-  accuracy_decimals: 2
+  - platform: adc
+    pin: GPIO32
+    update_interval: 1s
+    id: furnace_burning_led_brightness
+    attenuation: auto
+    # Make voltage value available in UI for debugging and history.
+    name: "Furnace burning - LED brightness"
+    entity_category: diagnostic
+    accuracy_decimals: 2
 
-- platform: adc
-  pin: GPIO33
-  update_interval: 1s
-  id: floor_active_led_brightness
-  attenuation: auto
-  # Make voltage value available in UI for debugging and history.
-  name: "Floor active - LED brightness"
-  entity_category: diagnostic
-  accuracy_decimals: 2
+  - platform: adc
+    pin: GPIO33
+    update_interval: 1s
+    id: floor_active_led_brightness
+    attenuation: auto
+    # Make voltage value available in UI for debugging and history.
+    name: "Floor active - LED brightness"
+    entity_category: diagnostic
+    accuracy_decimals: 2
 
 binary_sensor:
-- platform: analog_threshold
-  id: furnace_burning
-  name: "Furnace burning"
-  sensor_id: furnace_burning_led_brightness
-  # The reading (V) gets lower as brightness increases. Keep the threshold
-  # low (close to LED reading) to avoid triggering with a lamp or natural light.
-  threshold: 2.2 # LED on = 1.93V, flashlight on = 2.5V.
-  filters:
-  - invert:
+  - platform: analog_threshold
+    id: furnace_burning
+    name: "Furnace burning"
+    sensor_id: furnace_burning_led_brightness
+    # The reading (V) gets lower as brightness increases. Keep the threshold
+    # low (close to LED reading) to avoid triggering with a lamp or natural light.
+    threshold: 2.2 # LED on = 1.93V, flashlight on = 2.5V.
+    filters:
+      - invert:
 
-- platform: analog_threshold
-  id: heating_enabled
-  name: "Floor active"
-  sensor_id: floor_active_led_brightness
-  # This sensor is more exposed to external light due to construction.
-  threshold: 1.9 # LED on = 1.76V, flashlight on = 2.1V.
-  filters:
-  - invert:
+  - platform: analog_threshold
+    id: heating_enabled
+    name: "Floor active"
+    sensor_id: floor_active_led_brightness
+    # This sensor is more exposed to external light due to construction.
+    threshold: 1.9 # LED on = 1.76V, flashlight on = 2.1V.
+    filters:
+      - invert:
 
 switch:
-- platform: gpio
-  pin: GPIO25
-  id: relay_temperature_manual
-  inverted: true
-  # Non-manual is no longer wired to anything.
-  restore_mode: ALWAYS_ON
+  - platform: gpio
+    pin: GPIO25
+    id: relay_temperature_manual
+    inverted: true
+    # Non-manual is no longer wired to anything.
+    restore_mode: ALWAYS_ON
 
-- platform: gpio
-  pin: GPIO26
-  name: "Floor intent"
-  restore_mode: RESTORE_DEFAULT_OFF
+  - platform: gpio
+    pin: GPIO26
+    name: "Floor intent"
+    restore_mode: RESTORE_DEFAULT_OFF

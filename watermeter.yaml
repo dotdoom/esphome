@@ -12,33 +12,33 @@ packages:
   sensor: !include templates/esp8266-vcc.yaml
 
 sensor:
-- platform: pulse_meter
-  # Our meter (USLC/20) is rated Qmax=5.0 (m3/h).
-  # The official one is rated 5.0.
-  #
-  # 3600 / 5000 = 0.72 seconds per liter. That's the shortest
-  # pulse length at a maximum flow rate for the meter.
-  internal_filter: 720ms
-  # Assuming Qmin=50 (l/h), a flow with >72 seconds between pulses
-  # is beyond the measuring capabilities. However, one of the
-  # irrigation valves only consumes 0.73 L/min, so we push it a bit.
-  timeout: 90s
+  - platform: pulse_meter
+    # Our meter (USLC/20) is rated Qmax=5.0 (m3/h).
+    # The official one is rated 5.0.
+    #
+    # 3600 / 5000 = 0.72 seconds per liter. That's the shortest
+    # pulse length at a maximum flow rate for the meter.
+    internal_filter: 720ms
+    # Assuming Qmin=50 (l/h), a flow with >72 seconds between pulses
+    # is beyond the measuring capabilities. However, one of the
+    # irrigation valves only consumes 0.73 L/min, so we push it a bit.
+    timeout: 90s
 
-  pin:
-    number: D2
-    inverted: true
-    mode:
-      input: true
-      pullup: true
+    pin:
+      number: D2
+      inverted: true
+      mode:
+        input: true
+        pullup: true
 
-  name: "Incoming water flow"
-  unit_of_measurement: "L/min"
-  device_class: volume_flow_rate
-  state_class: "measurement"
-  icon: mdi:pipe-valve # device_class?
+    name: "Incoming water flow"
+    unit_of_measurement: "L/min"
+    device_class: volume_flow_rate
+    state_class: "measurement"
+    icon: mdi:pipe-valve # device_class?
 
-  total:
-    name: "Incoming water total"
-    unit_of_measurement: "L"
-    device_class: "water"
-    state_class: "total_increasing"
+    total:
+      name: "Incoming water total"
+      unit_of_measurement: "L"
+      device_class: "water"
+      state_class: "total_increasing"

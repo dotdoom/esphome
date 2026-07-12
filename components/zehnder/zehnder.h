@@ -22,11 +22,11 @@ class ZehnderComponent : public climate::Climate, public PollingComponent {
   // PollingComponent.
   void update() override;
 
-  void set_transmitter(remote_transmitter::RemoteTransmitterComponent *t) {
+  void set_transmitter(remote_transmitter::RemoteTransmitterComponent* t) {
     this->transmitter_ = t;
   }
 
-  void add_temperature_sensor(sensor::Sensor *s) {
+  void add_temperature_sensor(sensor::Sensor* s) {
     has_temperature_sensor_ = true;
     s->add_on_state_callback([this](float temperature_value) {
       this->current_temperature = temperature_value;
@@ -36,13 +36,13 @@ class ZehnderComponent : public climate::Climate, public PollingComponent {
 
  protected:
   // climate::Climate.
-  void control(const climate::ClimateCall &call) override;
+  void control(const climate::ClimateCall& call) override;
   climate::ClimateTraits traits() override;
 
-  bool transmit_temperature_(float *temp);
+  bool transmit_temperature_(float* temp);
   bool transmit_level_(uint8_t level);
 
-  remote_transmitter::RemoteTransmitterComponent *transmitter_ = nullptr;
+  remote_transmitter::RemoteTransmitterComponent* transmitter_ = nullptr;
   bool has_temperature_sensor_ = false;
 };
 

@@ -72,19 +72,19 @@ binary_sensor:
   - platform: template
     name: "Garden Peach relay"
     entity_category: diagnostic
-    lambda: 'return id(relay_1).state;'
+    lambda: "return id(relay_1).state;"
   - platform: template
     name: "Garden Berries relay"
     entity_category: diagnostic
-    lambda: 'return id(relay_2).state;'
+    lambda: "return id(relay_2).state;"
   - platform: template
     name: "Shower relay"
     entity_category: diagnostic
-    lambda: 'return id(relay_3).state;'
+    lambda: "return id(relay_3).state;"
   - platform: template
     name: "Relay 4"
     entity_category: diagnostic
-    lambda: 'return id(relay_4).state;'
+    lambda: "return id(relay_4).state;"
 
 switch:
   - platform: gpio

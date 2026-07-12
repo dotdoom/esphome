@@ -12,5 +12,5 @@ packages:
 
 climate:
   - platform: tcl112
-    name: None  # Main entity for the device.
+    name: None # Main entity for the device.
     receiver_id: ir_receiver

@@ -1,7 +1,7 @@
 # Make sure nothing is connected to the A0 pin.
 
 sensor:
-- platform: adc
-  pin: VCC
-  name: "ESP chip VCC Voltage"
-  entity_category: diagnostic
+  - platform: adc
+    pin: VCC
+    name: "ESP chip VCC Voltage"
+    entity_category: diagnostic

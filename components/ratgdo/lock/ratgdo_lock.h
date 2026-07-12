@@ -8,12 +8,12 @@
 namespace esphome::ratgdo {
 
 class RATGDOLock : public lock::Lock, public RATGDOClient, public Component {
-public:
-    void dump_config() override;
-    void setup() override;
+ public:
+  void dump_config() override;
+  void setup() override;
 
-    void on_lock_state(LockState state);
-    void control(const lock::LockCall& call) override;
+  void on_lock_state(LockState state);
+  void control(const lock::LockCall& call) override;
 };
 
-} // namespace esphome::ratgdo
+}  // namespace esphome::ratgdo

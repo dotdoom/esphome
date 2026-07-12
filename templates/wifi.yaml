@@ -1,21 +1,21 @@
 sensor:
-- platform: wifi_signal
-  name: "ESP chip WiFi signal"
+  - platform: wifi_signal
+    name: "ESP chip WiFi signal"
 
 text_sensor:
-- platform: wifi_info
-  mac_address:
-    name: "ESP chip MAC"
-    icon: mdi:wifi-cog
-  ip_address:
-    name: "ESP chip IP"
-    icon: mdi:wifi-cog
-  bssid:
-    name: "ESP chip connected to BSSID"
-    icon: mdi:wifi-settings
-    filters:
-    - to_upper
-    - substitute: !secret wifi_ap_lookup
+  - platform: wifi_info
+    mac_address:
+      name: "ESP chip MAC"
+      icon: mdi:wifi-cog
+    ip_address:
+      name: "ESP chip IP"
+      icon: mdi:wifi-cog
+    bssid:
+      name: "ESP chip connected to BSSID"
+      icon: mdi:wifi-settings
+      filters:
+        - to_upper
+        - substitute: !secret wifi_ap_lookup
 
 wifi:
   ssid: !secret wifi_ssid

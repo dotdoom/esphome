@@ -16,7 +16,7 @@ namespace somfy {
 class SomfyRTSCover : public cover::Cover, public Component {
  public:
   void set_transmitter(
-      remote_transmitter::RemoteTransmitterComponent *transmitter) {
+      remote_transmitter::RemoteTransmitterComponent* transmitter) {
     this->transmitter_ = transmitter;
   }
   void set_remote_id(uint32_t remote_id) { this->remote_id_ = remote_id; }
@@ -24,7 +24,7 @@ class SomfyRTSCover : public cover::Cover, public Component {
   cover::CoverTraits get_traits() override;
   void setup() override;
   void dump_config() override;
-  void control(const cover::CoverCall &call) override;
+  void control(const cover::CoverCall& call) override;
 
  protected:
   /* Wake up the blinds motor controller and send the command.
@@ -39,7 +39,7 @@ class SomfyRTSCover : public cover::Cover, public Component {
   uint32_t rolling_code_;
   std::string mqtt_topic_prefix_;
   ESPPreferenceObject rolling_code_pref_;
-  remote_transmitter::RemoteTransmitterComponent *transmitter_{nullptr};
+  remote_transmitter::RemoteTransmitterComponent* transmitter_{nullptr};
 };
 
 }  // namespace somfy
