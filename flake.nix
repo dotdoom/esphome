@@ -56,6 +56,25 @@
               esphome --version
             '';
           };
+
+          # CI shell: uses the same esphome version as default, but installs it
+          # via pipx to avoid nixpkgs wrapping platformio in bwrap, which fails
+          # on CI runners that disallow unprivileged user namespaces.
+          ci = pkgs.mkShell {
+            buildInputs = with pkgs; [
+              python3
+              python3Packages.pipx
+              esptool
+              gnumake
+            ];
+
+            shellHook = ''
+              pipx install --quiet esphome==${pkgs.esphome.version}
+              export PATH="$HOME/.local/bin:$PATH"
+              echo -n "ESPHome (CI) "
+              esphome --version
+            '';
+          };
         }
       );
     };

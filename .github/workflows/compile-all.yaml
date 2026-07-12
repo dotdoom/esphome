@@ -20,6 +20,8 @@ jobs:
           cp secrets.yaml.sample secrets.yaml
           cp templates/secrets.yaml.sample templates/secrets.yaml
 
+      # Uses the ci shell, which installs esphome via pipx at the exact version
+      # pinned in Nix. The ci shell avoids nixpkgs wrapping platformio in bwrap,
+      # which fails on CI runners that disallow unprivileged user namespaces.
       - name: Compile All
-        run: |
-          nix develop --command make compile-all -j4
+        run: nix develop .#ci --command make compile-all -j4
