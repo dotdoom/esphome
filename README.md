@@ -31,6 +31,12 @@ To flash all devices (automatically prioritizes OTA and skips prompts):
 $ nix develop --command make flash-all
 ```
 
+To list devices that have not been flashed yet (i.e. have pending changes):
+
+```bash
+$ make -n flash-all | grep -E 'esphome (run|compile)'
+```
+
 To flash a single device:
 
 ```bash
