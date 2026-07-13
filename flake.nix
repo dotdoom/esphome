@@ -57,20 +57,18 @@
             '';
           };
 
-          # CI shell: uses the same esphome version as default, but installs it
-          # via pipx to avoid nixpkgs wrapping platformio in bwrap, which fails
+          # CI shell: uses the same esphome version as default, but overrides
+          # platformio to use platformio-core instead of the FHS-wrapped version.
+          # This avoids nixpkgs wrapping platformio in bwrap, which fails
           # on CI runners that disallow unprivileged user namespaces.
           ci = pkgs.mkShell {
             buildInputs = with pkgs; [
-              python3
-              python3Packages.pipx
+              (esphome.override { platformio = platformio-core; })
               esptool
               gnumake
             ];
 
             shellHook = ''
-              pipx install --quiet esphome==${pkgs.esphome.version}
-              export PATH="$HOME/.local/bin:$PATH"
               echo -n "ESPHome (CI) "
               esphome --version
             '';

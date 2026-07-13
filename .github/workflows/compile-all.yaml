@@ -35,8 +35,5 @@ jobs:
           key: esphome-${{ hashFiles('*.yaml', 'templates/*.yaml', 'components/**') }}
           restore-keys: esphome-
 
-      # Uses the ci shell, which installs esphome via pipx at the exact version
-      # pinned in Nix. The ci shell avoids nixpkgs wrapping platformio in bwrap,
-      # which fails on CI runners that disallow unprivileged user namespaces.
       - name: Compile All
         run: nix develop .#ci --command make compile-all
