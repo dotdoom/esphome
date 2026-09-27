@@ -34,6 +34,8 @@
             hooks = fw_nix.lib.pre-commit.hooks // {
               # Disable check-yaml because it fails on ESPHome's custom YAML tags (like !include, !secret)
               check-yaml.enable = false;
+              # esphome broken since https://github.com/NixOS/nixpkgs/pull/549709, can't upgrade
+              flake-checker.enable = false;
             };
           };
         }
