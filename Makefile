@@ -4,7 +4,7 @@ EXCLUDE_YAML := secrets.yaml btproxy.yaml
 DEVICE_YAML := $(filter-out $(EXCLUDE_YAML), $(ALL_YAML))
 DEVICES := $(DEVICE_YAML:.yaml=)
 
-BTPROXY_REPLICAS := c25bac c2577c c25b74
+BTPROXY_REPLICAS := c25bac c2577c c25b74 c257a8
 
 STAMP_DIR := .esphome/stamps
 MAKEFLAGS += --keep-going
