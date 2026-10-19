@@ -43,6 +43,13 @@ To flash a single device:
 $ nix develop --command make flash-bathroomheater
 ```
 
+Bluetooth proxies all share one `btproxy.yaml` and are addressed by MAC suffix, so
+they have their own targets:
+
+```bash
+$ nix develop --command make flash-btproxies      # or compile-btproxies
+```
+
 Alternatively, you can drop into the development shell and run `esphome` directly:
 
 ```bash

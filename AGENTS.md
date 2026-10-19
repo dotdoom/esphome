@@ -228,14 +228,19 @@ Makefile) and built once per id in `BTPROXY_REPLICAS`:
 
 ```makefile
 BTPROXY_REPLICAS := c25bac c2577c c25b74 c257a8
-esphome -s name btproxy-$* run --no-logs --device OTA btproxy.yaml
+esphome run --no-logs --device btproxy-$* btproxy.yaml
 ```
 
-Adding a physical proxy means adding its id there. Note the config hardcodes
-`name: btproxy` with `name_add_mac_suffix: true`, so `-s name` does not actually
-change the node name (substitutions only affect `${...}`); uniqueness comes from
-the MAC suffix, and all replicas share the `.esphome/build/btproxy` directory.
-All proxies also disable MQTT on boot because identical names would collide.
+Adding a physical proxy means adding its id there. `make flash-btproxies` and
+`make compile-btproxies` act on all of them at once. Note the config hardcodes
+`name: btproxy` with `name_add_mac_suffix: true`, so each replica is reachable as
+`btproxy-<last 6 MAC hex>` — exactly the `BTPROXY_REPLICAS` ids. `-s name` does not
+change the node name (substitutions only affect `${...}`), so all replicas share the
+`.esphome/build/btproxy` directory. Flashing must name the device explicitly:
+`--device OTA` mDNS-browses every `btproxy-<mac>.local` and would flash all proxies
+at once, or none where multicast DNS does not reach the compiling machine; plain
+`btproxy-<id>` resolves through LAN DNS. All proxies also disable MQTT on boot
+because identical names would collide.
 
 ## CI
 
