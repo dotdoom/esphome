@@ -10,6 +10,9 @@ mqtt:
   # No point in publishing NaN as it will not be accepted by
   # HA and only generate error messages.
   publish_nan_as_none: true
+  # Longer keepalive to save airtime.
+  keepalive: 1min
+  # Track connection uptime.
   on_connect:
     - sensor.duty_time.start: mqtt_connection_uptime
   on_disconnect:
