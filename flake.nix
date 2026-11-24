@@ -29,15 +29,18 @@
     {
       checks = forAllSystems (
         { system, ... }: {
-          pre-commit-check = fw_nix.inputs.git-hooks.lib.${system}.run {
-            src = ./.;
-            hooks = fw_nix.lib.pre-commit.hooks // {
-              # Disable check-yaml because it fails on ESPHome's custom YAML tags (like !include, !secret)
-              check-yaml.enable = false;
-              # esphome broken since https://github.com/NixOS/nixpkgs/pull/549709, can't upgrade
-              flake-checker.enable = false;
-            };
-          };
+          pre-commit-check = fw_nix.inputs.git-hooks.lib.${system}.run (
+            fw_nix.lib.pre-commit
+            // {
+              src = ./.;
+              hooks = fw_nix.lib.pre-commit.hooks // {
+                # Disable check-yaml because it fails on ESPHome's custom YAML tags (like !include, !secret)
+                check-yaml.enable = false;
+                # esphome broken since https://github.com/NixOS/nixpkgs/pull/549709, can't upgrade
+                flake-checker.enable = false;
+              };
+            }
+          );
         }
       );
 
