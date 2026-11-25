@@ -3,6 +3,7 @@
 #include "callbacks.h"
 #include "common.h"
 #include "esphome/components/mqtt/mqtt_client.h"
+#include "esphome/core/gpio.h"
 #include "esphome/core/optional.h"
 #include "esphome/core/preferences.h"
 #include "observable.h"
@@ -12,7 +13,6 @@
 namespace esphome {
 
 class Scheduler;
-class InternalGPIOPin;
 
 }  // namespace esphome
 

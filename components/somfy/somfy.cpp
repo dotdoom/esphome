@@ -34,8 +34,7 @@ struct SomfyRTSProtocolData {
 class SomfyRTSProtocol
     : public remote_base::RemoteProtocol<SomfyRTSProtocolData> {
  public:
-  virtual void encode(remote_base::RemoteTransmitData* dst,
-                      const ProtocolData& data) override {
+  void encode(remote_base::RemoteTransmitData* dst, const ProtocolData& data) {
     /*
      * 1. Build a frame.
      */
@@ -101,10 +100,9 @@ class SomfyRTSProtocol
     }
   }
 
-  virtual void dump(const ProtocolData& data) override { data.dump(); }
+  void dump(const ProtocolData& data) { data.dump(); }
 
-  virtual optional<ProtocolData> decode(
-      remote_base::RemoteReceiveData src) override {
+  optional<ProtocolData> decode(remote_base::RemoteReceiveData src) {
     // Not implemented.
     return nullopt;
   }

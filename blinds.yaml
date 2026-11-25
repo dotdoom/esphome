@@ -11,6 +11,7 @@ esphome:
     - id: meater_device
       name: Meater
       area_id: wintergarten
+      relation: via
 
   project:
     name: dasfoo.blinds
