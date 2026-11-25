@@ -36,8 +36,6 @@
               hooks = fw_nix.lib.pre-commit.hooks // {
                 # Disable check-yaml because it fails on ESPHome's custom YAML tags (like !include, !secret)
                 check-yaml.enable = false;
-                # esphome broken since https://github.com/NixOS/nixpkgs/pull/549709, can't upgrade
-                flake-checker.enable = false;
               };
             }
           );
@@ -46,10 +44,35 @@
 
       devShells = forAllSystems (
         { system, pkgs, ... }:
+        let
+          esphome-direct = pkgs.esphome.override { platformio = pkgs.platformio-core; };
+          esphome-fhs = pkgs.buildFHSEnv {
+            name = "esphome-fhs";
+            targetPkgs =
+              pkgs: with pkgs; [
+                esphome-direct
+                git
+                glibc
+                zlib
+                libusb1
+                gcc
+                gnumake
+              ];
+            runScript = "esphome";
+          };
+          esphome-wrapped = pkgs.writeShellScriptBin "esphome" ''
+            if [ -e /lib64/ld-linux-x86-64.so.2 ]; then
+              exec ${esphome-direct}/bin/esphome "$@"
+            else
+              exec ${esphome-fhs}/bin/esphome-fhs "$@"
+            fi
+          '';
+          esphome-pkg = if pkgs.stdenv.hostPlatform.isLinux then esphome-wrapped else esphome-direct;
+        in
         {
           default = pkgs.mkShell {
             buildInputs = with pkgs; [
-              esphome
+              esphome-pkg
               esptool
               cc2538-bsl
               gnumake
@@ -68,7 +91,7 @@
           # on CI runners that disallow unprivileged user namespaces.
           ci = pkgs.mkShell {
             buildInputs = with pkgs; [
-              (esphome.override { platformio = platformio-core; })
+              esphome-direct
               esptool
               gnumake
             ];

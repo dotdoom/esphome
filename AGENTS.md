@@ -15,8 +15,7 @@ nix develop                      # esphome, esptool, cc2538-bsl, gnumake
 nix develop .#ci                 # CI variant, see "CI" below
 ```
 
-ESPHome itself comes from nixpkgs (currently 2026.8.0, pinned via `flake.lock`),
-not pip. Do not `pip install esphome`.
+ESPHome itself comes from nixpkgs, not pip. Do not `pip install esphome`.
 
 Two secrets files are required before anything compiles (both gitignored, both
 have committed `.sample` counterparts):
