@@ -34,9 +34,6 @@ esp32:
   framework:
     type: esp-idf
 
-external_components:
-  - source: github://oxan/esphome-stream-server
-
 script:
   - id: fw_update_mode
     then:
@@ -71,13 +68,20 @@ button:
     on_press:
       - script.execute: fw_update_mode
 
-stream_server:
-  uart_id: uart_bus
-  id: ss
-  port: 6638
-  buffer_size: 4096
+uart_tcp:
+  - id: zigbee_tcp
+    uart_id: uart_bus
+    role: server
+    port: 6638
 
 binary_sensor:
-  - platform: stream_server
+  - platform: uart_tcp
+    uart_tcp_id: zigbee_tcp
     connected:
       name: "ZigBee Module serial stream connected"
+
+sensor:
+  - platform: uart_tcp
+    uart_tcp_id: zigbee_tcp
+    disconnects:
+      name: "ZigBee Module serial stream disconnects"
