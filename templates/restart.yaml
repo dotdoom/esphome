@@ -3,3 +3,11 @@ button:
     name: "ESP chip restart"
     entity_category: diagnostic
     id: restart_button
+
+debug:
+  update_interval: 5min
+
+text_sensor:
+  - platform: debug
+    reset_reason:
+      name: "ESP chip restart reason"
