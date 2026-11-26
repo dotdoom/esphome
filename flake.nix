@@ -60,14 +60,13 @@
               ];
             runScript = "esphome";
           };
-          esphome-wrapped = pkgs.writeShellScriptBin "esphome" ''
-            if [ -e /lib64/ld-linux-x86-64.so.2 ]; then
-              exec ${esphome-direct}/bin/esphome "$@"
+          esphome-pkg =
+            if pkgs.stdenv.hostPlatform.isLinux then
+              pkgs.writeShellScriptBin "esphome" ''
+                exec ${esphome-fhs}/bin/esphome-fhs "$@"
+              ''
             else
-              exec ${esphome-fhs}/bin/esphome-fhs "$@"
-            fi
-          '';
-          esphome-pkg = if pkgs.stdenv.hostPlatform.isLinux then esphome-wrapped else esphome-direct;
+              esphome-direct;
         in
         {
           default = pkgs.mkShell {
